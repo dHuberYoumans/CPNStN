@@ -1,0 +1,194 @@
+\documentclass[a4paper,11pt]{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% STD PACKAGES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amsthm,amsmath,amssymb,amsfonts}
+\usepackage{marginnote}
+\usepackage{enumerate}
+\usepackage{hyperref}
+
+\usepackage{subfigure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TIKZ
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{tkz-euclide}
+\usetikzlibrary{patterns}
+\usetikzlibrary{calc}
+\usetikzlibrary{positioning}
+\usetikzlibrary{decorations.pathmorphing}
+\tikzstyle{point}=[draw,circle,fill=black,scale=.3] %draws a point call as \coordinate[point]
+\tikzset{baseline={([yshift=-.5ex]current bounding box.center)}, every picture}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CUSTOM COMMANDS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makeatletter
+\newcommand*{\defeq}{\mathrel{\rlap{%
+    \raisebox{0.3ex}{$\m@th\cdot$}}%
+  \raisebox{-0.3ex}{$\m@th\cdot$}}%
+=}
+\makeatother
+
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\CP}{\mathbb{CP}}
+\newcommand{\HH}{\mathbb{H}}
+\newcommand{\DD}{\mathbb{D}}
+\newcommand{\RP}{\mathbb{RP}}
+
+\DeclareMathOperator{\GL}{GL}
+\DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\PSL}{PSL}
+\DeclareMathOperator{\SO}{SO}
+\DeclareMathOperator{\SU}{SU}
+\DeclareMathOperator{\PSU}{PSU}
+
+\newcommand{\del}{\partial}
+\newcommand{\delbar}{\bar{\partial}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\Tr}{\mathrm{Tr}\,}
+\renewcommand{\Im}{\mathrm{Im}}
+\renewcommand{\Re}{\mathrm{Re}}
+
+\newcommand{\mat}[4]{\begin{pmatrix} #1 & #2 \\ #3 & #4 \end{pmatrix}}
+\newcommand{\vek}[2]{\begin{pmatrix} #1 \\ #2 \end{pmatrix}}
+
+
+\usepackage{showlabels}
+
+\title{Working Title}
+\author{}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Toy model: \texorpdfstring{$0d$ GLSM}{0d GLSM}}
+\subsection{Setup}
+We start with a $0d$ GLSM toy model, i.e.\ we consider the source manifold $\Sigma = \{ pt \}$ to be an abstract point and the target manifold to be $X = \CP^1$.
+The space of fields is then simply given by points on the target manifold $X$, namely 
+\begin{equation}
+  \F = \CP^1
+\end{equation}
+As the action of the model we consider 
+\begin{equation}
+  S(z_0,z_1) = \beta \Big( \lvert z_0 \rvert^2 - \lvert z_1 \rvert^2 \Big)
+  \label{eq:toy_S}
+\end{equation}
+where $[z_0:z_1] \in \CP^1$.
+As written, the partition function explicitly shows the $U(1)$ gauge freedom (which here is simply a global $U(1)$ symmetry, acting as 
+\begin{equation}
+  e^{i\theta}\colon (z_0,z_1) \mapsto (e^{i\theta} z_0, e^{i\theta} z_1)
+\end{equation}
+and defines indeed a function on $\CP^1$ if we implicitly assume the constraint 
+\begin{equation}
+  \lvert z_0 \rvert^2 + \lvert z_1 = 1
+  \label{eq:toy_constr}
+\end{equation}
+
+The path integral of the model is thus defined by 
+\begin{equation}
+Z = \int dz_0 dz_1 \delta(\lvert z_0 \rvert^2 + \lvert z_1 - 1) e^{-S(z_0,z_1)}
+  \label{eq:toy_Z}
+\end{equation}
+In order to evaluate \eqref{eq:toy_Z}, we want to embed $\CP^1$ into a higher dimensional complex space such that 
+\begin{enumerate}
+  \item the new action $\tilde S$ is holomorphic in the new variables (fields)
+  \item when we restrict to $\CP^1$, $\tilde S$ reduces to $S$
+\end{enumerate}
+We think of this embedding as an analytic continuation of the space of fields in an appropriate sense.
+
+Going to real fields, $z_k = x_k + i y_k$ for $k = 0,1$, the action \eqref{eq:toy_S} becomes 
+\begin{equation}
+  S = \beta\left( x_0^2 + y_0^2 - x_1^2 - y_1^2 \right)
+  \label{eq:toy_S_real}
+\end{equation}
+while the constraint becomes
+\begin{equation}
+  x_0^2 + y_0^2 + x_1^2 + y_1^2 = 1
+  \label{eq:toy_constr_real}
+\end{equation}
+
+\subsection{Manifold Deformation}
+Suppose that we now complexify in the sense that we consider $x_k, y_k \in \CC$.
+For simplicity, let us rename the variables according to 
+\begin{equation}
+  x_0 = u_0 \quad , \quad x_1 = u_1 \quad , \quad  y_0 = u_2 \quad , \quad y_1 = u_3
+\end{equation}
+where now $u_i \in \CC$.
+This slightly unusual renaming is done for later convenience.
+
+The constraint \eqref{eq:toy_constr_real} now becomes
+\begin{equation}
+  \sum_{i=0}^3 u_i^2 = 1
+\end{equation}
+which can be seen as a complex hypersurface inside $\CP^3$, as follows: Let us introduce the complex variable $t \in \CC$ and consider the equation 
+\begin{equation}
+  \sum_{i=0}^3 u_i^2 = t^2
+\end{equation}
+This equation describes the zero set of a homogeneous quadratic polynomial 
+\begin{equation}
+  P(t,u_i) = t^2 - \sum_{i=0}^3 u_i^2
+\end{equation}
+Notice that for any $\lambda \in \CC^* = \CC - \{ 0 \}$,
+\begin{equation}
+  P(\lambda t, \lambda u_i) = \lambda^2 P(t,u_i)
+\end{equation}
+Therefore, the solution space of 
+\begin{equation}
+  P(u_i,t) = 0
+\end{equation}
+is invariant under the action of $\CC^*$ (by multiplication) and hence descends to an equation on $\CP^3$ whose coordinates are $[t:u_0:u_1:u_2]$
+
+The important observation is that the constraint surface \eqref{eq:toy_constr_real} coincides with $P(t,u_i) = 0$ for $t=1$.
+But $t=1$ simply defines the $U_{t \neq 0} \subset \CP^3$ whose coordinates are given by $\left[ 1:\tfrac{u_0}{t}:\tfrac{u_1}{t}:\tfrac{u_2}{t}\right]$.
+Hence, the constraint surface can be embedded into $\CP^3$:
+\begin{equation}
+  [u_0:u_1:u_2] \mapsto [t(u_i):u_0:u_1:u_2] \quad , \quad t(u_i) = \sqrt{\sum_i u_i^2} 
+  \label{eq:toy_emb}
+\end{equation}
+Notice that $[t(u_i):u_0:u_1:u_2]$ simply describes a point in $P(t,u_i) = 0$ and the original surface is reproduced in the chart $t(u_i) = 1$.  
+
+This embedding comes with a natural family of holomorphic deformations parametrised by a vector $\omega \in \CC^3 - \{ 0 \}$.
+Namely, instead of considering zeros of $P(t,u_i)$, one could consider zeros of a general homogeneous quadratic polynomial 
+\begin{equation}
+  P_{\omega}(t,u_i) = t^2 - \sum_i \omega_i u_i^2
+\end{equation}
+which for $\omega = (1,1,1) \in \CC^3$ coincides with $P$.
+
+\subsection{Action along the Deformed Manifold}
+In the chart $t=1$, the action \eqref{eq:toy_S_real} becomes 
+\begin{equation}
+  S(u) = \beta \left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)
+\end{equation}
+If we were to reinstate $t$, we would have to do it in a way that ensures that $S(u)$ is a function on $\CP^3$, i.e.\ invariant under the $\CC^*$ action $\lambda \colon (t,u_i) \mapsto (\lambda t, \lambda u_i)$.
+An obvious candidate is 
+\begin{equation}
+  S(t,u) = \frac{\beta\left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)}{t^2}
+\end{equation}
+On the constraint surface (inside $\CP^3$) we now replace $t^2$ by $P_{\omega}(u)$ for some non-zero $\omega \in \CC^3$.
+We obtain 
+\begin{equation}
+  S(t,u)\rvert_{\mathcal C_{\omega}} = \frac{\beta\left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)}{P_{\omega}(u)} = \frac{\beta\left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)}{\sum_i \omega_i u_i^2}
+\end{equation}
+where we denote the (generalised) constraint surface by 
+\begin{equation}
+  \mathcal C_{\omega} = \{ P_{\omega}(t,u) = 0 \}
+\end{equation}
+
+\end{document}
