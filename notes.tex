@@ -42,6 +42,9 @@
 =}
 \makeatother
 
+\newcommand{\hooklongrightarrow}{\lhook\joinrel\longrightarrow}
+\newcommand{\hooklongleftarrow}{\longleftarrow\joinrel\rhook}
+
 
 \newcommand{\NN}{\mathbb{N}}
 \newcommand{\ZZ}{\mathbb{Z}}
@@ -65,6 +68,7 @@
 \newcommand{\F}{\mathcal{F}}
 \newcommand{\OO}{\mathcal O}
 \newcommand{\M}{\mathcal{M}}
+\newcommand{\EE}{\mathcal{E}}
 \newcommand{\Tr}{\mathrm{Tr}\,}
 \renewcommand{\Im}{\mathrm{Im}}
 \renewcommand{\Re}{\mathrm{Re}}
@@ -136,6 +140,7 @@ Suppose that we now complexify in the sense that we consider $x_k, y_k \in \CC$.
 For simplicity, let us rename the variables according to 
 \begin{equation}
   x_0 = u_0 \quad , \quad x_1 = u_1 \quad , \quad  y_0 = u_2 \quad , \quad y_1 = u_3
+  \label{eq:toy_us}
 \end{equation}
 where now $u_i \in \CC$.
 This slightly unusual renaming is done for later convenience.
@@ -210,4 +215,62 @@ where we recall that we denote the (generalised) constraint surface by
   \mathcal C_{\omega} = \{ P_{\omega}(t,u) = 0 \}
 \end{equation}
 Note that \eqref{eq:toy_S_deformed} is invariant under simultaneous scaling $u_i \mapsto \lambda u_i$ for any $\lambda \in \CC^*$ and thus is indeed a function on $\CP^3 \cong \mathcal C_{\omega}$.
+\subsection{Integration Domain}
+So far we have just discussed how the ``complexified'' space of fields embeds nicely as a $\CP^3$ into $\CP^4$. 
+However, the original integration domain was a $\CP^1$ and the correct deformation domain of the path integral should be a deformation of this $\CP^1$ possibly embedded into $\CP^3 \subset \CP^4$. 
+Here, we present \emph{one way} to do it.
+
+Let us briefly recall the first steps of ``complexifying'' the space of fields: Starting with $[z_0:z_1] \in \CP^1$, we rewrite it into real fields, $z_k = x_k + i y_k$ for $k = 0,1$ and then promoted $x_k,y_k$ to complex fields $u_i$ for $i=0,\dots,3$ and ultimately we found that the resulting space is forms a $\CP^3 \subset \CP^4$ with coordinates $[u_0:u_1:u_2:u_3]$.
+
+It is left to discuss how the $\CP^1$ embeds into this $\CP^3$, i.e. how we have to extend the coordinates $x_k,y_k$ to $u_i$. 
+One way to do this is by \emph{scaling}: for some $\alpha = (\alpha_1, \dots, \alpha_3) \in \CC^4$ we set
+\begin{equation}
+  u_0 = \alpha_0 x_0  \quad , \quad u_1 = \alpha_1 x_1 \quad , \quad u_2 =  \alpha_2 y_0 \quad , \quad u_3 = \alpha_3 y_1 
+  \label{eq:toy_deform_contour}
+\end{equation}
+This scaling has the advantage that it preserves the polynomial degree of $x_k,y_k$, and hence of the original complex coordinates $z_0,z_1$, as well as the homogeneity.
+In turn, this implies that we preserve the action of $\CC^*$. 
+Put differently, the deformation (or analytical continuation) of $x_k,y_k$ to $u_i$ is \emph{equivariant}, namely for any $\lambda \in \CC^*$
+\begin{equation}
+  u_i(\lambda x,\lambda y) = \lambda u_i(x,y)
+\end{equation}
+Due to this equivariance, the deformation $z_k \leadsto u_i$ can be seen as a deformation of $\CP^1$ \emph{inside} $\CP^3 \subset \CP^4$, since 
+\begin{equation}
+  \begin{split}
+    \begin{matrix}
+      u \colon  \CC^2 \to \CC^4 \\
+  (z_0,z_1) \mapsto u(z_0,z_1) \equiv (u_0(z_0,z_1),u_1(z_0,z_1),u_2(z_0,z_1),u_3(z_0,z_1))
+\end{matrix}
+\end{split}
+\end{equation}
+descends to a map from $\CP^1$ to $\CP^3$ due to its equivariance property 
+\begin{equation}
+  u(\lambda z_0,\lambda z_1) = \lambda u(z_0,z_1)
+\end{equation}
+which simply means that we can consider the quotient by $\CC^*$ on both sides (domain and codomain).
+
+The full path integral domain would then be deformed as follows:
+\begin{equation}
+  \EE_{\alpha,\omega} \colon \CP^1  \stackrel{u_{\alpha}}{\hooklongrightarrow}  \CP^3  \stackrel{P_{\omega}}{\hooklongrightarrow}  \CP^4
+  \label{eq:toy_E}
+\end{equation}
+The first map is given by 
+\begin{equation} 
+  u_{\alpha} \colon [z_0:z_1] = [x_0 + i y_0:x_1 + i y_1] \mapsto [\alpha_0 u_0 : \dots : \alpha_3 u_3 ]
+  \label{eq:toy_cont_deform1}
+\end{equation}
+with $u_i = u_i(z_0,z_1)$ given by \eqref{eq:toy_us}.
+The second map is given by 
+\begin{equation}
+  P_{\omega} \colon [u_0:u_1:u_2:u_3] \mapsto [P_{\omega}(u_i):u_0:u_1:u_2:u_3]
+\end{equation}
+where $P_{\omega}(u_i) = \sqrt{\sum_i \omega_i u_i^2}$.
+The full embedding $\EE_{\alpha,\omega}$ is hence parametrised by two complex vectors, $\alpha \in \CC^4$ and $\omega \in \CC^4$, which gives 8 complex or equivalently 16 real parameters which can be tuned to maximize the StN.
+
+\begin{remark}
+For $x_k + i y_k$ for $k=0,1$, the embedding $\EE_{\alpha,\omega}$ can be explicitly expressed as 
+\begin{equation}
+  \EE_{\alpha,\omega}(x,y) = [\sqrt{\omega_0 \alpha_0^2 x_0^2 + \omega_1 \alpha_1^2 x_1^2 + \omega_2 \alpha_2^2 y_0^2 + \omega_3 \alpha_3^2 y_1^2 }: \alpha_0 x_0 : \alpha_1 x_1: \alpha_2 y_0 : \alpha_3 y_1]
+\end{equation}
+\end{remark}
 \end{document}
