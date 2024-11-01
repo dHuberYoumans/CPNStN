@@ -25,6 +25,13 @@
 \tikzset{baseline={([yshift=-.5ex]current bounding box.center)}, every picture}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{definition}
+\newtheorem{remark}{Remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CUSTOM COMMANDS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -137,7 +144,7 @@ The constraint \eqref{eq:toy_constr_real} now becomes
 \begin{equation}
   \sum_{i=0}^3 u_i^2 = 1
 \end{equation}
-which can be seen as a complex hypersurface inside $\CP^3$, as follows: Let us introduce the complex variable $t \in \CC$ and consider the equation 
+which can be seen as a complex hypersurface inside $\CP^4$, as follows: Let us introduce the complex variable $t \in \CC$ and consider the equation 
 \begin{equation}
   \sum_{i=0}^3 u_i^2 = t^2
 \end{equation}
@@ -153,42 +160,54 @@ Therefore, the solution space of
 \begin{equation}
   P(u_i,t) = 0
 \end{equation}
-is invariant under the action of $\CC^*$ (by multiplication) and hence descends to an equation on $\CP^3$ whose coordinates are $[t:u_0:u_1:u_2]$
+is invariant under the action of $\CC^*$ (by multiplication) and hence descends to an equation on $\CP^4$ whose coordinates are $[t:u_0:u_1:u_2:u_3]$
 
 The important observation is that the constraint surface \eqref{eq:toy_constr_real} coincides with $P(t,u_i) = 0$ for $t=1$.
-But $t=1$ simply defines the $U_{t \neq 0} \subset \CP^3$ whose coordinates are given by $\left[ 1:\tfrac{u_0}{t}:\tfrac{u_1}{t}:\tfrac{u_2}{t}\right]$.
-Hence, the constraint surface can be embedded into $\CP^3$:
+But $t=1$ simply defines the $U_{t \neq 0} \subset \CP^4$ whose coordinates are given by $\left[ 1:\tfrac{u_0}{t}:\tfrac{u_1}{t}:\tfrac{u_2}{t}\right]$.
+Hence, the constraint surface can be embedded into $\CP^4$:
 \begin{equation}
-  [u_0:u_1:u_2] \mapsto [t(u_i):u_0:u_1:u_2] \quad , \quad t(u_i) = \sqrt{\sum_i u_i^2} 
+  [u_0:u_1:u_2:u_3] \mapsto [t(u_i):u_0:u_1:u_2:u_3] \quad , \quad t(u_i) = \sqrt{\sum_{i=0}^3 u_i^2} 
   \label{eq:toy_emb}
 \end{equation}
-Notice that $[t(u_i):u_0:u_1:u_2]$ simply describes a point in $P(t,u_i) = 0$ and the original surface is reproduced in the chart $t(u_i) = 1$.  
+Notice that $[t(u_i):u_0:u_1:u_2:u_3]$ simply describes a point in $P(t,u_i) = 0$ and the original surface is reproduced in the chart $t(u_i) = 1$.  
 
-This embedding comes with a natural family of holomorphic deformations parametrised by a vector $\omega \in \CC^3 - \{ 0 \}$.
+This embedding comes with a natural family of holomorphic deformations parametrised by a vector $\omega \in \CC^4 - \{ 0 \}$.
 Namely, instead of considering zeros of $P(t,u_i)$, one could consider zeros of a general homogeneous quadratic polynomial 
 \begin{equation}
-  P_{\omega}(t,u_i) = t^2 - \sum_i \omega_i u_i^2
+  P_{\omega}(t,u_i) = t^2 - \sum_{i=0}^3 \omega_i u_i^2
 \end{equation}
-which for $\omega = (1,1,1) \in \CC^3$ coincides with $P$.
+which for $\omega = (1,1,1,1) \in \CC^4$ coincides with $P$.
+
+\begin{remark}
+  Note that the hypersurface $\mathcal C_{\omega}$ defined by $P_{\omega}(t,u_i) = 0$ defines a $\CP^3 \subset \CP^4$. 
+  Indeed, zeros of $P_{\omega}(t,u_i)$ are given by points 
+  \begin{equation}
+    [t(u_i):u_0:u_1:u_2:u_3] \quad , \quad t(u_i) = \sqrt{\sum_{i} u_i^2}
+  \end{equation}
+  and hence parametrised by $(u_0, \dots, u_3) \in \CC^4 - \{ 0 \}$.
+  However, we may freely scale the $u_i$ by the same $\lambda \in \CC^*$ simultaneously, since $t(\lambda u_i) = \lambda t(u_i)$.
+  Hence, the hypersurface $C_{\omega}$ is parametrised by $(u_0,\dots,u_3) \in \CC^4 - \{ 0 \}$ only up to the action of $\CC^*$, that is by a $\CP^3$ with coordinates $[u_0:u_1:u_2:u_3]$.
+\end{remark}
 
 \subsection{Action along the Deformed Manifold}
 In the chart $t=1$, the action \eqref{eq:toy_S_real} becomes 
 \begin{equation}
   S(u) = \beta \left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)
 \end{equation}
-If we were to reinstate $t$, we would have to do it in a way that ensures that $S(u)$ is a function on $\CP^3$, i.e.\ invariant under the $\CC^*$ action $\lambda \colon (t,u_i) \mapsto (\lambda t, \lambda u_i)$.
+If we were to reinstate $t$, we would have to do it in a way that ensures that $S(u)$ is a function on $\CP^4$, i.e.\ invariant under the $\CC^*$ action $\lambda \colon (t,u_i) \mapsto (\lambda t, \lambda u_i)$.
 An obvious candidate is 
 \begin{equation}
   S(t,u) = \frac{\beta\left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)}{t^2}
 \end{equation}
-On the constraint surface (inside $\CP^3$) we now replace $t^2$ by $P_{\omega}(u)$ for some non-zero $\omega \in \CC^3$.
+On the constraint surface (inside $\CP^4$) we now replace $t^2$ by $\sum_i \omega_i u_i^2$ for some non-zero $\omega \in \CC^4$.
 We obtain 
 \begin{equation}
-  S(t,u)\rvert_{\mathcal C_{\omega}} = \frac{\beta\left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)}{P_{\omega}(u)} = \frac{\beta\left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)}{\sum_i \omega_i u_i^2}
+  S(t,u)\rvert_{\mathcal C_{\omega}} = \frac{\beta\left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)}{\sum_i \omega_i u_i^2}
+  \label{eq:toy_S_deformed}
 \end{equation}
-where we denote the (generalised) constraint surface by 
+where we recall that we denote the (generalised) constraint surface by 
 \begin{equation}
   \mathcal C_{\omega} = \{ P_{\omega}(t,u) = 0 \}
 \end{equation}
-
+Note that \eqref{eq:toy_S_deformed} is invariant under simultaneous scaling $u_i \mapsto \lambda u_i$ for any $\lambda \in \CC^*$ and thus is indeed a function on $\CP^3 \cong \mathcal C_{\omega}$.
 \end{document}
