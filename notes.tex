@@ -62,6 +62,7 @@
 \DeclareMathOperator{\SO}{SO}
 \DeclareMathOperator{\SU}{SU}
 \DeclareMathOperator{\PSU}{PSU}
+\DeclareMathOperator{\U}{U}
 
 \newcommand{\del}{\partial}
 \newcommand{\delbar}{\bar{\partial}}
@@ -91,186 +92,126 @@
 
 \section{Toy model: \texorpdfstring{$0d$ GLSM}{0d GLSM}}
 \subsection{Setup}
-We start with a $0d$ GLSM toy model, i.e.\ we consider the source manifold $\Sigma = \{ pt \}$ to be an abstract point and the target manifold to be $X = \CP^1$.
+We start with a $0d$ GLSM toy model, i.e.\ we consider the source manifold $\Sigma = \{ pt \}$ to be an abstract point and the target manifold to be $$X = \CP^{N-1} \times \CP^{N-1}$$
 The space of fields is then simply given by points on the target manifold $X$, namely 
 \begin{equation}
-  \F = \CP^1
+  \F = \CP^{N-1} \times \CP^{N-1}
 \end{equation}
 As the action of the model we consider 
 \begin{equation}
-  S(z_0,z_1) = \beta \Big( \lvert z_0 \rvert^2 - \lvert z_1 \rvert^2 \Big)
+  S(z,w) = \beta \lvert \langle \bar z, w\rangle \rvert^2 = \beta \sum_{j,k = 0}^{N-1} \bar z_j z_k \bar w_j w_k 
   \label{eq:toy_S}
 \end{equation}
-where $[z_0:z_1] \in \CP^1$.
-As written, the partition function explicitly shows the $U(1)$ gauge freedom (which here is simply a global $U(1)$ symmetry, acting as 
+where $z,w \in \CC^{N}$ subject to the condition 
 \begin{equation}
-  e^{i\theta}\colon (z_0,z_1) \mapsto (e^{i\theta} z_0, e^{i\theta} z_1)
-\end{equation}
-and defines indeed a function on $\CP^1$ if we implicitly assume the constraint 
-\begin{equation}
-  \lvert z_0 \rvert^2 + \lvert z_1 = 1
+  \lvert z \rvert^2 = \sum_j \lvert z_j \rvert^2 = 1 \quad , \quad \lvert w \rvert^2 = \sum_k \lvert w_k \rvert^2 = 1
   \label{eq:toy_constr}
 \end{equation}
-
-The path integral of the model is thus defined by 
+The action enjoys a $\U(1) \times \U(1)$ gauge freedom (which here is simply a global $\U(1) \times \U(1)$ symmetry, acting as 
 \begin{equation}
-Z = \int dz_0 dz_1 \delta(\lvert z_0 \rvert^2 + \lvert z_1 - 1) e^{-S(z_0,z_1)}
+  e^{i\theta}\times e^{i\varphi}\colon (z,w) \mapsto (e^{i\theta} z, e^{i\varphi} w)
+\end{equation}
+Under the assumption of the condition \eqref{eq:toy_constr}, the action \eqref{eq:toy_S} does define a function on $\CP^{N-1} \times \CP^{N-1}$.
+
+The path integral of the model is defined by 
+\begin{equation}
+  Z = \int \prod_j dz_j d\bar z_j dw_j d\bar w_j \delta(\lvert z \rvert^2  - 1)\delta(\lvert w \rvert -1)  e^{-S(z,w)}
   \label{eq:toy_Z}
 \end{equation}
-In order to evaluate \eqref{eq:toy_Z}, we want to embed $\CP^1$ into a higher dimensional complex space such that 
+In order to evaluate \eqref{eq:toy_Z}, we want to embed the space of fields $\mathcal F = \CP^{N-1} \times \CP^{N-1}$ into a higher dimensional complex space such that 
 \begin{enumerate}
   \item the new action $\tilde S$ is holomorphic in the new variables (fields)
-  \item when we restrict to $\CP^1$, $\tilde S$ reduces to $S$
+  \item when we restrict to $\mathcal F$, $\tilde S$ reduces to $S$
 \end{enumerate}
 We think of this embedding as an analytic continuation of the space of fields in an appropriate sense.
 
-Going to real fields, $z_k = x_k + i y_k$ for $k = 0,1$, the action \eqref{eq:toy_S} becomes 
+\subsection{Complexification of Real Analytic Manifolds}
+Let us first recall a basic construction of complexification of real analytic manifolds due to Bruhat and Whitney \cite{Bruhat_Whitney}.
+
+Let $M$ be a real analytic manifold of dimension $\dim_{\RR} M = m$.
+Moreover, let $\{ U_i, \phi_i \}$ be a real analytic atlas of $M$, with $U_i \subset \RR^m$ and charts $\phi_i \colon U_i \to M$ so that the transition functions
 \begin{equation}
-  S = \beta\left( x_0^2 + y_0^2 - x_1^2 - y_1^2 \right)
-  \label{eq:toy_S_real}
+  \phi_{ij} = \phi_j^{-1} \circ \phi_i \colon U_{ij} \to U_{ij}
 \end{equation}
-while the constraint becomes
+are real analytic diffeomorphisms.
+The idea of complexifying $M$ is to find a complex manifold $M^{\CC}$ with $\dim_{\CC} M^{\CC} = m$ and a (real analytic) isomorphism $f\colon M \to \tilde M \subset M^{\CC}$ of $M$ onto a submanifold of $M^{\CC}$. 
+(Fancy way to say that $M$ should be a real analytic submanifold of $M^{\CC}$ up to isomorphism)
+Now, find opens $U_i^{\CC} \subset \CC^m$ such that $U_i^{\CC} \cap \RR^m = U_i$ and extend the charts $\phi_i$ charts $\phi_i^{\CC}$ such that 
+\begin{enumerate}[(i)]
+  \item the transition functions $\phi^{\CC}_{ij} \colon U^{\CC}_{ij} \to U^{\CC}_{ij}$ are biholomorphic
+
+  \item $\phi^{\CC}_{ji} = \left( \phi^{\CC}_{ij} \right)^{-1}$ and $\phi^{\CC}_{ii} = id$
+
+  \item the transition functions $\phi^{\CC}_{ij}$ satisfy the usual 2-cocycle condition (gluing condition) on $U^{\CC}_{ijk}$: $\phi^{\CC}_{ij}\circ\phi^{\CC}_{jk} = \phi^{\CC}_{ik}$
+\end{enumerate}
+These conditions ensure that we can glue $M^{\CC}$ from the local data $\{ U_i^{\CC}, \phi_i^{\CC} \}$:
 \begin{equation}
-  x_0^2 + y_0^2 + x_1^2 + y_1^2 = 1
-  \label{eq:toy_constr_real}
+  M^{\CC} = \coprod_i U_i^{\CC} / \sim \quad , \quad z_i \sim z_j \text{~iff~} z_j = \phi^{\CC}_{ji}(z_i) \text{~on~} U^{\CC}_{ij}
 \end{equation}
 
-\subsection{Manifold Deformation}
-Suppose that we now complexify in the sense that we consider $x_k, y_k \in \CC$.
-For simplicity, let us rename the variables according to 
-\begin{equation}
-  x_0 = u_0 \quad , \quad x_1 = u_1 \quad , \quad  y_0 = u_2 \quad , \quad y_1 = u_3
-  \label{eq:toy_us}
-\end{equation}
-where now $u_i \in \CC$.
-This slightly unusual renaming is done for later convenience.
+For more details on this construction see \href{https://books.google.ca/books?id=In1Dbj-pkIkC&pg=PA103\&dq=complexification+of+real+analytic+manifolds\&hl=en&sa=X\&ei=aYRAUrWeBYPZ2AWEj4DoBA\&ved=0CD8Q6AEwAQ#v=onepage\&q=complexification\%20of\%20real\%20analytic\%20manifolds&f=false}{Cieliebak and Eliashberga's book} \cite{CEbook}
 
-The constraint \eqref{eq:toy_constr_real} now becomes
+\subsubsection{Example: The \texorpdfstring{$N$-sphere}{N-sphere}}
+Consider the $N$-sphere $S^{N} \subset \RR^{N+1}$.
+First, consider the following atlas: let $p_{\pm} = (0, \dots,0, \pm 1) \in S^{N}$ be the north and south pole respectively.
+We denote points on the sphere by $x = (x_1, \dots, x_{N+1})$, $\lVert x \rVert^2 = 1$ and points in $\RR^N$ by $X = (X_1, \dots, X_N)$.
+The atlas we consider is given by steoreographic projection through $p_{\pm}$:
+Let $U_{\pm} = \RR^N$ and $V_{\pm} = S^N - \{ p_{\pm} \}$. 
+Then define charts
 \begin{equation}
-  \sum_{i=0}^3 u_i^2 = 1
+  \phi_{\pm} \colon U_{\pm} \to V_{\pm} \subset S^N \quad , \quad X \mapsto \left( \frac{2 X}{1 + \lVert X \rVert^2}, \pm \frac{\lVert X \rVert^2 - 1}{\lVert X \rVert^2 + 1} \right)
 \end{equation}
-which can be seen as a complex hypersurface inside $\CP^4$, as follows: Let us introduce the complex variable $t \in \CC$ and consider the equation 
+with inverse
 \begin{equation}
-  \sum_{i=0}^3 u_i^2 = t^2
+  \phi_{\pm}^{-1} \colon x \mapsto \left\{\frac{x_i}{1 \mp x_{N+1}}\right\}
 \end{equation}
-This equation describes the zero set of a homogeneous quadratic polynomial 
+From this, one finds the transition functions
 \begin{equation}
-  P(t,u_i) = t^2 - \sum_{i=0}^3 u_i^2
+  \phi_{+-} = (\phi_{-+})^{-1} = \phi_{-}^{-1}\circ \phi_{+} \colon X \mapsto \frac{X}{\lVert X \rVert^2}
 \end{equation}
-Notice that for any $\lambda \in \CC^* = \CC - \{ 0 \}$,
-\begin{equation}
-  P(\lambda t, \lambda u_i) = \lambda^2 P(t,u_i)
-\end{equation}
-Therefore, the solution space of 
-\begin{equation}
-  P(u_i,t) = 0
-\end{equation}
-is invariant under the action of $\CC^*$ (by multiplication) and hence descends to an equation on $\CP^4$ whose coordinates are $[t:u_0:u_1:u_2:u_3]$
-
-The important observation is that the constraint surface \eqref{eq:toy_constr_real} coincides with $P(t,u_i) = 0$ for $t=1$.
-But $t=1$ simply defines the $U_{t \neq 0} \subset \CP^4$ whose coordinates are given by $\left[ 1:\tfrac{u_0}{t}:\tfrac{u_1}{t}:\tfrac{u_2}{t}\right]$.
-Hence, the constraint surface can be embedded into $\CP^4$:
-\begin{equation}
-  [u_0:u_1:u_2:u_3] \mapsto [t(u_i):u_0:u_1:u_2:u_3] \quad , \quad t(u_i) = \sqrt{\sum_{i=0}^3 u_i^2} 
-  \label{eq:toy_emb}
-\end{equation}
-Notice that $[t(u_i):u_0:u_1:u_2:u_3]$ simply describes a point in $P(t,u_i) = 0$ and the original surface is reproduced in the chart $t(u_i) = 1$.  
-
-This embedding comes with a natural family of holomorphic deformations parametrised by a vector $\omega \in \CC^4 - \{ 0 \}$.
-Namely, instead of considering zeros of $P(t,u_i)$, one could consider zeros of a general homogeneous quadratic polynomial 
-\begin{equation}
-  P_{\omega}(t,u_i) = t^2 - \sum_{i=0}^3 \omega_i u_i^2
-\end{equation}
-which for $\omega = (1,1,1,1) \in \CC^4$ coincides with $P$.
-
 \begin{remark}
-  Note that the hypersurface $\mathcal C_{\omega}$ defined by $P_{\omega}(t,u_i) = 0$ defines a $\CP^3 \subset \CP^4$. 
-  Indeed, zeros of $P_{\omega}(t,u_i)$ are given by points 
+  There is a nice geometric interpretation of these transition functions.
+  Note that the map 
   \begin{equation}
-    [t(u_i):u_0:u_1:u_2:u_3] \quad , \quad t(u_i) = \sqrt{\sum_{i} u_i^2}
+    X \mapsto \frac{X}{\lVert X \rVert^2}
   \end{equation}
-  and hence parametrised by $(u_0, \dots, u_3) \in \CC^4 - \{ 0 \}$.
-  However, we may freely scale the $u_i$ by the same $\lambda \in \CC^*$ simultaneously, since $t(\lambda u_i) = \lambda t(u_i)$.
-  Hence, the hypersurface $C_{\omega}$ is parametrised by $(u_0,\dots,u_3) \in \CC^4 - \{ 0 \}$ only up to the action of $\CC^*$, that is by a $\CP^3$ with coordinates $[u_0:u_1:u_2:u_3]$.
+  describes an involution at the unit sphere $S^{N-1}$.
+  On the sphere, the maps differ merely by a sign switch in the $x_{N+1}$ component and indeed, if one computes the transition functions directly on the embedded sphere (that is as maps from $\RR^{N+1} \to \RR^{N+1}$) one finds
+  \begin{equation}
+    \phi_{+} \circ \phi_{-} \colon (x_i, x_{N+1}) \mapsto (x_i, - x_{N+1})
+  \end{equation}
+  which corresponds to a reflection of $x$ about the equator! (It helps visualising this for the case 2-sphere)
+  But under stereographic projection, a reflection about the equator becomes an inversion on the unit sphere $S^{N-1}$ in $\RR^N$ (again, it helps working this out in the case $N=2$).
 \end{remark}
 
-\subsection{Action along the Deformed Manifold}
-In the chart $t=1$, the action \eqref{eq:toy_S_real} becomes 
+Now, since $U_{\pm} = \RR^N$ there exist obvious candidates for a complexification, namely $U^{\CC}_{\pm} = \CC^N$. 
+We thus promote every $X$ to a complex variable $Z = X + i Y$.
+Conversely, we can promote any $x \in \RR^{N+1}$ satisfying $\lVert x \rVert^2 = \sum_j x_j^2 = 1$ to complex variables $z$ satisfying 
 \begin{equation}
-  S(u) = \beta \left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)
+  \sum_j z_j^2 = 1
+  \label{eq:toy_quadric}
 \end{equation}
-If we were to reinstate $t$, we would have to do it in a way that ensures that $S(u)$ is a function on $\CP^4$, i.e.\ invariant under the $\CC^*$ action $\lambda \colon (t,u_i) \mapsto (\lambda t, \lambda u_i)$.
-An obvious candidate is 
-\begin{equation}
-  S(t,u) = \frac{\beta\left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)}{t^2}
-\end{equation}
-On the constraint surface (inside $\CP^4$) we now replace $t^2$ by $\sum_i \omega_i u_i^2$ for some non-zero $\omega \in \CC^4$.
-We obtain 
-\begin{equation}
-  S(t,u)\rvert_{\mathcal C_{\omega}} = \frac{\beta\left( u_0^2 + u_1^2 - u_2^2 - u_3^2 \right)}{\sum_i \omega_i u_i^2}
-  \label{eq:toy_S_deformed}
-\end{equation}
-where we recall that we denote the (generalised) constraint surface by 
-\begin{equation}
-  \mathcal C_{\omega} = \{ P_{\omega}(t,u) = 0 \}
-\end{equation}
-Note that \eqref{eq:toy_S_deformed} is invariant under simultaneous scaling $u_i \mapsto \lambda u_i$ for any $\lambda \in \CC^*$ and thus is indeed a function on $\CP^3 \cong \mathcal C_{\omega}$.
-\subsection{Integration Domain}
-So far we have just discussed how the ``complexified'' space of fields embeds nicely as a $\CP^3$ into $\CP^4$. 
-However, the original integration domain was a $\CP^1$ and the correct deformation domain of the path integral should be a deformation of this $\CP^1$ possibly embedded into $\CP^3 \subset \CP^4$. 
-Here, we present \emph{one way} to do it.
+The above equation defines a hypersurface (so-called \emph{quadric}) inside $\CC^{N+1}$.
 
-Let us briefly recall the first steps of ``complexifying'' the space of fields: Starting with $[z_0:z_1] \in \CP^1$, we rewrite it into real fields, $z_k = x_k + i y_k$ for $k = 0,1$ and then promoted $x_k,y_k$ to complex fields $u_i$ for $i=0,\dots,3$ and ultimately we found that the resulting space is forms a $\CP^3 \subset \CP^4$ with coordinates $[u_0:u_1:u_2:u_3]$.
-
-It is left to discuss how the $\CP^1$ embeds into this $\CP^3$, i.e. how we have to extend the coordinates $x_k,y_k$ to $u_i$. 
-One way to do this is by \emph{scaling}: for some $\alpha = (\alpha_1, \dots, \alpha_3) \in \CC^4$ we set
+There is a very interesting observation I found in \href{https://math.stackexchange.com/questions/1784898/tangent-bundle-of-sphere-as-a-complex-manifold}{this} stackexchange post: the quadric $Q$ defined by \eqref{eq:toy_quadric} is \emph{diffeomorphic} to the tangent space $TS^N$.
+The diffeomorphism is realised by the following map:
 \begin{equation}
-  u_0 = \alpha_0 x_0  \quad , \quad u_1 = \alpha_1 x_1 \quad , \quad u_2 =  \alpha_2 y_0 \quad , \quad u_3 = \alpha_3 y_1 
-  \label{eq:toy_deform_contour}
+  \psi \colon TS^{N} \to Q \quad , \quad (x,y) \mapsto z = \psi(x,y) = x \sqrt{1 + \lVert y \rVert^2} + i y
 \end{equation}
-This scaling has the advantage that it preserves the polynomial degree of $x_k,y_k$, and hence of the original complex coordinates $z_0,z_1$, as well as the homogeneity.
-In turn, this implies that we preserve the action of $\CC^*$. 
-Put differently, the deformation (or analytical continuation) of $x_k,y_k$ to $u_i$ is \emph{equivariant}, namely for any $\lambda \in \CC^*$
+with inverse 
 \begin{equation}
-  u_i(\lambda x,\lambda y) = \lambda u_i(x,y)
+  \psi^{-1}(x + i y) = \left( \frac{x}{\sqrt{1 + \lVert y \rVert^2}}, y \right) 
 \end{equation}
-Due to this equivariance, the deformation $z_k \leadsto u_i$ can be seen as a deformation of $\CP^1$ \emph{inside} $\CP^3 \subset \CP^4$, since 
-\begin{equation}
-  \begin{split}
-    \begin{matrix}
-      u \colon  \CC^2 \to \CC^4 \\
-  (z_0,z_1) \mapsto u(z_0,z_1) \equiv (u_0(z_0,z_1),u_1(z_0,z_1),u_2(z_0,z_1),u_3(z_0,z_1))
-\end{matrix}
-\end{split}
-\end{equation}
-descends to a map from $\CP^1$ to $\CP^3$ due to its equivariance property 
-\begin{equation}
-  u(\lambda z_0,\lambda z_1) = \lambda u(z_0,z_1)
-\end{equation}
-which simply means that we can consider the quotient by $\CC^*$ on both sides (domain and codomain).
-
-The full path integral domain would then be deformed as follows:
-\begin{equation}
-  \EE_{\alpha,\omega} \colon \CP^1  \stackrel{u_{\alpha}}{\hooklongrightarrow}  \CP^3  \stackrel{P_{\omega}}{\hooklongrightarrow}  \CP^4
-  \label{eq:toy_E}
-\end{equation}
-The first map is given by 
-\begin{equation} 
-  u_{\alpha} \colon [z_0:z_1] = [x_0 + i y_0:x_1 + i y_1] \mapsto [\alpha_0 u_0 : \dots : \alpha_3 u_3 ]
-  \label{eq:toy_cont_deform1}
-\end{equation}
-with $u_i = u_i(z_0,z_1)$ given by \eqref{eq:toy_us}.
-The second map is given by 
-\begin{equation}
-  P_{\omega} \colon [u_0:u_1:u_2:u_3] \mapsto [P_{\omega}(u_i):u_0:u_1:u_2:u_3]
-\end{equation}
-where $P_{\omega}(u_i) = \sqrt{\sum_i \omega_i u_i^2}$.
-The full embedding $\EE_{\alpha,\omega}$ is hence parametrised by two complex vectors, $\alpha \in \CC^4$ and $\omega \in \CC^4$, which gives 8 complex or equivalently 16 real parameters which can be tuned to maximize the StN.
-
+where $\lVert y \rVert^2 = \sum_{i} y_i^2$.
 \begin{remark}
-For $x_k + i y_k$ for $k=0,1$, the embedding $\EE_{\alpha,\omega}$ can be explicitly expressed as 
-\begin{equation}
-  \EE_{\alpha,\omega}(x,y) = [\sqrt{\omega_0 \alpha_0^2 x_0^2 + \omega_1 \alpha_1^2 x_1^2 + \omega_2 \alpha_2^2 y_0^2 + \omega_3 \alpha_3^2 y_1^2 }: \alpha_0 x_0 : \alpha_1 x_1: \alpha_2 y_0 : \alpha_3 y_1]
-\end{equation}
+Verification that $\psi$ does indeed define a diffeomorphism goes by a straight forward calculation.
+(Recall in particular that the tangent space $TS^N$ can be described by pairs $(x,y) \in \RR^{N+1}$ such that $\langle x, y\rangle = \sum_i x_i y_i = 0$)
 \end{remark}
+
+
+\begin{thebibliography}{99}
+  \bibitem{Bruhat_Whitney} F.\ Bruhat and H.\ Whitney, Quelques propri\'et\'es fondamentales des ensembles analytiques-r\'eels, Comment. Math. Helv. 33, 132-160 (1959).
+
+  \bibitem{CEbook} K.\ Cieliebak and Y.\ Eliashberg. From Stein to Weinstein and back: symplectic geometry of affine complex manifolds. Vol. 59. American Mathematical Soc., 2012.
+\end{thebibliography}
 \end{document}
