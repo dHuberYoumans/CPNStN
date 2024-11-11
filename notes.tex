@@ -7,7 +7,7 @@
 \usepackage{amsthm,amsmath,amssymb,amsfonts}
 \usepackage{marginnote}
 \usepackage{enumerate}
-\usepackage{hyperref}
+\usepackage[colorlinks,citecolor=red]{hyperref}
 
 \usepackage{subfigure}
 
@@ -196,17 +196,46 @@ The above equation defines a hypersurface (so-called \emph{quadric}) inside $\CC
 There is a very interesting observation I found in \href{https://math.stackexchange.com/questions/1784898/tangent-bundle-of-sphere-as-a-complex-manifold}{this} stackexchange post: the quadric $Q$ defined by \eqref{eq:toy_quadric} is \emph{diffeomorphic} to the tangent space $TS^N$.
 The diffeomorphism is realised by the following map:
 \begin{equation}
-  \psi \colon TS^{N} \to Q \quad , \quad (x,y) \mapsto z = \psi(x,y) = x \sqrt{1 + \lVert y \rVert^2} + i y
+  \Psi \colon TS^{N} \to Q \quad , \quad (x,y) \mapsto z = \Psi(x,y) = x \sqrt{1 + \lVert y \rVert^2} + i y
 \end{equation}
 with inverse 
 \begin{equation}
-  \psi^{-1}(x + i y) = \left( \frac{x}{\sqrt{1 + \lVert y \rVert^2}}, y \right) 
+  \Psi^{-1}(x + i y) = \left( \frac{x}{\sqrt{1 + \lVert y \rVert^2}}, y \right) 
 \end{equation}
 where $\lVert y \rVert^2 = \sum_{i} y_i^2$.
 \begin{remark}
-Verification that $\psi$ does indeed define a diffeomorphism goes by a straight forward calculation.
+Verification that $\Psi$ does indeed define a diffeomorphism goes by a straight forward calculation.
 (Recall in particular that the tangent space $TS^N$ can be described by pairs $(x,y) \in \RR^{N+1}$ such that $\langle x, y\rangle = \sum_i x_i y_i = 0$)
 \end{remark}
+
+There exists another very interesting diffeomorphism (which I have discovered in this \href{https://math.stackexchange.com/questions/4871752/tangent-bundle-of-a-sphere-t-mathbb-sn-is-diffeomorphic-to-mathbb-sn-time}{stackexchange post}
+\begin{equation}
+  \Phi \colon S^N \time S^N / \Delta \to TS^N \quad , \quad (u,v) \mapsto \left( u, \frac{v - \left\langle u, v \right\rangle u}{1 - \left\langle u, v \right\rangle } \right)
+  \label{eq:diff_SNSN_TSN}
+\end{equation}
+Its inverse is given by 
+\begin{equation}
+  \Phi^{-1} \colon TS^N \to S^N \times S^N / \Delta \quad , \quad (x,y) \mapsto \left( x, \frac{x(\lVert y \rVert^2 - 1) + 2 y}{\lVert y \rVert^2 + 1} \right)
+\end{equation}
+\begin{remark}
+  The map \eqref{eq:diff_SNSN_TSN} is the sterepgraphic projection of $v \in S^N$ through the ``pole'' $u \in S^N$.
+\end{remark}
+Finally we have the following commutative diagram 
+\begin{equation}
+  \begin{tikzpicture}
+    \node (TS) at (0,2) {$TS^N$};
+    \node (SS) at (-2,0) {$S^N \times S^N / \Delta$};
+    \node (Q) at (2,0) {$Q$};
+
+    \draw[thick,-{latex}] (SS) -- node[midway,below] {$\Psi\circ\Phi$}(Q);
+    \draw[thick,-{latex}] (TS) -- node[midway, above right] {$\Psi$} (Q);
+    \draw[thick,-{latex}] (SS) -- node[midway, above left] {$\Phi$} (TS);
+  \end{tikzpicture}
+\end{equation}
+
+The idea is that we can use $S^N \times S^N$ to parametrise $Q$ nicely and that maybe the action of $\U(1)$ on $S^N$ can naturally be lifted to a diagonal action on $S^N \times S^N$.
+In fact, I believe that the $\U(1)$ action on $S^N$ leaves the norm in variant sp that the map $\Psi \circ \Phi$ has a chance to be an equivariant map. 
+However, this remains to be checked!
 
 
 \begin{thebibliography}{99}
