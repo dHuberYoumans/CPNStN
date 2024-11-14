@@ -233,9 +233,26 @@ Finally we have the following commutative diagram
   \end{tikzpicture}
 \end{equation}
 
-The idea is that we can use $S^N \times S^N$ to parametrise $Q$ nicely and that maybe the action of $\U(1)$ on $S^N$ can naturally be lifted to a diagonal action on $S^N \times S^N$.
-In fact, I believe that the $\U(1)$ action on $S^N$ leaves the norm in variant sp that the map $\Psi \circ \Phi$ has a chance to be an equivariant map. 
-However, this remains to be checked!
+\begin{remark}
+  The original $S^N \subset Q$ was located at $S^N = Q \cap \RR^{N+1}$. 
+  If we follow this through, we see that this $S^N$ corresponds to the zero section $\{ (x,0) \in TS^N \}$ inside $TS^N$ and consequently is defined by $\Phi(u,v) = (u,0)$ inside $S^N \times S^N / \Delta$.
+Note that this is precisely the anti-diagonal 
+\begin{equation}
+  \bar\Delta = \{ (u,-u) \mid u \in S^N \} \subset S^N \times S^N
+\end{equation}
+Indeed, the stereographic projection of $-u$ (``south pole'') through $u$ (``north pole'') gives zero:
+\begin{equation}
+  -u \mapsto \frac{(-u) - \left\langle (-u),u \right\rangle u}{1 - \left\langle (-u), u \right\rangle } = \frac{-u + \lVert u \rVert^2 u}{1 + \lVert u \rVert^2} = 0
+\end{equation}
+since $\lVert u \rVert^2 = 1$.
+Hence 
+\begin{equation}
+  \Phi(u,-u) = (u,0)
+\end{equation}
+and the original $S^N$ is located along the anti-diagonal $\bar\Delta$. 
+\end{remark}
+
+\subsection{Application to the Model}
 
 
 \begin{thebibliography}{99}
