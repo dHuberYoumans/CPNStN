@@ -73,6 +73,9 @@
 \newcommand{\Tr}{\mathrm{Tr}\,}
 \renewcommand{\Im}{\mathrm{Im}}
 \renewcommand{\Re}{\mathrm{Re}}
+\newcommand{\acton}{\rotatebox[origin=c]{-90}{$\circlearrowright$}}
+\newcommand{\ket}[1]{\lvert #1 \rangle}
+\newcommand{\bra}[1]{\langle #1 \rvert}
 
 \newcommand{\mat}[4]{\begin{pmatrix} #1 & #2 \\ #3 & #4 \end{pmatrix}}
 \newcommand{\vek}[2]{\begin{pmatrix} #1 \\ #2 \end{pmatrix}}
@@ -99,7 +102,7 @@ The space of fields is then simply given by points on the target manifold $X$, n
 \end{equation}
 As the action of the model we consider 
 \begin{equation}
-  S(z,w) = \beta \lvert \langle \bar z, w\rangle \rvert^2 = \beta \sum_{j,k = 0}^{N-1} \bar z_j z_k \bar w_j w_k 
+  S(z,w) = -\beta \lvert \langle \bar z, w\rangle \rvert^2 = -\beta \sum_{j,k = 0}^{N-1} \bar z_j z_k \bar w_j w_k 
   \label{eq:toy_S}
 \end{equation}
 where $z,w \in \CC^{N}$ subject to the condition 
@@ -115,7 +118,7 @@ Under the assumption of the condition \eqref{eq:toy_constr}, the action \eqref{e
 
 The path integral of the model is defined by 
 \begin{equation}
-  Z = \int \prod_j dz_j d\bar z_j dw_j d\bar w_j \delta(\lvert z \rvert^2  - 1)\delta(\lvert w \rvert -1)  e^{-S(z,w)}
+  Z = \int \prod_j dz_j d\bar z_j dw_j d\bar w_j \delta(\lvert z \rvert^2  - 1)\delta(\lvert w \rvert^2 -1)  e^{-S(z,w)}
   \label{eq:toy_Z}
 \end{equation}
 In order to evaluate \eqref{eq:toy_Z}, we want to embed the space of fields $\mathcal F = \CP^{N-1} \times \CP^{N-1}$ into a higher dimensional complex space such that 
@@ -151,7 +154,7 @@ These conditions ensure that we can glue $M^{\CC}$ from the local data $\{ U_i^{
 
 For more details on this construction see \href{https://books.google.ca/books?id=In1Dbj-pkIkC&pg=PA103\&dq=complexification+of+real+analytic+manifolds\&hl=en&sa=X\&ei=aYRAUrWeBYPZ2AWEj4DoBA\&ved=0CD8Q6AEwAQ#v=onepage\&q=complexification\%20of\%20real\%20analytic\%20manifolds&f=false}{Cieliebak and Eliashberga's book} \cite{CEbook}
 
-\subsubsection{Example: The \texorpdfstring{$N$-sphere}{N-sphere}}
+\subsubsection{Example: The \texorpdfstring{$N$-sphere}{N-sphere}}\label{subsec:cmplxfy_sphere}
 Consider the $N$-sphere $S^{N} \subset \RR^{N+1}$.
 First, consider the following atlas: let $p_{\pm} = (0, \dots,0, \pm 1) \in S^{N}$ be the north and south pole respectively.
 We denote points on the sphere by $x = (x_1, \dots, x_{N+1})$, $\lVert x \rVert^2 = 1$ and points in $\RR^N$ by $X = (X_1, \dots, X_N)$.
@@ -253,6 +256,197 @@ and the original $S^N$ is located along the anti-diagonal $\bar\Delta$.
 \end{remark}
 
 \subsection{Application to the Model}
+Recall that we are interested in integrals of the form 
+\begin{equation}
+  I = \int_{\CP^n \times \CP^n} d\mu(z) d\mu(w) e^{-S(z,w)} \OO(z,w)
+\end{equation}
+where $d\mu(z) = \prod_i dz_i d\bar z_i$ and we have included some observable $\OO \colon \CP^n \to \CC$.
+For our toy model, we consider the action functional \eqref{eq:toy_S}
+\begin{equation}
+  S(z,w) = -\beta \lvert \langle \bar z, w\rangle \rvert^2   
+\end{equation}
+It is instructive pass to real coordinates.
+If $z_k = a_k + i b_k$, let $x_k$ be the real vector $(a_k\ b_k)^t$.
+If we collect all components, we can form the real vector $x = ( \dots a_k\ b_k \dots)^t \in \RR^{2n +2}$.
+We denote the real vector associated to $w$ by $y$.
+In terms of these, the path integral over can be written as 
+\begin{equation}
+vol(S^1)^2\int_{\RR^{2n + 2} \times \RR^{2n + 2}} d^{2n + 2}x\ d^{2n + 2y}\ \delta(\lVert x \rVert^2 - 1)\delta(\lVert y \rVert ^2 -1) e^{- S(x,y)}\OO(x,y)
+\end{equation}
+where the pre-factor stems from the compact part of the gauge group $\CC^* \acton \CC^{n+1}$.
+Let us focus on the following part of the integral:
+\begin{equation}
+  I \sim \int_{\RR^{2n + 2}} \delta(\lVert x \rVert^2 - 1) = \int_{\RR^{2n + 2}} \delta(\left\langle x, x \right\rangle  - 1) 
+\end{equation}
+Following our idea, we complexify the space of integration, $x \to \zeta$
+\begin{equation}
+  I \sim \int_{\Gamma_0 = \RR^{2n + 2} \cap \CC^{2n + 2}} \delta(\left\langle \zeta, \zeta \right\rangle  - 1)
+\end{equation}
+where 
+\begin{equation}
+  \left\langle \zeta, \zeta \right\rangle = \sum_k \zeta_k^2
+\end{equation}
+The $\delta$-function constraint restricts the support of the integrand to the quadric $Q$.
+Now, we would like to deform the ``contour'' (domain of integration) inside $Q$
+\begin{equation}
+   I \sim \int_{\Gamma_a \subset \CC^{2n + 2}} \delta(\left\langle \zeta, \zeta \right\rangle  - 1)
+\end{equation}
+Inspired by the discussion in \ref{subsec:cmplxfy_sphere}, we would like to parametrise $Q$ in terms of $TS^{2n + 1}$.
+We thus choose a parametrisation of the following form: (by abuse of notation, we will use again $x$ to denote a vector in $\RR^{2n + 2}$)
+\begin{equation}
+  \zeta(x) = x \sqrt{1 + \lVert y(x) \rVert^2} + i y(x)
+  \label{eq:parametrisation}
+\end{equation}
+where $y(x)$ is chosen in such a way that $\left\langle x,y \right\rangle = 0$.
+It follows that 
+\begin{equation}
+  I \sim \int_{\RR^{2n + 2}} d^{2n + 2}x\ \det J(x) \delta(\langle \zeta(x), \zeta(x) \rangle - 1)
+\end{equation}
+where $J(x)$ denotes the Jacobian of \eqref{eq:parametrisation}.
+Note that the $\delta$-function constraint can be simplified as follows: Let 
+\begin{equation}
+  \lambda(x) = \sqrt{1 - \lVert y \rVert^2}
+\end{equation}
+Then 
+\begin{equation}
+  \begin{split} 
+    C(x) &= \left\langle \zeta(x), \zeta(x) \right\rangle  - 1 \\
+    &= \lambda^2(x) \lVert x \rVert^2 + 2 i \lambda(x) \left\langle x, y(x) \right\rangle  - \lVert y \rVert^2 - 1\\
+    &= \lambda^2(x) (\lVert x \rVert^2 - 1)
+  \end{split}
+\end{equation}
+Importantly, 
+\begin{equation}
+  \lambda^2(x) > 0 
+\end{equation}
+such that the $\delta$-function constraint is of the following form:
+\begin{equation}
+  \begin{split} 
+    \int \delta(C(x)) &= \int d\mu(x) \delta(\underbrace{f(x)g(x)}_{\equiv\phi(x)}) \\
+    &= \int_{\phi^{-1}(0)}\frac{d\sigma}{\lVert \nabla \phi(x) \rVert} \\
+    &= \int_{f^{-1}(0)} \frac{d\sigma}{\lVert f(x) \nabla g(x) + g(x) \nabla f(x) \rVert } \\
+    &= \int_{f^{-1}(x)} \frac{d\sigma}{\lVert \nabla f(x) \rVert}\frac{1}{\lvert g(x) \rvert} \\
+    &= \int d\mu \frac{\delta(f(x)}{\lvert g(x) \rvert}
+  \end{split}
+\end{equation}
+where $f(x) = \lVert x \rVert^2 - 1$ and  $g(x) = \lambda^2(x) > 0$.
+Hence we find that with the chosen parametrisation, the integral nicely localises to an integral over $S^{2n + 1}$
+\begin{equation}
+  \int_{\RR^{2n + 2}} \delta(C(x)) = \int_{\RR^{2n+2}} \frac{\delta\left( \lVert x \rVert^2 - 1 \right)}{\lambda^2(x)} = \int_{S^{2n + 1}} \frac{1}{\lambda^2(x)}
+\end{equation}
+Therefore, we are left with an integral of the form 
+\begin{equation}
+  I \sim \int_{S^{2n + 1}} \frac{\det J(x)}{\lambda^2(x)} \quad , \quad \lambda^2(x) = 1 + \lVert y(x) \rVert^2
+  \label{eq:toy_schema_I}
+\end{equation}
+
+\subsubsection{Constant Deformations}
+
+A particular nice example, which can be computed explicitly and serves as a check that everything works nicely is given for the case $n=0$.
+Consider the deformation 
+\begin{equation}
+  y(x) = \alpha \Omega x \quad , \quad \lVert x \rVert^2 = 1\quad , \quad \Omega = \mat{0}{1}{-1}{0} \in \SO(2) \quad , \quad \alpha \in \RR
+  \label{eq:toy_cst_def}
+\end{equation}
+so that indeed 
+\begin{equation}
+  \left\langle x, y(x) \right\rangle = 0
+\end{equation}
+Moreover, note that 
+\begin{equation}
+  \lVert y(x) \rVert^2 = \left\langle y(x), y(x) \right\rangle = \alpha^2 \left\langle x, \Omega^t \Omega x \right\rangle = \alpha^2 \lVert x \rVert^2 = \alpha^2
+\end{equation}
+and hence 
+\begin{equation}
+  \lambda^2(x) = 1 + \alpha^2
+\end{equation}
+We compute the Jacobian of this parametrisation as follows: let $M_{i}^{\;j} = \del_i y^j(x)$.
+Then 
+\begin{equation}
+  \begin{split} 
+    J_i^{\;j} = \lambda(x) \delta_{i}^{\;j} + \frac{\left\langle y, \del_i y \right\rangle x^j}{\lambda(x)} + i M_i^{\;j} =  \lambda(x) \delta_{i}^{\;j} + \frac{M_{ik}y^k x^j}{\lambda(x)} + i M_i^{\;j}
+  \end{split}
+\end{equation}
+Using bra-ket notation and trivially lowering indices (considering the flat metric on $\RR^2$), we can write $J$ as follows:
+\begin{equation}
+  J = \lambda(x) \cdot id + \lambda^{-1}(x) \ket{My}\bra{x} + i M
+\end{equation}
+\begin{remark}
+  The matrix $M$ has some interesting properties.
+  \begin{enumerate}
+    \item From $\left\langle x, y(x) \right\rangle = 0$ it follows that
+      \[
+      0 = \del_i \left\langle x, y(x) \right\rangle = y_i(x) + M_{ik} x_k
+      \] 
+      so that 
+      \[
+	y_i(x) = M_{ik} x_k \implies y(x) = Mx
+      \] 
+      and hence
+      \[
+	\left\langle x, y \right\rangle = \left\langle x , Mx \right\rangle = \left\langle M^t x, x \right\rangle = 0
+      \] 
+      from which follows (if $y(x) = Mx \neq 0$)
+      \[
+	\bra{x} M = 0
+      \] 
+  \end{enumerate}
+\end{remark}
+Now, for our choice of
+\[
+  y(x) = \alpha \Omega x
+\] 
+we have
+\begin{equation}
+  M = \alpha \Omega^t = - \alpha \Omega
+\end{equation}
+and hence 
+\begin{equation}
+  \begin{split} 
+    J &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 \Omega^t \Omega \ket{x} \bra{x} - i \alpha \Omega \\
+    &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 \ket{x} \bra{x} - i \alpha \Omega
+  \end{split}
+\end{equation}
+Now, here is a neat trick due to Tej.
+Consider the unitary matrix 
+\begin{equation}
+  U = (x\ \Omega x) \quad , \quad \Omega^{*} = \begin{pmatrix} x^t \\ x^t \Omega^t \end{pmatrix}
+\end{equation}
+where $x$ is a $2\times 2$ column vector with unit norm.
+Then 
+\begin{equation}
+  U^* U = \mat{\left\langle x, x \right\rangle}{\left\langle x, \Omega x \right\rangle}{\left\langle \Omega x, x \right\rangle}{\left\langle x, x \right\rangle} = \mat{1}{0}{0}{1}
+\end{equation}
+Moreover,
+\begin{equation}
+  \bra{x} U = x^t U = (\left\langle x,x \right\rangle\  \left\langle x, \Omega x \right\rangle) = (1\ 0)
+\end{equation}
+as well as
+\begin{equation}
+  U^* \Omega U = U^* (\Omega x\ \Omega^2 x) = U^* (\Omega x\ -x) = \mat{\left\langle x, \Omega x \right\rangle}{-\left\langle x, x \right\rangle}{\left\langle x, \Omega^t\Omega x\right\rangle}{-\left\langle x, \Omega^t x \right\rangle} = -\Omega
+\end{equation}
+Then
+\begin{equation}
+  \begin{split} 
+    U^* J U &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 U^* \ket{x}\bra{x} U - i\alpha U^* \Omega U \\
+    &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 U^* \mat{1}{0}{0}{0} + i\alpha \Omega \\
+    &= \mat{\lambda(x) + \lambda^{-1}(x) \alpha^2}{i\alpha}{-i\alpha}{\lambda(x)}
+  \end{split}
+\end{equation}
+It follows that 
+\begin{equation}
+  \begin{split} 
+    \det J(x) &= \det( U^* J(x) U) \\
+    &= \det \mat{\lambda(x) + \lambda^{-1}(x) \alpha^2}{i\alpha}{-i\alpha}{\lambda(x)} \\
+    &= \lambda^2(x) + \alpha^2 - \alpha^2 = \lambda^2(x)
+  \end{split}
+\end{equation}
+Finally, we obtain that
+\begin{equation}
+  I \sim \int_{S^{2n+1}} \frac{\det J(x)}{\lambda^2(x)} = \int_{S^{2n+1}} \frac{\lambda^2(x)}{\lambda^2(x)} = \int_{S^{2n+1}}
+\end{equation}
+This means that the \emph{constant deformation} \eqref{eq:toy_cst_def} comes with a trivial \emph{total} Jacobian (Jacobian + factor from the $\varphi$-function constraint).
+
 
 
 \begin{thebibliography}{99}
