@@ -1,3 +1,8 @@
+""" 
+This library was written by Gurtej Kanwar (https://github.com/gkanwar). 
+Thanks for that and many interesting discussions!
+"""
+
 import numpy as np
 
 # Plot error traces
