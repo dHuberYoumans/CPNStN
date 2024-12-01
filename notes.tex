@@ -63,6 +63,12 @@
 \DeclareMathOperator{\SU}{SU}
 \DeclareMathOperator{\PSU}{PSU}
 \DeclareMathOperator{\U}{U}
+\DeclareMathOperator{\diag}{diag}
+
+\newcommand{\g}{\mathfrak{g}}
+\newcommand{\h}{\mathfrak{h}}
+\newcommand{\m}{\mathfrak{m}}
+\newcommand{\su}{\mathfrak{su}}
 
 \newcommand{\del}{\partial}
 \newcommand{\delbar}{\bar{\partial}}
@@ -79,7 +85,6 @@
 
 \newcommand{\mat}[4]{\begin{pmatrix} #1 & #2 \\ #3 & #4 \end{pmatrix}}
 \newcommand{\vek}[2]{\begin{pmatrix} #1 \\ #2 \end{pmatrix}}
-
 
 \usepackage{showlabels}
 
@@ -255,7 +260,7 @@ Hence
 and the original $S^N$ is located along the anti-diagonal $\bar\Delta$. 
 \end{remark}
 
-\subsection{Application to the Model}
+\subsection{Factor from \texorpdfstring{$\delta$}{delta}-function Constraint}
 Recall that we are interested in integrals of the form 
 \begin{equation}
   I = \int_{\CP^n \times \CP^n} d\mu(z) d\mu(w) e^{-S(z,w)} \OO(z,w)
@@ -340,7 +345,9 @@ Therefore, we are left with an integral of the form
   \label{eq:toy_schema_I}
 \end{equation}
 
-\subsubsection{Constant Deformations}
+\subsection{Homogeneous Deformations}
+
+\subsubsection{Example: \texorpdfstring{$n=0$}{n=0}}
 
 A particular nice example, which can be computed explicitly and serves as a check that everything works nicely is given for the case $n=0$.
 Consider the deformation 
@@ -447,6 +454,113 @@ Finally, we obtain that
 \end{equation}
 This means that the \emph{constant deformation} \eqref{eq:toy_cst_def} comes with a trivial \emph{total} Jacobian (Jacobian + factor from the $\varphi$-function constraint).
 
+\subsubsection{The General Case}
+The $n=0$ example can be nicely generalised. 
+Tej suggested to consider deformations of the form
+\begin{equation}
+  Y_a(X) = \Omega(a) X \quad , \quad \Omega(a) = \diag\left( \mat{0}{a_1}{-a_1}{0}, \dots, \mat{0}{a_{n+1}}{-a_{n+1}}{0} \right)
+  \label{eq:Tej_deformation}
+\end{equation}
+for some $a\in \RR^{n+1}$.
+This type of deformation have a very nice geometric origin, as we now explain.
+
+Let $G$ be a Lie group and $H < G$ a subgroup with Lie algebras $\g$ and $\h$ respectively.
+The orbit space $G/H$ is known as a \emph{homogeneous space}. 
+It is called \emph{reductive} if $\g$ allows the following decomposition
+\begin{equation}
+  \g = \h \oplus \m \quad , \quad [\h,\h] \subset \h \quad , \quad [\h,\m] \subset \m
+\end{equation}
+If $\g$ is equipped with a Killing form $B$ (or if $G$ allows a $G$-invariant metric as a manifold), then $G/H$ is automatically reductive with the choice 
+\begin{equation}
+  \m = \h^{\perp}
+\end{equation}
+where $\h^{\perp}$ is the orthogonal to $\h$ with respect to $B$.
+Indeed, since $B$ is $G$-invariant, schematically
+\begin{equation}
+  0 = B(\h,\m) = B([\h,\h],\m) = B(\h,[\h,\m])
+\end{equation}
+so that $[\h,\m] \subset \m$.
+
+In summary, given a reductive homogeneous space $G/H$, we get a nice decomposition of the tangent space: first, let $o = [e]$ be the class in $G/H$ at the identity.
+Then 
+\begin{equation}
+  T_o(G/H) \cong \m
+\end{equation}
+This isomorphism is given essentially by the pushforward of the natural projection $\pi \colon G \to G/H$.
+In fact, $\pi \colon G \to G/H$ defines a principal $H$-bundle. 
+Its vertical vector fields are given by $\ker(\pi_*) = \h$ and since $\pi$ is a submersion ($\pi$ and $\pi_*$ are both surjective) we have
+\begin{equation}
+  \pi_* \colon \g / \ker(\pi_*) = \g / \h \cong T_o(G/H)
+\end{equation}
+Then, to compute the tangent space at any other point, we use translation by $G$.
+
+Now, recall that 
+\begin{equation}
+  S^{2n + 1} = \SU(n+1) / \SU(n)
+\end{equation}
+is a homogeneous space where $H = \SU(n)$ sits inside $G = \SU(n+1)$ as the lower right corner
+\begin{equation}
+  \SU(n) \ni h \hookrightarrow \mat{1}{0}{0}{h} \in \SU(n+1)
+\end{equation}
+The reductive split is given by 
+\begin{equation}
+  \su(n+1) = \su(n) \oplus \m
+  \label{eq:red_split}
+\end{equation}
+Since $\su(n+1)$ admits a Killing form $B(x,y) \propto tr(x,y)$, we can choose $\m = \su(n)^{\perp}$.
+In the split \eqref{eq:red_split}, we have 
+\begin{equation}
+  \su(n) \equiv \mat{0}{0}{\su(n)}{0} \subset \su(n+1)
+\end{equation}
+We then find 
+\begin{equation}
+  \m = \su(n)^{\perp} = \left\{ \mat{0}{-\zeta^*}{\zeta}{0} \right\} \quad , \quad \zeta \in \CC^{n+1}
+\end{equation}
+Here $\zeta^* = \bar \zeta^t$ denotes the hermitian conjugate. 
+Now, this identifies $\m \in {\rm Mat}(\CC, n+1)$ which can of course be described in terms of real matrices ${\rm Mat}(\RR, 2n + 2)$.  
+Let us look at the example $n = 1$; let $\zeta = a + i b$ and we act on $z = (z_1\;z_2)^t \in \CC^2$ with $z_k = x_k + i y_k$.
+Then 
+\begin{equation}
+  \begin{split} 
+    \mat{0}{-\bar\zeta}{\zeta}{0} \vek{z_1}{z_2} &= \vek{-\bar\zeta z_2}{\phantom{-}\zeta z_1} = \vek{-(a-ib)(x_2 + i y_2)}{\phantom{-}(a + i b)(x_1 + i y_1)} \\
+    &= \vek{- (ax_2 + by_2 + i(ay_2 - bx_2)}{\phantom{-}ax_1 - by_1 + i(ay_1 + b x_1)}
+  \end{split}
+\end{equation}
+If we represent $(z_1\;z_2)^t$ as before by $(x_1\;y_1\;x_2\;y_2\;)$, then we find
+\begin{equation}
+  \rho\left( \mat{0}{-\bar\zeta}{\zeta}{0} \right) \begin{pmatrix} x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix} = \begin{pmatrix} - (ax_2 + by_2) \\ - (ay_2 - bx_2) \\ ax_1 - by_1 \\ ay_1 + b x_1 \end{pmatrix}
+\end{equation}
+so that 
+\begin{equation}
+  \rho\left( \mat{0}{-\bar\zeta}{\zeta}{0} \right) = 
+  \begin{pmatrix} 0 & 0 & - a & -b \\ 0 & 0 & b & -a  \\ a & -b & 0 & 0 \\ b & a & 0 & 0 \end{pmatrix}  
+\end{equation}
+This matrix is skew-symmetric and can be diagonalised and admits eigenvalues 
+\begin{equation}
+  \lambda_1, \lambda_2 = i \sqrt{a^2 + b^2} \quad , \quad \lambda_3, \lambda_4 = - i \sqrt{a^2 + b^2}
+\end{equation}
+Now, every $2k \times 2k$ skew-symmetric matrix can be diagonalised (its eigenvalues can are purely imaginary and come in pairs, $\pm i\lambda_k$) and can be braught into the form 
+\begin{equation}
+  \begin{pmatrix}  
+  0 & \lambda_1 & 0 & 0 & \dots \\ 
+  -\lambda_1 & 0 & 0 & 0 &  \\
+  0 & 0 & 0 & \lambda_2 &  \\ 
+  0 & 0 & -\lambda_2 & 0 &  \\
+  \vdots & & & & \ddots
+\end{pmatrix}
+\end{equation}
+In our case, this means that we can find a representation of $\mat{0}{-\bar\zeta}{\zeta}{0}$ acting on $\RR^{2n + 2}$ such that 
+\begin{equation}
+  \rho\left( \mat{0}{-\bar\zeta}{\zeta}{0} \right) = \lVert \zeta \rVert^2
+  \begin{pmatrix}  
+  0 & 1 & 0 & 0  \\ 
+  -1 & 0 & 0 & 0  \\
+  0 & 0 & 0 & 1  \\ 
+  0 & 0 & -1 & 0 
+\end{pmatrix}
+\end{equation}
+which is a natural generalization of the $n=0$ case but only a special case of Tej's suggestion \eqref{eq:Tej_deformation}
+\textbf{\color{red} question:} what are \eqref{eq:Tej_deformation} in general?
 
 
 \begin{thebibliography}{99}
