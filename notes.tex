@@ -458,11 +458,21 @@ This means that the \emph{constant deformation} \eqref{eq:toy_cst_def} comes wit
 The $n=0$ example can be nicely generalised. 
 Tej suggested to consider deformations of the form
 \begin{equation}
-  Y_a(X) = \Omega(a) X \quad , \quad \Omega(a) = \diag\left( \mat{0}{a_1}{-a_1}{0}, \dots, \mat{0}{a_{n+1}}{-a_{n+1}}{0} \right)
+  Y_a(X) = \Omega(a) X \quad , \quad \Omega(a) = \diag\left( \mat{0}{-a_1}{a_1}{\hphantom{-}0}, \dots, \mat{0}{-a_{n+1}}{a_{n+1}}{\hphantom{-}0} \right)
   \label{eq:Tej_deformation}
 \end{equation}
-for some $a\in \RR^{n+1}$.
+for some $a = (a_1, \dots, a_{n+1}) \in \RR^{n+1}$.
 This type of deformation have a very nice geometric origin, as we now explain.
+\begin{remark}
+  Under the isomorphism 
+  \begin{equation}
+    \RR^{2n + 2} \cong \CC^{n+1} \quad , \quad \vek{x_k}{y_k} \mapsto z_k = x_k + i y_k
+  \end{equation}
+  the deformation \eqref{eq:Tej_deformation} is acting on $\CC^{n+1}$ by multiplication with the diagonal matrix $\diag(i a_1, \dots, i a_{n+1})$
+    \begin{equation}
+      \begin{pmatrix} \vdots \\ z_k \\ \vdots \end{pmatrix} \mapsto \begin{pmatrix} \vdots \\ i a_k z_k \\  \vdots \end{pmatrix} 
+    \end{equation}
+\end{remark}
 
 Let $G$ be a Lie group and $H < G$ a subgroup with Lie algebras $\g$ and $\h$ respectively.
 The orbit space $G/H$ is known as a \emph{homogeneous space}. 
@@ -510,7 +520,7 @@ The reductive split is given by
 Since $\su(n+1)$ admits a Killing form $B(x,y) \propto tr(x,y)$, we can choose $\m = \su(n)^{\perp}$.
 In the split \eqref{eq:red_split}, we have 
 \begin{equation}
-  \su(n) \equiv \mat{0}{0}{\su(n)}{0} \subset \su(n+1)
+  \su(n) \equiv \mat{0}{0}{0}{\su(n)} \subset \su(n+1)
 \end{equation}
 We then find 
 \begin{equation}
