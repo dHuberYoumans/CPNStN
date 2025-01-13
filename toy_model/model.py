@@ -12,9 +12,35 @@ import tqdm
 def grab(x): # should be somewhere else!
     return x.detach().cpu().numpy()
 
+class ToyActionFunctional():
+    def __init__(self):
+        pass
+
+    def Stoy(self,phi,beta):
+        """
+        phi = X, Y (samples, fields, dim, 1)
+        """
+
+        if not hasattr(self,"T"):
+            N = phi.shape[-2] # 2n + 2, n = CP(n)
+            self.id = torch.eye(N)
+            sigma_y = torch.tensor([[0,-1j],[1j,0]])
+            self.T = (
+                self.id + torch.block_diag(*[sigma_y for _ in range(N//2)])
+                      ).cdouble()
+
+        X = phi[:,0]
+        Y = phi[:,1]
+
+        hXY = ( X.transpose(-1,-2) @ (self.T @ Y) ).flatten()
+        hYX =  ( Y.transpose(-1,-2) @ (self.T @ X) ).flatten()
+
+        return - beta * hXY * hYX
+    
+
 class CP(nn.Module):
 
-    def __init__(self,dim_C,deformation,a0,observable,beta): #deformation_param:torch.tensor=None
+    def __init__(self,dim_C,action,deformation,a0,observable,beta): #deformation_param:torch.tensor=None
         """
     
         obs = observable
@@ -39,18 +65,8 @@ class CP(nn.Module):
         # PARAMETERS
         self.a = nn.Parameter(a0)
 
-    def S(self,phi):
-        """
-        phi = X, Y (samples, fields, dim, 1)
-        """
-
-        X = phi[:,0]
-        Y = phi[:,1]
-
-        hXY = ( X.transpose(-1,-2) @ (self.T @ Y) ).flatten()
-        hYX =  ( Y.transpose(-1,-2) @ (self.T @ X) ).flatten()
-
-        return - self.beta * hXY * hYX
+        # ACTION
+        self.S = action
 
     def deformed_obs(self,phi,a):
         """
