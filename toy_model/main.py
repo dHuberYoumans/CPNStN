@@ -11,28 +11,48 @@ import seaborn as sns
 if __name__ == "__main__":
     ################ GENERATING SAMPLES ################
 
-    n = 2
-    beta = 1.0
-    N_steps = 1_000
-    burnin = 100
-    skip = 5
+    # n = 2
+    # beta = 1.0
 
-    phi0 = torch.randn(2,(2*n + 2),1)
-    phi0 /= torch.linalg.vector_norm(phi0, dim=1, keepdim=True)
+    # N_steps = 25_000
+    # burnin = 1_000
+    # skip = 10
 
-    print("creating samples ... \n")
+    # phi0 = torch.randn(2,(2*n + 2),1)
+    # phi0 /= torch.linalg.vector_norm(phi0, dim=1, keepdim=True)
 
-    phi, alpha = create_samples(n=n,phi0=phi0,beta=beta,N_steps=N_steps,burnin=burnin,k=skip)
+    # print("creating samples ... \n")
 
-    print("\ndone")
+    # phi, alpha = create_samples(n=n,phi0=phi0,beta=beta,N_steps=N_steps,burnin=burnin,k=skip)
+
+    # print("\ndone")
+    # print(f"\n{phi.shape = }\t{alpha = }\n")
+    # print("\nsaving ...")
+
+    # torch.save(phi, "samples.dat")
+
+    # print("\ndone")
+
+    # exit()
+
+    ################ LOAD SAMPLES ################
+
+    phi = torch.load('samples.dat',weights_only=True)
+    print(f"\n{phi.shape = }\n")
 
     ################ SET HYPERPARAMETERS ################
+    n = 2
+    beta = 1.0
 
     alpha = 1e-4 # learning rate
     i,j = 2, 1 # parameter for fuzzy zero
-    # obs = lambda phi: fuzzy_zero(phi,i,j)
+    # obs = fuzzy_one
+    obs = lambda psi: fuzzy_zero(psi,i,j)
     # obs = lambda phi: two_pt(phi,i)
-    obs = fuzzy_one
+
+    ################ ACTION ########################
+    action = ToyActionFunctional()
+    Stoy = lambda psi: action.Stoy(psi,beta)
 
     ################ DEFORMATION ########################
 
@@ -42,11 +62,8 @@ if __name__ == "__main__":
     # su(n+1)
     rk = n
     dim = n**2 + 2*n
-
-    # a0 = torch.cat((torch.randn(rk),torch.zeros(dim-rk)))
-    # deformation = Torus()
-
-    a0 = 0.1*torch.randn(dim) 
+    a0 = 0.1*torch.randn(dim) # full hom
+    # a0 = torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)]) # torus
     deformation = Homogeneous()
 
     # LOSS
@@ -54,7 +71,7 @@ if __name__ == "__main__":
     loss_name = 'loss' if loss_fct == loss else 'logloss'
 
     # MODEL
-    params = [deformation,a0,obs,beta]
+    params = [Stoy,deformation,a0,obs,beta]
     model = CP(n,*params)
 
     # SET EPOCHS
@@ -63,7 +80,7 @@ if __name__ == "__main__":
     # TRAINING
     print("\n training model ... ")
 
-    observable, observable_var, losses_train, losses_val, anorm, a0, af = train(model,phi,epochs=epochs,loss_fct=loss_fct,)
+    observable, observable_var, losses_train, losses_val, anorm, a0, af = train(model,phi,epochs=epochs,loss_fct=loss_fct)
 
     print("\n done.")
 
