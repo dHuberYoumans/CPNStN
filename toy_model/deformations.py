@@ -52,7 +52,7 @@ class Homogeneous():
         if not hasattr(self, 'su_n'):
             self.su_n = LieSU(dim_C)
 
-        a_ = rho(self.su_n.embed(a)).cdouble()
+        a_ = rho(1j*self.su_n.embed(a)).cdouble() # assuming Hermitian su_n generators 
 
         outer_XX = X @ X.transpose(-1,-2)
 
@@ -65,8 +65,8 @@ class Homogeneous():
         tildeZ = X * lam + 1j*Y 
 
         # JACOBIAN
-        J = id*lam + (a_ @ a_) @ outer_XX / lam - 1j*a_
-        det = torch.det(J) # (samples, #particles) -> multiply
+        J = id*lam - outer_XX @ (a_ @ a_) / lam + 1j*a_
+        det = torch.det(J) # (samples, #particles) -> multiply 
         detJ = det / lam.squeeze(dim=(-1,-2))**2 
 
         detJ = torch.prod(detJ,dim=-1) # total Jacobian (samples,)
