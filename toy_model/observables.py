@@ -44,13 +44,15 @@ def fuzzy_zero(phi,i,j):
     z, zbar = real2cmplx(Z)
 
     # COMPLEX OBSERVABLE
-    O = (z[...,i,:]*zbar[...,j,:]) 
+    O = (z[...,i,:]*zbar[...,j,:]).squeeze(-1) # (samples,)
+
+    assert len(O.shape) == 1
 
     return O
 
-def two_pt(phi,i):
+def two_pt(phi,i,j):
     """
-    Observable |z_i|^2
+    Observable z_i zbar_j w_j wbar_i
 
     Parameters:
     -----------
@@ -61,14 +63,16 @@ def two_pt(phi,i):
         Component z_i
     """
 
-    Z = phi[:,0] # real rep of z
-    # W = phi[:,1]
+    Z = phi[:,0] 
+    W = phi[:,1]
 
     # COMPLEX VARIABLES
-    z, zbar = real2cmplx(Z) # (*batch,dim_C,1) 
-    # w, wbar = real2cmplx(W) # (*batch,dim_C,1) 
+    z, zbar = real2cmplx(Z) 
+    w, wbar = real2cmplx(W)
 
     # COMPLEX OBSERVABLE
-    O = (z[...,i,:]*zbar[...,i,:]) # z_i \bar z_j (*batch,,1)
+    O = (z[...,i,:]*zbar[...,j,:]*w[...,j,:]*wbar[...,i,:]).squeeze(-1) # (samples,)
+
+    assert len(O.shape) == 1
 
     return O
