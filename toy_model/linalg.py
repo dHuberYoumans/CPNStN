@@ -58,13 +58,10 @@ class LieSU():
 
             diag.append(torch.tensor(b))
 
-        return diag + sym + anti_sym 
+        return torch.stack(diag + sym + anti_sym,dim=0)
 
     def embed(self,a):
-        x = torch.zeros_like(self.basis[0],dtype=torch.cdouble)
-
-        for i in range(self.dim):
-            x += a[i]*self.basis[i]
+        x = torch.einsum('...i,ikl->...kl',a.cdouble(),self.basis)
 
         return x
     
