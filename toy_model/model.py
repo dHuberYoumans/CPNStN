@@ -3,44 +3,38 @@ from torch import nn
 import torch.optim as optim
 
 import numpy as np
-from scipy.linalg import block_diag # can be reduced?
 from linalg import *
+from utils import grab
 
 import tqdm
 
 
-def grab(x): # should be somewhere else!
-    return x.detach().cpu().numpy()
+
 
 class ToyActionFunctional():
-    def __init__(self):
-        pass
+    def __init__(self,n):
+        self.identity = torch.eye(2*n + 2)
+        sigma_y = torch.tensor([[0,-1j],[1j,0]])
+        self.T = (
+            self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)])
+                    ).cdouble()
 
     def Stoy(self,phi,beta):
         """
         phi = X, Y (samples, fields, dim, 1)
         """
 
-        if not hasattr(self,"T"):
-            N = phi.shape[-2] # 2n + 2, n = CP(n)
-            self.id = torch.eye(N)
-            sigma_y = torch.tensor([[0,-1j],[1j,0]])
-            self.T = (
-                self.id + torch.block_diag(*[sigma_y for _ in range(N//2)])
-                      ).cdouble()
-
-        X = phi[:,0]
-        Y = phi[:,1]
+        X = phi[:,0].cdouble()
+        Y = phi[:,1].cdouble()
 
         hXY = ( X.transpose(-1,-2) @ (self.T @ Y) ).flatten()
         hYX =  ( Y.transpose(-1,-2) @ (self.T @ X) ).flatten()
 
         return - beta * hXY * hYX
     
-
 class CP(nn.Module):
 
-    def __init__(self,dim_C,action,deformation,a0,observable,beta): #deformation_param:torch.tensor=None
+    def __init__(self,dim_C,action,deformation,observable,beta):
         """
     
         obs = observable
@@ -48,27 +42,15 @@ class CP(nn.Module):
         """
         super().__init__()
 
-        # DIMENSIONS 
-        self.dim_C = dim_C
-        self.dim_R = 2*self.dim_C 
-
-        # LIN ALG
-        self.id = torch.eye(self.dim_R+2)
-        sigma_y = np.array([[0,-1j],[1j,0]])
-        self.T = self.id + torch.tensor( block_diag(*[sigma_y for _ in range(self.dim_C+1)]) ) # linear operator used in def of action
-
         # HYPERPARAMETERS
         self.beta = beta
         self.obs = observable
         self.deformation = deformation
 
-        # PARAMETERS
-        self.a = nn.Parameter(a0)
-
         # ACTION
         self.S = action
 
-    def deformed_obs(self,phi,a):
+    def deformed_obs(self,phi):
         """
         Computes the operator corresponding to the deformed observable inside the undeformed path integral: Jac * O(tilde phi) exp[ - ( S( tilde phi) - S(phi) ) ]
 
@@ -90,21 +72,19 @@ class CP(nn.Module):
 
         S0 = self.S(phi)
 
-        tildeZ, detJ = self.deformation.complexify(phi,a.cdouble())
+        tildeZ, detJ = self.deformation.complexify(phi) 
 
         Stilde = self.S(tildeZ)
 
-        O = (self.obs(tildeZ) * detJ * torch.exp( - ( Stilde - S0 ) ) )
+        O = (self.obs(tildeZ) * detJ * torch.exp( - ( Stilde - S0 ) ) ) 
 
         return O
 
     def forward(self,phi):
-        return self.deformed_obs(phi,self.a.cdouble())
+        return self.deformed_obs(phi)
         
     def get_deformation_param(self):
-        return grab(self.a)
-
-    
+        return self.deformation.get_param()    
 
 def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     """
@@ -186,7 +166,7 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
         minibatch = np.random.randint(low=0,high=len(phi_train),size=batch_size_)
 
         # TRAIN
-        deformed_obs = model(phi_train[minibatch].cdouble())
+        deformed_obs = model(phi_train[minibatch]) # .cdouble()
 
         loss_train = loss_fct(deformed_obs)
         loss_train.backward()
@@ -200,7 +180,7 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
 
         # VALIDATION
         with torch.no_grad():
-            deformed_obs_val = model(phi_val.cdouble())
+            deformed_obs_val = model(phi_val) # .cdouble()
 
             loss_val = loss_fct(deformed_obs_val)
             
