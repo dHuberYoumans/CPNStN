@@ -38,11 +38,6 @@ if __name__ == "__main__":
 
     # exit()
 
-    ################ LOAD SAMPLES ################
-
-    phi = torch.load('samples.dat',weights_only=True)
-    print(f"\n{phi.shape = }\n")
-
     ################ SET HYPERPARAMETERS ################
     n = 2
     beta = 1.0
@@ -50,33 +45,50 @@ if __name__ == "__main__":
     alpha = 1e-3 # learning rate
     i,j = 0, 1 # parameter for fuzzy zero
     obs = fuzzy_one
-    # obs = lambda psi: fuzzy_zero(psi,i,j)
-    # obs = lambda psi: two_pt(psi,i,j)
+    # obs = lambda phi: fuzzy_zero(phi,i,j)
+    # obs = lambda phi: two_pt(phi,i,j)
 
-    ################ ACTION ########################
-    toy_action = ToyActionFunctional(n)
-    Stoy = lambda psi: toy_action.S(psi,beta)
+    ################ LATTICE ########################
+    Lx = 8
+    Ly = 8
+    phi = 0.1*torch.randn([1000,8,8,6,1])
+    print(f"\n{phi.shape = }\n")
 
-    ################ DEFORMATION ########################
+    lattice = LatticeActionFunctional(n)
+    S = lambda phi: lattice.S(phi.cdouble(),beta)
 
-    # deformation_type = "linear"
-    # a0 = 0.1*torch.randn(phi[0].shape) # dim(a) = 2n + 2
-    # deformation = Linear(a0,n)
-
-    # su(n+1)
-    deformation_type = "homogeneous"
+    # LATTICE DEFORMATION
     rk = n
     dim = n**2 + 2*n
-    a0 = 0.1*torch.randn(2,dim) # full hom
-    # a0 = torch.stack([torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)]),torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)])],dim=0) # torus
-    deformation = Homogeneous(a0,n)
+    a0 = 0.1*torch.randn(Lx,Ly,dim)
+    deformation = Homogeneous(a0,n,mode="2D")
+
+    ################ TOY MODEL ########################
+
+    # phi = torch.load('samples.dat',weights_only=True)
+
+    # toy_model = ToyActionFunctional(n)
+    # S = lambda phi: toy_model.S(phi,beta)
+
+    # # deformation_type = "linear"
+    # # a0 = 0.1*torch.randn(phi[0].shape) # dim(a) = 2n + 2
+    # # deformation = Linear(a0,n)
+
+    # # su(n+1)
+    # deformation_type = "homogeneous"
+    # rk = n
+    # dim = n**2 + 2*n
+    # a0 = 0.1*torch.randn(2,dim) # full hom
+    # # a0 = torch.stack([torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)]),torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)])],dim=0) # torus
+    # deformation = Homogeneous(a0,n)
+
 
     # LOSS
     loss_fct = loss
     loss_name = 'loss' if loss_fct == loss else 'logloss'
 
     # MODEL
-    params = [Stoy,deformation,obs,beta]
+    params = [S,deformation,obs,beta]
     model = CP(n,*params)
 
     # SET EPOCHS

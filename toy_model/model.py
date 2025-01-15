@@ -34,14 +34,13 @@ class LatticeActionFunctional():
         """
         assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
 
-        L = torch.zeros_like(phi)
+        L = torch.zeros(phi.shape[:-2],dtype=torch.cdouble)
 
         for mu in [-3,-4]:
             z = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,mu) ) ).squeeze(-1,-2)
             L +=  z * torch.conj_physical(z)
         
         return - beta * L.sum(dim=(-1,-2))
-
 
 class ToyActionFunctional():
     def __init__(self,n):
