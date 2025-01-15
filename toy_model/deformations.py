@@ -4,13 +4,15 @@ from linalg import *
 from utils import grab
 
 class Linear(nn.Module):
-    def __init__(self,a0,n):
+    def __init__(self,a0,n,mode="0D"):
         super().__init__()
 
         assert a0.shape[-2] == 2*n + 2, f"expected (vector, real) dim {2*n + 2}, got {a0.shape[-2]}"
 
         self.a = nn.Parameter(a0)
         self.identity = torch.eye(2*n + 2)
+
+        self.mode = mode
         
 
     # DEFORM 
@@ -35,10 +37,15 @@ class Linear(nn.Module):
 
         J = self.identity*lam + (M @ Y) @ X.transpose(-1,-2) / lam + 1j*M
 
-        det = torch.det(J) # (batch, #particles) -> multiply
+        det = torch.det(J) # (samples, particles) -> multiply
         detJ = det / lam.squeeze(dim=(-1,-2))**2 
 
-        detJ = torch.prod(detJ,dim=-1) # total Jacobian (batch,)
+        if self.mode == "0D":
+            detJ = torch.prod(detJ,dim=-1) # total Jacobian (samples,)
+        elif self.mode == "2D":
+            Lx = detJ.shape[-2]
+            Ly = detJ.shape[-1]
+            detJ = torch.prod(detJ.view(-1,Lx*Ly),dim=-1) # total Jacobian (samples,)
 
         assert len(detJ.shape) == 1, f'detJ has wrong dim: {detJ.shape} but must be 1' 
 
@@ -48,7 +55,7 @@ class Linear(nn.Module):
         return grab(self.a)
 
 class Homogeneous(nn.Module):
-    def __init__(self,a0,n):
+    def __init__(self,a0,n,mode="0D"):
         super().__init__()
 
         assert a0.shape[-1] == n**2 + 2*n
@@ -58,6 +65,8 @@ class Homogeneous(nn.Module):
         self.identity = torch.eye(2*n + 2)
 
         self.su_n = LieSU(n+1)
+
+        self.mode = mode
 
     # DEFORM 
     def complexify(self,phi):
@@ -79,10 +88,15 @@ class Homogeneous(nn.Module):
 
         # JACOBIAN
         J = self.identity*lam - outer_XX @ (a_ @ a_) / lam + 1j*a_
-        det = torch.det(J) # (samples, #particles) -> multiply 
-        detJ = det / lam.squeeze(dim=(-1,-2))**2 # extra factor from delta fct
+        det = torch.det(J) # (samples, particles) -> multiply 
+        detJ = det / lam.squeeze(dim=(-1,-2))**2 # incl. extra factor from delta fct
 
-        detJ = torch.prod(detJ,dim=-1) # total Jacobian (samples,)
+        if self.mode == "0D":
+            detJ = torch.prod(detJ,dim=-1) # total Jacobian (samples,)
+        elif self.mode == "2D":
+            Lx = detJ.shape[-2]
+            Ly = detJ.shape[-1]
+            detJ = torch.prod(detJ.view(-1,Lx*Ly),dim=-1) # total Jacobian (samples,)
 
         assert len(detJ.shape) == 1, f'detJ has wrong dim: {detJ.shape} but must be 1' 
     
