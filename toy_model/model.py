@@ -9,6 +9,38 @@ from utils import grab
 import tqdm
 
 
+class LatticeActionFunctional():
+    def __init__(self,n):
+        self.n = n
+        self.identity = torch.eye(2*n + 2)
+        sigma_y = torch.tensor([[0,-1j],[1j,0]]) # VS overall - sign! To discuss
+        self.T = (
+            self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)])
+                    ).cdouble()
+
+    def S(self,phi,beta):
+        """
+        Parameters:
+        -----------
+        phi: torch.Tensor
+            field evaluated on 2d square lattice
+        beta: float
+            coupling constant
+
+        Returns:
+        --------
+        S: torch.Tensor
+            action functional evaluated on lattice
+        """
+        assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
+
+        L = torch.zeros_like(phi)
+
+        for mu in [-3,-4]:
+            z = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,mu) ) ).squeeze(-1,-2)
+            L +=  z * torch.conj_physical(z)
+        
+        return - beta * L.sum(dim=(-1,-2))
 
 
 class ToyActionFunctional():
@@ -19,7 +51,7 @@ class ToyActionFunctional():
             self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)])
                     ).cdouble()
 
-    def Stoy(self,phi,beta):
+    def S(self,phi,beta):
         """
         phi = X, Y (samples, fields, dim, 1)
         """

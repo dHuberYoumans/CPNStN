@@ -54,8 +54,8 @@ if __name__ == "__main__":
     # obs = lambda psi: two_pt(psi,i,j)
 
     ################ ACTION ########################
-    action = ToyActionFunctional(n)
-    Stoy = lambda psi: action.Stoy(psi,beta)
+    toy_action = ToyActionFunctional(n)
+    Stoy = lambda psi: toy_action.S(psi,beta)
 
     ################ DEFORMATION ########################
 
