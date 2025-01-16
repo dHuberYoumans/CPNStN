@@ -64,6 +64,7 @@
 \DeclareMathOperator{\PSU}{PSU}
 \DeclareMathOperator{\U}{U}
 \DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\Var}{Var}
 
 \newcommand{\g}{\mathfrak{g}}
 \newcommand{\h}{\mathfrak{h}}
@@ -347,113 +348,6 @@ Therefore, we are left with an integral of the form
 
 \subsection{Homogeneous Deformations}
 
-\subsubsection{Example: \texorpdfstring{$n=0$}{n=0}}
-
-A particular nice example, which can be computed explicitly and serves as a check that everything works nicely is given for the case $n=0$.
-Consider the deformation 
-\begin{equation}
-  y(x) = \alpha \Omega x \quad , \quad \lVert x \rVert^2 = 1\quad , \quad \Omega = \mat{0}{1}{-1}{0} \in \SO(2) \quad , \quad \alpha \in \RR
-  \label{eq:toy_cst_def}
-\end{equation}
-so that indeed 
-\begin{equation}
-  \left\langle x, y(x) \right\rangle = 0
-\end{equation}
-Moreover, note that 
-\begin{equation}
-  \lVert y(x) \rVert^2 = \left\langle y(x), y(x) \right\rangle = \alpha^2 \left\langle x, \Omega^t \Omega x \right\rangle = \alpha^2 \lVert x \rVert^2 = \alpha^2
-\end{equation}
-and hence 
-\begin{equation}
-  \lambda^2(x) = 1 + \alpha^2
-\end{equation}
-We compute the Jacobian of this parametrisation as follows: let $M_{i}^{\;j} = \del_i y^j(x)$.
-Then 
-\begin{equation}
-  \begin{split} 
-    J_i^{\;j} = \lambda(x) \delta_{i}^{\;j} + \frac{\left\langle y, \del_i y \right\rangle x^j}{\lambda(x)} + i M_i^{\;j} =  \lambda(x) \delta_{i}^{\;j} + \frac{M_{ik}y^k x^j}{\lambda(x)} + i M_i^{\;j}
-  \end{split}
-\end{equation}
-Using bra-ket notation and trivially lowering indices (considering the flat metric on $\RR^2$), we can write $J$ as follows:
-\begin{equation}
-  J = \lambda(x) \cdot id + \lambda^{-1}(x) \ket{My}\bra{x} + i M
-\end{equation}
-\begin{remark}
-  The matrix $M$ has some interesting properties.
-  \begin{enumerate}
-    \item From $\left\langle x, y(x) \right\rangle = 0$ it follows that
-      \[
-      0 = \del_i \left\langle x, y(x) \right\rangle = y_i(x) + M_{ik} x_k
-      \] 
-      so that 
-      \[
-	y_i(x) = M_{ik} x_k \implies y(x) = Mx
-      \] 
-      and hence
-      \[
-	\left\langle x, y \right\rangle = \left\langle x , Mx \right\rangle = \left\langle M^t x, x \right\rangle = 0
-      \] 
-      from which follows (if $y(x) = Mx \neq 0$)
-      \[
-	\bra{x} M = 0
-      \] 
-  \end{enumerate}
-\end{remark}
-Now, for our choice of
-\[
-  y(x) = \alpha \Omega x
-\] 
-we have
-\begin{equation}
-  M = \alpha \Omega^t = - \alpha \Omega
-\end{equation}
-and hence 
-\begin{equation}
-  \begin{split} 
-    J &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 \Omega^t \Omega \ket{x} \bra{x} - i \alpha \Omega \\
-    &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 \ket{x} \bra{x} - i \alpha \Omega
-  \end{split}
-\end{equation}
-Now, here is a neat trick due to Tej.
-Consider the unitary matrix 
-\begin{equation}
-  U = (x\ \Omega x) \quad , \quad \Omega^{*} = \begin{pmatrix} x^t \\ x^t \Omega^t \end{pmatrix}
-\end{equation}
-where $x$ is a $2\times 2$ column vector with unit norm.
-Then 
-\begin{equation}
-  U^* U = \mat{\left\langle x, x \right\rangle}{\left\langle x, \Omega x \right\rangle}{\left\langle \Omega x, x \right\rangle}{\left\langle x, x \right\rangle} = \mat{1}{0}{0}{1}
-\end{equation}
-Moreover,
-\begin{equation}
-  \bra{x} U = x^t U = (\left\langle x,x \right\rangle\  \left\langle x, \Omega x \right\rangle) = (1\ 0)
-\end{equation}
-as well as
-\begin{equation}
-  U^* \Omega U = U^* (\Omega x\ \Omega^2 x) = U^* (\Omega x\ -x) = \mat{\left\langle x, \Omega x \right\rangle}{-\left\langle x, x \right\rangle}{\left\langle x, \Omega^t\Omega x\right\rangle}{-\left\langle x, \Omega^t x \right\rangle} = -\Omega
-\end{equation}
-Then
-\begin{equation}
-  \begin{split} 
-    U^* J U &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 U^* \ket{x}\bra{x} U - i\alpha U^* \Omega U \\
-    &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 U^* \mat{1}{0}{0}{0} + i\alpha \Omega \\
-    &= \mat{\lambda(x) + \lambda^{-1}(x) \alpha^2}{i\alpha}{-i\alpha}{\lambda(x)}
-  \end{split}
-\end{equation}
-It follows that 
-\begin{equation}
-  \begin{split} 
-    \det J(x) &= \det( U^* J(x) U) \\
-    &= \det \mat{\lambda(x) + \lambda^{-1}(x) \alpha^2}{i\alpha}{-i\alpha}{\lambda(x)} \\
-    &= \lambda^2(x) + \alpha^2 - \alpha^2 = \lambda^2(x)
-  \end{split}
-\end{equation}
-Finally, we obtain that
-\begin{equation}
-  I \sim \int_{S^{2n+1}} \frac{\det J(x)}{\lambda^2(x)} = \int_{S^{2n+1}} \frac{\lambda^2(x)}{\lambda^2(x)} = \int_{S^{2n+1}}
-\end{equation}
-This means that the \emph{constant deformation} \eqref{eq:toy_cst_def} comes with a trivial \emph{total} Jacobian (Jacobian + factor from the $\varphi$-function constraint).
-
 \subsubsection{The General Case}
 The $n=0$ example can be nicely generalised. 
 Tej suggested to consider deformations of the form
@@ -620,6 +514,259 @@ where we implicitly identify $g(p) X$ with $g(p) X p_0$.
   \end{equation}
 \end{remark}
 
+
+\subsection{Example: \texorpdfstring{$n=0$}{n=0}}
+\subsubsection{Homogeneous deformation}
+A particular nice example, which can be computed explicitly and serves as a check that everything works nicely is given for the case $n=0$.
+Consider the deformation 
+\begin{equation}
+  y(x) = \alpha \Omega x \quad , \quad \lVert x \rVert^2 = 1\quad , \quad \Omega = \mat{0}{1}{-1}{0} \in \SO(2) \quad , \quad \alpha \in \RR
+  \label{eq:toy_cst_def}
+\end{equation}
+so that indeed 
+\begin{equation}
+  \left\langle x, y(x) \right\rangle = 0
+\end{equation}
+Moreover, note that 
+\begin{equation}
+  \lVert y(x) \rVert^2 = \left\langle y(x), y(x) \right\rangle = \alpha^2 \left\langle x, \Omega^t \Omega x \right\rangle = \alpha^2 \lVert x \rVert^2 = \alpha^2
+\end{equation}
+and hence 
+\begin{equation}
+  \lambda^2(x) = 1 + \alpha^2
+\end{equation}
+We compute the Jacobian of this parametrisation as follows: let $M_{i}^{\;j} = \del_i y^j(x)$.
+Then 
+\begin{equation}
+  \begin{split} 
+    J_i^{\;j} = \lambda(x) \delta_{i}^{\;j} + \frac{\left\langle y, \del_i y \right\rangle x^j}{\lambda(x)} + i M_i^{\;j} =  \lambda(x) \delta_{i}^{\;j} + \frac{M_{ik}y^k x^j}{\lambda(x)} + i M_i^{\;j}
+  \end{split}
+\end{equation}
+Using bra-ket notation and trivially lowering indices (considering the flat metric on $\RR^2$), we can write $J$ as follows:
+\begin{equation}
+  J = \lambda(x) \cdot id + \lambda^{-1}(x) \ket{My}\bra{x} + i M
+\end{equation}
+\begin{remark}
+  The matrix $M$ has some interesting properties.
+  \begin{enumerate}
+    \item From $\left\langle x, y(x) \right\rangle = 0$ it follows that
+      \[
+      0 = \del_i \left\langle x, y(x) \right\rangle = y_i(x) + M_{ik} x_k
+      \] 
+      so that 
+      \[
+	y_i(x) = M_{ik} x_k \implies y(x) = Mx
+      \] 
+      and hence
+      \[
+	\left\langle x, y \right\rangle = \left\langle x , Mx \right\rangle = \left\langle M^t x, x \right\rangle = 0
+      \] 
+      from which follows (if $y(x) = Mx \neq 0$)
+      \[
+	\bra{x} M = 0
+      \] 
+  \end{enumerate}
+\end{remark}
+Now, for our choice of
+\[
+  y(x) = \alpha \Omega x
+\] 
+we have
+\begin{equation}
+  M = \alpha \Omega^t = - \alpha \Omega
+\end{equation}
+and hence 
+\begin{equation}
+  \begin{split} 
+    J &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 \Omega^t \Omega \ket{x} \bra{x} - i \alpha \Omega \\
+    &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 \ket{x} \bra{x} - i \alpha \Omega
+  \end{split}
+\end{equation}
+Now, here is a neat trick due to Tej.
+Consider the unitary matrix 
+\begin{equation}
+  U = (x\ \Omega x) \quad , \quad \Omega^{*} = \begin{pmatrix} x^t \\ x^t \Omega^t \end{pmatrix}
+\end{equation}
+where $x$ is a $2\times 2$ column vector with unit norm.
+Then 
+\begin{equation}
+  U^* U = \mat{\left\langle x, x \right\rangle}{\left\langle x, \Omega x \right\rangle}{\left\langle \Omega x, x \right\rangle}{\left\langle x, x \right\rangle} = \mat{1}{0}{0}{1}
+\end{equation}
+Moreover,
+\begin{equation}
+  \bra{x} U = x^t U = (\left\langle x,x \right\rangle\  \left\langle x, \Omega x \right\rangle) = (1\ 0)
+\end{equation}
+as well as
+\begin{equation}
+  U^* \Omega U = U^* (\Omega x\ \Omega^2 x) = U^* (\Omega x\ -x) = \mat{\left\langle x, \Omega x \right\rangle}{-\left\langle x, x \right\rangle}{\left\langle x, \Omega^t\Omega x\right\rangle}{-\left\langle x, \Omega^t x \right\rangle} = -\Omega
+\end{equation}
+Then
+\begin{equation}
+  \begin{split} 
+    U^* J U &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 U^* \ket{x}\bra{x} U - i\alpha U^* \Omega U \\
+    &= \lambda(x) \cdot id + \lambda^{-1}(x) \alpha^2 U^* \mat{1}{0}{0}{0} + i\alpha \Omega \\
+    &= \mat{\lambda(x) + \lambda^{-1}(x) \alpha^2}{i\alpha}{-i\alpha}{\lambda(x)}
+  \end{split}
+\end{equation}
+It follows that 
+\begin{equation}
+  \begin{split} 
+    \det J(x) &= \det( U^* J(x) U) \\
+    &= \det \mat{\lambda(x) + \lambda^{-1}(x) \alpha^2}{i\alpha}{-i\alpha}{\lambda(x)} \\
+    &= \lambda^2(x) + \alpha^2 - \alpha^2 = \lambda^2(x)
+  \end{split}
+\end{equation}
+Finally, we obtain that
+\begin{equation}
+  I \sim \int_{S^{2n+1}} \frac{\det J(x)}{\lambda^2(x)} = \int_{S^{2n+1}} \frac{\lambda^2(x)}{\lambda^2(x)} = \int_{S^{2n+1}}
+\end{equation}
+This means that the \emph{constant deformation} \eqref{eq:toy_cst_def} comes with a trivial \emph{total} Jacobian (Jacobian + factor from the $\varphi$-function constraint).
+
+\subsubsection{What it really means}
+Recall that for $n=0$ we consider the path integral over $S^1$.
+Before, we have considered $x \in S^1 \subset \RR^2$.
+Now, we might think of its complex formulation: let us consider $z = e^{i\theta} \in S^1 \subset \CC$.
+In \cite{}, the complexification was chosen in terms of $\theta \to \theta + i \tau$. 
+This means that 
+\begin{equation}
+  z \mapsto \tilde z = e^{i(\theta + i\tau)} = e^{-\tau} z
+\end{equation}
+
+On the other hand, we can parametrize $x$ by 
+\begin{equation}
+  x = \vek{\sin(\theta)}{\cos(\theta)}
+\end{equation}
+so that 
+\begin{equation}
+  \begin{split} 
+    \tilde z &= \vek{\sin(\theta + i \tau)}{\cos(\theta + i\tau)} = \vek{\sin(\theta)\cosh(\tau) + i \cos(\theta)\sinh(\tau)}{\cos(\theta)\cosh(\tau) - i \sin(\theta)\sinh(\tau)} \\
+    &= \mat{\cosh(\tau)}{i \sinh(\tau)}{-i \sinh(\tau)}{\cosh(\tau} \vek{\sin(\theta)}{\cos(\theta)} = \lambda x + i \underbrace{\Omega x}_{y(x)}
+  \end{split}
+\end{equation}
+where 
+\begin{equation}
+  \Omega = \mat{0}{-\sinh(\tau)}{\sinh(\tau)}{0} 
+\end{equation}
+and
+\begin{equation}
+  \lambda^2 = 1 + \lVert y(x) \rVert^2 = 1 + \sinh^2(\tau) = \cosh^2(\tau)
+\end{equation}
+
+To summarise, if we consider the homogeneous deformation \eqref{eq:toy_cst_def},
+\begin{equation}
+  y(x) = \alpha \Omega x \quad , \quad \lVert x \rVert^2 = 1 \quad , \quad \Omega = \mat{0}{1}{-1}{0}
+\end{equation}
+then choosing 
+\begin{equation}
+  \boxed{
+    \alpha = \sinh(\tau)
+  }
+\end{equation}
+we find that the homogeneous deformation simply scales the complex variable $z = e^{i\theta} \in S^1 \subset \CC$,
+\begin{equation}
+  z \to \tilde z = e^{-\tau} z
+\end{equation}
+
+\subsubsection{Generalisation: Torus deformations}
+Let us now think about $n > 0$. 
+Let $z = [z_0:\dots:z_n] \in \CP^n$. 
+Again, we factor out the $\U(1) \subset \CC^*$ and fix the $\RR_+ \subset \CC^*$ by restricting the path integral to $S^{2n +1}$, i.e.
+\begin{equation}
+  \sum_k \lvert z_k \rvert^2 = 1
+\end{equation}
+Following the logic of the homogeneous deformation, let us consider a deformation parametrised by a generic element in the Cartan subalgebra of $\su(n+1)$
+\begin{equation}
+  Y = \Omega(\alpha)X = \sum_{k=1}^{n} \rho(i \alpha_k H_k)
+\end{equation}
+where we choose the following \emph{hermitian} (hence the factor of $i$) basis of the Cartan $\h \subset \su(n+1)$ subalgebra
+\begin{equation}
+H_k = E_{kk} - E_{(k+1)(k+1)}
+\end{equation}
+where $E_{ij}$ is the $n \times n$ matrix with $(E_{ij})_{ab} = \delta_{ai}\delta_{bj}$.
+Here, $\rho$ is again the representation of complex multiplication in terms of $2\times2$ matrices,
+\begin{equation}
+  \rho(a + ib) = \mat{a}{-b}{b}{a}
+\end{equation}
+and defined element-wise on a generic complex matrix as
+\begin{equation}
+  \rho(M) = 
+  \begin{pmatrix} 
+    \rho(m_{11}) & \rho(m_{12}) & \dots \\ 
+    \rho(m_{21} & \rho(m_{22}) & \dots \\
+     \vdots & \vdots & 
+   \end{pmatrix}
+\end{equation}
+In particular, 
+\begin{equation}
+  \rho(iH_k) = \rho(iE_{kk}) - \rho(iE_{(k+1)(k+1)}) = 
+  \begin{pmatrix} 
+    \ddots & & & &\\
+    & 0 & -1 & & & \\
+    & 1 & \phantom{-}0 & &\\
+    & & & \phantom{-}0 & 1 &\\
+    & & & -1 & 0 &\\
+    & & & & & & \ddots
+  \end{pmatrix}
+\end{equation}
+Let us choose 
+\begin{equation}
+  \alpha_k = \sinh(\tau_k) \quad , \quad \tau_0 \equiv \tau_{n+1} \equiv 0
+\end{equation}
+then, acting on the complex vector $z = (z_0, \dots, z_n)$, we find 
+\begin{equation}
+  \boxed{
+\tilde z = (\tilde z_0, \dots, \tilde z_n) = ( e^{-\Delta_{01}}z_0, \dots, e^{-\Delta_{nn+1}}z_n) \quad , \quad \Delta_k = \tau_k - \tau_{k+1}
+}
+\end{equation}
+
+\subsection{Operators}
+\subsubsection{One-point function}
+It is time to look at interesting operators we would like to compute.
+We start with the one-point function.
+Let 
+\begin{equation}
+  \OO_{ij}(z) = z_i \bar z_j 
+\end{equation}
+Clearly, $\OO_{ij}$ is invariant under the $\U(1)$ action $z_k \to e^{i\varphi}z_k$ for all $k$.
+
+It's expectation value is given by
+\begin{equation}
+  \left\langle \OO_{ij}(z) \right\rangle = \frac{1}{(2\pi)^2} \int_{S^{2n+1}\times S^{2n+1}} \prod_k d^nz_k d^nw_k\; z_i \bar z_j e^{- S(z,w)}  
+  \label{eq:toy_one_pt}
+\end{equation}
+where 
+\begin{equation}
+  S(z,w) = - \beta \lvert \left\langle \bar z, w \right\rangle \rvert^2 = - \beta \sum_{k,\ell} \bar z_{\ell} z_k w_{\ell} \bar w_{k} 
+\end{equation}
+Note that both, the action and the measure is invariant under the diagonal $\U(1)$ action 
+\begin{equation}
+  (z_k,w_k) \mapsto (e^{i\alpha}z_k, e^{i\alpha}w_k) \quad , \quad \forall k
+\end{equation}
+By this change of coordinates, for $k=i$, it follows that
+\begin{equation}
+  \left\langle \OO_{ij}(z) \right\rangle = e^{-i\alpha}\left\langle \OO_{ij}(z) \right\rangle
+\end{equation}
+for any $\alpha$ and hence we must have
+\begin{equation}
+  \boxed{
+    \left\langle \OO_{ij}(z) \right\rangle = 0 \quad , \quad \forall z, i,j 
+  }
+  \label{eq:toy_var_one_pt}
+\end{equation}
+Its variance is given by
+\begin{equation}
+  \begin{split} 
+    \Var(\OO_{ij}(z)) &= \left\langle \lvert \OO_{ij}(z)\rvert^2 \right\rangle  - \lvert \left\langle \OO_{ij}(z) \right\rangle \rvert^2 \\
+    &= \left\langle \OO_{ij}(z)\OO^{*}_{ij}(z) \right\rangle - \left\langle \OO_{ij}(z) \right\rangle \left\langle \OO_{ij}^*(z) \right\rangle 
+  \end{split}
+\end{equation}
+so that by \eqref{eq:toy_var_one_pt}
+\begin{equation}
+\Var(\OO_{ij}(z)) = \left\langle \lvert \OO_{ij}(z)\rvert^2 \right\rangle = \left\langle \lvert z_i \rvert^2 \lvert z_j \rvert^2 \right\rangle 
+\end{equation}
+
+
+\subsection{Two-point function}
 \begin{thebibliography}{99}
   \bibitem{Bruhat_Whitney} F.\ Bruhat and H.\ Whitney, Quelques propri\'et\'es fondamentales des ensembles analytiques-r\'eels, Comment. Math. Helv. 33, 132-160 (1959).
 
