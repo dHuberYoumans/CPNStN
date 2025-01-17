@@ -40,23 +40,30 @@ class LieSU():
 
         for j in range(self.n):
             for k in range(j+1,self.n):
-                ee = np.zeros((self.n,self.n))
+                ee = torch.zeros((self.n,self.n),dtype=torch.cdouble)
                 ee[j][k] = 1
-                sym.append(torch.tensor(ee + ee.transpose()))
-                anti_sym.append(torch.tensor(-1j*(ee - ee.transpose())))
+                sym.append(ee + ee.transpose(-1,-2))
+                anti_sym.append(-1j*(ee - ee.transpose(-1,-2)))
+
+        for ell in range(self.n - 1): # easier but not orthogonal basis! 
+            ee = torch.zeros((self.n,self.n),dtype=torch.cdouble)
+            ee[ell][ell] = 1
+            ee[ell+1][ell+1] = -1
+
+            diag.append(ee)
                 
-        for ell in range(self.n-1):
-            ee = np.zeros((self.n,self.n))
-            ee[ell+1][ell+1] = 1
+        # for ell in range(self.n-1):
+        #     ee = np.zeros((self.n,self.n))
+        #     ee[ell+1][ell+1] = 1
 
-            d = np.zeros((self.n,self.n)).copy()
+        #     d = np.zeros((self.n,self.n)).copy()
 
-            for j in range(ell+1):
-                d[j][j] += 1
+        #     for j in range(ell+1):
+        #         d[j][j] += 1
 
-            b = np.sqrt(2/((ell+1)*((ell+1)+1))) * (d - (ell+1)*ee)
+        #     b = np.sqrt(2/((ell+1)*((ell+1)+1))) * (d - (ell+1)*ee)
 
-            diag.append(torch.tensor(b))
+        #     diag.append(torch.tensor(b))
 
         return torch.stack(diag + sym + anti_sym,dim=0)
 
