@@ -667,7 +667,7 @@ we find that the homogeneous deformation simply scales the complex variable $z =
   z \to \tilde z = e^{-\tau} z
 \end{equation}
 
-\subsubsection{Generalisation: Torus deformations}
+\subsubsection{Generalisation: Torus deformations}\label{subsubsec:Torus_deformation}
 Let us now think about $n > 0$. 
 Let $z = [z_0:\dots:z_n] \in \CP^n$. 
 Again, we factor out the $\U(1) \subset \CC^*$ and fix the $\RR_+ \subset \CC^*$ by restricting the path integral to $S^{2n +1}$, i.e.
@@ -715,11 +715,11 @@ Let us choose
 then, acting on the complex vector $z = (z_0, \dots, z_n)$, we find 
 \begin{equation}
   \boxed{
-\tilde z = (\tilde z_0, \dots, \tilde z_n) = ( e^{-\Delta_{01}}z_0, \dots, e^{-\Delta_{nn+1}}z_n) \quad , \quad \Delta_k = \tau_k - \tau_{k+1}
+    \tilde z = (\tilde z_0, \dots, \tilde z_n) = ( e^{-\Delta_{01}}z_0, \dots, e^{-\Delta_{nn+1}}z_n) \quad , \quad \Delta_{kk+1} = \tau_k - \tau_{k+1}
 }
 \end{equation}
 
-\subsection{Operators}
+\subsection{Correlators}
 \subsubsection{One-point function}
 It is time to look at interesting operators we would like to compute.
 We start with the one-point function.
@@ -742,14 +742,14 @@ Note that both, the action and the measure is invariant under the diagonal $\U(1
 \begin{equation}
   (z_k,w_k) \mapsto (e^{i\alpha}z_k, e^{i\alpha}w_k) \quad , \quad \forall k
 \end{equation}
-By this change of coordinates, for $k=i$, it follows that
+If $i \neq j$, by this change of coordinates, for $k=i$, it follows that
 \begin{equation}
   \left\langle \OO_{ij}(z) \right\rangle = e^{-i\alpha}\left\langle \OO_{ij}(z) \right\rangle
 \end{equation}
 for any $\alpha$ and hence we must have
 \begin{equation}
   \boxed{
-    \left\langle \OO_{ij}(z) \right\rangle = 0 \quad , \quad \forall z, i,j 
+    \left\langle \OO_{ij}(z) \right\rangle = 0 \quad , \quad \forall z, i \neq j 
   }
   \label{eq:toy_var_one_pt}
 \end{equation}
@@ -765,8 +765,16 @@ so that by \eqref{eq:toy_var_one_pt}
 \Var(\OO_{ij}(z)) = \left\langle \lvert \OO_{ij}(z)\rvert^2 \right\rangle = \left\langle \lvert z_i \rvert^2 \lvert z_j \rvert^2 \right\rangle 
 \end{equation}
 
+If we consider a torus / Cartan deformation as outlined in Section \ref{subsubsec:Torus_deformation}, then we find 
+\begin{equation}
+  \begin{split} 
+    \Var(\widetilde{\OO}_{ij}(\tilde z)) &= \left\langle e^{-2\Delta_{ii+1}}\lvert z_i \rvert^2 e^{-2\Delta_{jj+1}}\lvert z_j \rvert^2 \right\rangle_{deformed}\\
+    &=  e^{-2\Delta_{ii+1} -2\Delta_{jj+1}} \left\langle  \lvert z_i \rvert^2\lvert z_j \rvert^2\ \det(J_{tot})\ e^{-(\tilde S - S)}\right\rangle 
+  \end{split}
+\end{equation}
 
-\subsection{Two-point function}
+
+\subsubsection{Two-point function}
 \begin{thebibliography}{99}
   \bibitem{Bruhat_Whitney} F.\ Bruhat and H.\ Whitney, Quelques propri\'et\'es fondamentales des ensembles analytiques-r\'eels, Comment. Math. Helv. 33, 132-160 (1959).
 
