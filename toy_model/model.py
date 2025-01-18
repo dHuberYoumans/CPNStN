@@ -37,9 +37,8 @@ class LatticeActionFunctional():
         L = torch.zeros(phi.shape[:-2],dtype=torch.cdouble)
 
         for mu in [-3,-4]:
-            z = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,mu) ) ).squeeze(-1,-2)
+            z = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,mu) ) ).squeeze(-1,-2)     
             L +=  z * torch.conj_physical(z)
-        
         return - beta * L.sum(dim=(-1,-2))
 
 class ToyActionFunctional():
@@ -59,7 +58,7 @@ class ToyActionFunctional():
         Y = phi[:,1].cdouble()
 
         hXY = ( X.transpose(-1,-2) @ (self.T @ Y) ).flatten()
-        hYX =  ( Y.transpose(-1,-2) @ (self.T @ X) ).flatten()
+        hYX = ( Y.transpose(-1,-2) @ (self.T @ X) ).flatten()
 
         return - beta * hXY * hYX
     

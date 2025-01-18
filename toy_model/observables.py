@@ -10,7 +10,7 @@ def real2cmplx(phi):
 def cmplx2real(z):
     re = z.real
     im = z.imag
-    Xshape = [elem for elem in z.shape]
+    Xshape = list(z.shape) #[elem for elem in z.shape]
     Xshape[-2] *= 2
 
     X = torch.zeros(*Xshape)
@@ -22,7 +22,7 @@ def cmplx2real(z):
 def fuzzy_one(phi):
     return torch.ones(phi.shape[0],dtype=torch.cdouble)
 
-def fuzzy_zero(phi,i,j):
+def one_pt(phi,i,j): # fuzzy zero
     """
     Observable z_i \\bar z_j
 
