@@ -33,13 +33,26 @@ class LatticeActionFunctional():
             action functional evaluated on lattice
         """
         assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
-
+        
         L = torch.zeros(phi.shape[:-2],dtype=torch.cdouble)
 
         for mu in [-3,-4]:
             z = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,mu) ) ).squeeze(-1,-2)     
             L +=  z * torch.conj_physical(z)
         return - beta * L.sum(dim=(-1,-2))
+    
+    def u(self,phi):
+        assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
+
+        L = phi.shape[-3]
+        V = L**2
+
+        u_ = torch.zeros(phi.shape[:-2],dtype=torch.cdouble)
+
+        for mu in [-3,-4]:
+            z = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,mu) ) ).squeeze(-1,-2)     
+            u_ +=  1.0 - z * torch.conj_physical(z)
+        return u_.sum(dim=(-1,-2)) / V
 
 class ToyActionFunctional():
     def __init__(self,n):
@@ -80,7 +93,7 @@ class CP(nn.Module):
         # ACTION
         self.S = action
 
-    def deformed_obs(self,phi):
+    def Otilde(self,phi):
         """
         Computes the operator corresponding to the deformed observable inside the undeformed path integral: Jac * O(tilde phi) exp[ - ( S( tilde phi) - S(phi) ) ]
 
@@ -102,16 +115,16 @@ class CP(nn.Module):
 
         S0 = self.S(phi)
 
-        tildeZ, detJ = self.deformation.complexify(phi) 
+        phi_tilde, detJ = self.deformation.complexify(phi) 
 
-        Stilde = self.S(tildeZ)
+        Stilde = self.S(phi_tilde)
 
-        O = (self.obs(tildeZ) * detJ * torch.exp( - ( Stilde - S0 ) ) ) 
+        O = (self.obs(phi_tilde) * detJ * torch.exp( - ( Stilde - S0 ) ) ) 
 
         return O
-
+    
     def forward(self,phi):
-        return self.deformed_obs(phi)
+        return self.Otilde(phi)
         
     def get_deformation_param(self):
         return self.deformation.get_param()    
@@ -196,23 +209,23 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
         minibatch = np.random.randint(low=0,high=len(phi_train),size=batch_size_)
 
         # TRAIN
-        deformed_obs = model(phi_train[minibatch]) # .cdouble()
+        Otilde = model(phi_train[minibatch]) 
 
-        loss_train = loss_fct(deformed_obs)
+        loss_train = loss_fct(Otilde)
         loss_train.backward()
 
         with torch.no_grad():
-            observable.append(grab(deformed_obs).mean())
+            observable.append(grab(Otilde).mean())
 
-            observable_var.append(grab(deformed_obs).var())
+            observable_var.append(grab(Otilde).var())
 
         optimizer_.step()
 
         # VALIDATION
         with torch.no_grad():
-            deformed_obs_val = model(phi_val) # .cdouble()
+            Otilde_val = model(phi_val) 
 
-            loss_val = loss_fct(deformed_obs_val)
+            loss_val = loss_fct(Otilde_val)
             
         losses_train.append(grab(loss_train))
         losses_val.append(grab(loss_val))

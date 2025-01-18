@@ -19,51 +19,99 @@ def cmplx2real(z):
 
     return X
 
-def fuzzy_one(phi):
-    return torch.ones(phi.shape[0],dtype=torch.cdouble)
+class ToyObs:
+    def __init__(self):
+        pass
 
-def one_pt(phi,i,j): # fuzzy zero
-    """
-    Observable z_i \\bar z_j
+    @staticmethod
+    def fuzzy_one(phi):
+        return torch.ones(phi.shape[0],dtype=torch.cdouble)
+    
+    @staticmethod
+    def one_pt(phi,i,j,particle=0): # fuzzy zero
+        """
+        Observable z_i \\bar z_j
 
-    Parameters:
-    -----------
-    phi: torch.tensor
-        Batch of real fields (vectors (...,2n+1,1))
+        Parameters:
+        -----------
+        phi: torch.tensor
+            Batch of real fields (vectors (...,2n+1,1))
 
-    i: int
-        Component z_i
+        i: int
+            Component z_i
 
-    j: int
-        Component \\bar z_j
-    """
+        j: int
+            Component \\bar z_j
 
-    z, zbar = real2cmplx(phi[:,0])
+        particle: int, default 0
+            Particle 0: z, 1: w
+        """
 
-    O = (z[...,i,:]*zbar[...,j,:]).squeeze(-1) # (samples,)
+        z, zbar = real2cmplx(phi[:,particle])
 
-    assert len(O.shape) == 1
+        O = (z[...,i,:]*zbar[...,j,:]).squeeze(-1) # (samples,)
 
-    return O
+        assert len(O.shape) == 1
 
-def two_pt(phi,i,j):
-    """
-    Observable z_i zbar_j w_j wbar_i
+        return O
+    
+    @staticmethod
+    def two_pt(phi,i,j):
+        """
+        Observable z_i zbar_j w_j wbar_i
 
-    Parameters:
-    -----------
-    phi: torch.tensor
-        Batch of real fields (vectors (...,2n+1,1))
+        Parameters:
+        -----------
+        phi: torch.tensor
+            Batch of real fields (vectors (...,2n+1,1))
 
-    i: int
-        Component z_i
-    """
+        i: int
+            Component z_i
+        """
 
-    z, zbar = real2cmplx(phi[:,0]) 
-    w, wbar = real2cmplx(phi[:,1])
+        z, zbar = real2cmplx(phi[:,0]) 
+        w, wbar = real2cmplx(phi[:,1])
 
-    O = (z[...,i,:]*zbar[...,j,:]*w[...,j,:]*wbar[...,i,:]).squeeze(-1) # (samples,)
+        O = (z[...,i,:]*zbar[...,j,:]*w[...,j,:]*wbar[...,i,:]).squeeze(-1) # (samples,)
 
-    assert len(O.shape) == 1
+        assert len(O.shape) == 1
 
-    return O
+        return O
+
+    
+class LatObs:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def fuzzy_one(phi):
+        return torch.ones(phi.shape[0],dtype=torch.cdouble)
+    
+    @staticmethod
+    def one_pt(phi,p,i,j): # fuzzy zero
+        """
+        Observable z_i \\bar z_j
+
+        Parameters:
+        -----------
+        phi: torch.tensor
+            Batch of real fields (vectors (...,2n+1,1))
+
+        p: tuple
+            Lattice point
+
+        i: int
+            Component z_i
+
+        j: int
+            Component \\bar z_j
+        """
+        x,y = p
+
+        z, zbar = real2cmplx(phi[:,0])
+
+        O = (z[:,x,y,i,:]*zbar[:,x,y,j,:]).squeeze(-1) # (samples,)
+
+        assert len(O.shape) == 1
+
+        return O
