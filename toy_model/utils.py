@@ -1,24 +1,21 @@
 import numpy as np
 import time
 
-def grab(x): 
-    return x.detach().cpu().numpy()
+def grab(x,safe=True): 
+    arr = x.detach().cpu().numpy()
 
-def safe_grab(x): 
-    array = x.detach().cpu().numpy()
+    if safe:
+        if np.any(np.isnan(arr)):
+            print("Warning: NaN!")
 
-    if np.any(np.isnan(array)):
-        print("Warning: NaN!")
+        if np.any(np.isinf(arr)):
+            print("Warning: Inf detected in tensor!")
 
-    if np.any(np.isinf(array)):
-        print("Warning: Inf detected in tensor!")
-    return array
-
-import time
+    return arr
 
 class Timer:
     """
-    A simple context manager for timing code execution.
+    A simple context manager for timing.
     """
     def __init__(self,msg):
         self.msg = msg
