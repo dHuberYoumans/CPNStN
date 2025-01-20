@@ -31,9 +31,10 @@ def main(mode):
         phi = cmplx2real(torch.tensor(ens).unsqueeze(-1))
         print("...done\n")
         print(f"{phi.shape = }")
+        print(f"{phi.dtype = }")
 
         # ACTION FUNCTIONAL
-        S = lambda phi: LatticeActionFunctional(n).S(phi.cdouble(),beta)
+        S = lambda phi: LatticeActionFunctional(n).action(phi.cdouble(),beta)
 
         # OBSERVABLE
         i,j = 0, 1 
@@ -41,7 +42,7 @@ def main(mode):
         # obs = lambda phi: LatObs.one_pt(phi,i,j) # fuzzy_zero
         # obs = lambda phi: LatObs.two_pt(phi,i,j)
         
-        a0 = 0.001*torch.randn(L,L,dim)
+        a0 = torch.zeros(L,L,dim)
         deformation = Homogeneous(a0,n,mode="2D")
 
         deformation_type = "lattice"
@@ -55,13 +56,13 @@ def main(mode):
         phi = torch.load(f'samples_n{n}_b{beta:.1f}.dat',weights_only=True)
 
         # ACTION FUNCTIONAL
-        S = lambda phi: ToyActionFunctional(n).S(phi,beta)
+        S = lambda phi: ToyActionFunctional(n).action(phi,beta)
 
         # OBSERVABLE
         i,j = 0, 1
         # obs = ToyObs.fuzzy_one
-        obs = lambda phi: ToyObs.one_pt(phi,i,j) # fuzzy_zero
-        # obs = lambda phi: ToyObs.two_pt(phi,i,j)
+        # obs = lambda phi: ToyObs.one_pt(phi,i,j) # fuzzy_zero
+        obs = lambda phi: ToyObs.two_pt(phi,i,j)
 
         # deformation_type = "linear"
         # a0 = 0.1*torch.randn(phi[0].shape) # dim(a) = 2n + 2
@@ -71,7 +72,8 @@ def main(mode):
         deformation_type = "homogeneous"
         rk = n
         dim = n**2 + 2*n
-        a0 = 0.1*torch.randn(2,dim) # full hom
+        a0 = torch.zeros(2,dim) # full hom
+        # a0 = 0.1*torch.randn(2,dim) # fuzzy one
         # a0 = torch.stack([torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)]),torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)])],dim=0) # torus
         deformation = Homogeneous(a0,n)
 
@@ -88,7 +90,7 @@ def main(mode):
     model = CP(n,*params)
 
     # SET EPOCHS
-    epochs = 5_000
+    epochs = 1_000
 
     # TRAINING
     print("\n training model ... \n")

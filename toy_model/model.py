@@ -4,21 +4,22 @@ import torch.optim as optim
 
 import numpy as np
 from linalg import *
-from utils import grab
+from utils import *
 
 import tqdm
+
 
 
 class LatticeActionFunctional():
     def __init__(self,n):
         self.n = n
         self.identity = torch.eye(2*n + 2)
-        sigma_y = torch.tensor([[0,-1j],[1j,0]]) # VS overall - sign! To discuss
+        sigma_y = torch.tensor([[0,1j],[-1j,0]]) 
         self.T = (
             self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)])
                     ).cdouble()
 
-    def S(self,phi,beta):
+    def action(self,phi,beta):
         """
         Parameters:
         -----------
@@ -34,12 +35,45 @@ class LatticeActionFunctional():
         """
         assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
         
-        L = torch.zeros(phi.shape[:-2],dtype=torch.cdouble)
+        S = torch.zeros(phi.shape[0],dtype=torch.cdouble)
 
         for mu in [-3,-4]:
-            z = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,mu) ) ).squeeze(-1,-2)     
-            L +=  z * torch.conj_physical(z)
-        return - beta * L.sum(dim=(-1,-2))
+            phi_fwd = torch.roll(phi,-1,dims=mu)
+            
+            h = inner(phi,self.T @ phi_fwd)
+            hbar = inner(phi_fwd,self.T @ phi)
+
+            S += (h*hbar).sum(dim=(-1,-2))
+            
+        return - beta * S
+    
+    def action_centered(self,phi,beta):
+        """
+        Parameters:
+        -----------
+        phi: torch.Tensor
+            field evaluated on 2d square lattice
+        beta: float
+            coupling constant
+
+        Returns:
+        --------
+        S: torch.Tensor
+            action functional evaluated on lattice
+        """
+        assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
+        
+        S = torch.zeros(phi.shape[0],dtype=torch.cdouble)
+
+        for mu in [-3,-4]:
+            phi_fwd = torch.roll(phi,-1,dims=mu)
+
+            h = inner(phi,self.T @ phi_fwd)
+            hbar = inner(phi_fwd,self.T @ phi)
+
+            S += (h*hbar - 1.0).sum(dim=(-1,-2))
+            
+        return - beta * S
     
     def u(self,phi):
         assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
@@ -50,19 +84,20 @@ class LatticeActionFunctional():
         u_ = torch.zeros(phi.shape[:-2],dtype=torch.cdouble)
 
         for mu in [-3,-4]:
-            z = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,mu) ) ).squeeze(-1,-2)     
-            u_ +=  1.0 - z * torch.conj_physical(z)
+            z_fwd = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,dims=mu) ) ).squeeze(-1,-2) 
+            zbar_fwd = ( torch.roll(phi,-1,dims=mu).transpose(-1,-2) @ (self.T @ phi ) ).squeeze(-1,-2)  
+            u_ +=  1.0 - z_fwd * zbar_fwd
+
         return u_.sum(dim=(-1,-2)) / V
 
 class ToyActionFunctional():
     def __init__(self,n):
         self.identity = torch.eye(2*n + 2)
-        sigma_y = torch.tensor([[0,-1j],[1j,0]])
-        self.T = (
-            self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)])
-                    ).cdouble()
+        sigma_y = torch.tensor([[0,1j],[-1j,0]])
+        self.T = ( self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)]) ).cdouble()
 
-    def S(self,phi,beta):
+
+    def action(self,phi,beta):
         """
         phi = X, Y (samples, fields, dim, 1)
         """
@@ -70,8 +105,8 @@ class ToyActionFunctional():
         X = phi[:,0].cdouble()
         Y = phi[:,1].cdouble()
 
-        hXY = ( X.transpose(-1,-2) @ (self.T @ Y) ).flatten()
-        hYX = ( Y.transpose(-1,-2) @ (self.T @ X) ).flatten()
+        hXY = inner(X, (self.T @ Y))
+        hYX = inner(Y, (self.T @ X))
 
         return - beta * hXY * hYX
     
@@ -116,8 +151,9 @@ class CP(nn.Module):
         S0 = self.S(phi)
 
         phi_tilde, detJ = self.deformation.complexify(phi) 
-
+ 
         Stilde = self.S(phi_tilde)
+
 
         O = (self.obs(phi_tilde) * detJ * torch.exp( - ( Stilde - S0 ) ) ) 
 
@@ -202,7 +238,7 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     a0 = model.get_deformation_param().copy() 
 
     # TRAINING
-    for epoch in tqdm.tqdm(range(epochs)):
+    for _ in tqdm.tqdm(range(epochs)):
         optimizer_.zero_grad()
 
         # MINI-BATCHING
@@ -210,7 +246,6 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
 
         # TRAIN
         Otilde = model(phi_train[minibatch]) 
-
         loss_train = loss_fct(Otilde)
         loss_train.backward()
 

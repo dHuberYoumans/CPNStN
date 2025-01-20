@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from linalg import *
-from utils import grab
+from utils import *
 
 class Linear(nn.Module):
     def __init__(self,a0,n,mode="0D"):
@@ -73,8 +73,9 @@ class Homogeneous(nn.Module):
         assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dim. Expected {2*self.n + 2}, got {phi.shape[-2]}"
 
         X = phi
+        dtype = X.dtype # I don't like this!
 
-        a_ = rho(1j*self.su_n.embed(self.a)) # assuming Hermitian su(n) generators 
+        a_ = rho(1j*self.su_n.embed(self.a)).to(dtype) # assuming Hermitian su(n) generators 
 
         outer_XX = X @ X.transpose(-1,-2)
 
@@ -89,7 +90,8 @@ class Homogeneous(nn.Module):
         # JACOBIAN
         J = self.identity*lam - outer_XX @ (a_ @ a_) / lam + 1j*a_
         det = torch.det(J) # (samples, particles) -> multiply 
-        detJ = det / lam.squeeze(dim=(-1,-2))**2 # incl. extra factor from delta fct
+
+        detJ = det / (lam.squeeze(dim=(-1,-2))**2) # incl. extra factor from delta fct
 
         if self.mode == "0D":
             detJ = torch.prod(detJ,dim=-1) # total Jacobian (samples,)
