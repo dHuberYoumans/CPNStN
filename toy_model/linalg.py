@@ -22,7 +22,12 @@ def rho(z):
 
     return z_
 
+def inner(X,Y):
+    assert X.shape[-1] == 1 and Y.shape[-1] == 1, "Expect column vectors"
 
+    return torch.sum((X*Y).squeeze(-1),dim=-1)
+
+    
 class LieSU():
     def __init__(self,n):
         self.n = n
@@ -65,7 +70,7 @@ class LieSU():
 
         #     diag.append(torch.tensor(b))
 
-        return torch.stack(diag + sym + anti_sym,dim=0)
+        return torch.stack((*diag,*sym,*anti_sym),dim=0)
 
     def embed(self,a):
         x = torch.einsum('...i,ikl->...kl',a.cdouble(),self.basis)
