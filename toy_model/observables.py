@@ -8,12 +8,16 @@ def real2cmplx(phi):
     return (z,zbar)
     
 def cmplx2real(z):
+    assert z.is_complex(), "Input tensor must be complex"
+
+    dtype = z.real.dtype
+
     re = z.real
     im = z.imag
-    Xshape = list(z.shape) #[elem for elem in z.shape]
+    Xshape = list(z.shape) 
     Xshape[-2] *= 2
 
-    X = torch.zeros(*Xshape)
+    X = torch.zeros(*Xshape,dtype=dtype)
     X[...,::2,:] = re
     X[...,1::2,:] = im
 
