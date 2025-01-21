@@ -27,6 +27,27 @@ def inner(X,Y):
 
     return torch.sum((X*Y).squeeze(-1),dim=-1)
 
+def real2cmplx(phi):
+    z = phi[...,::2,:] + 1j*phi[...,1::2,:]
+    zbar = phi[...,::2,:] - 1j*phi[...,1::2,:]
+
+    return (z.cdouble(),zbar.cdouble())
+    
+def cmplx2real(z):
+    assert z.is_complex(), "Input tensor must be complex"
+
+    dtype = z.real.dtype
+
+    re = z.real
+    im = z.imag
+    Xshape = list(z.shape) 
+    Xshape[-2] *= 2
+
+    X = torch.zeros(*Xshape,dtype=dtype)
+    X[...,::2,:] = re
+    X[...,1::2,:] = im
+
+    return X
     
 class LieSU():
     def __init__(self,n):
