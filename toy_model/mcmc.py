@@ -18,7 +18,7 @@ def R(t:float) -> torch.tensor:
     c = torch.cos(t)
     s = torch.sin(t)
 
-    return torch.tensor([[c,-s],[s,c]])
+    return torch.tensor([[c,-s],[s,c]]).double()
 
 def sweep_sphere(phi:list,pairs:list,f) -> float:  
     """
@@ -47,9 +47,14 @@ def sweep_sphere(phi:list,pairs:list,f) -> float:
 
         phi_new[a] = vnew[0]
         phi_new[b] = vnew[1]
+
+        phi_new /= torch.linalg.vector_norm(phi_new, keepdim=True) # normalize, else only 1e-8 precision -> adds up
+
+        norm_ = (phi_new.transpose(-1,-2) @ phi_new)[0]
+        assert torch.allclose(norm_,torch.tensor(1.,dtype=torch.double),atol=1e-12), f"phi not normalized for pair {pair}: {norm_.item()}"
     
         # ACCEPTENCE PROBABILITIES
-        A = torch.minimum(torch.tensor(1), f(phi_new.unsqueeze(0)) / (f(phi_old.unsqueeze(0))) ) # unsqueeze since f takes list of vectors: shape = (smaples,2n+2,1)
+        A = torch.minimum(torch.tensor(1), f(phi_new.unsqueeze(0)) / (f(phi_old.unsqueeze(0))) ) # unsqueeze -> (smaples,2n+2,1)
 
         # CHECK IF ACCEPTED
         p = torch.rand(1) # draw vector of uniform rnds
@@ -76,7 +81,7 @@ def create_samples(n:int, phi0:torch.tensor, beta:float, N_steps:int,burnin:int,
 
     # LIN ALG NEEDED FOR ACTION
     id = torch.eye(2*(n + 1))
-    sigma_y = torch.tensor([[0,-1j],[1j,0]])
+    sigma_y = torch.tensor([[0,1j],[-1j,0]])
     T = id + torch.block_diag(*[sigma_y for _ in range(n+1)]) # dtype = cfloat 
     
     # DEF ACTION
