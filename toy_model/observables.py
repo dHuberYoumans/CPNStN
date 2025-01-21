@@ -1,27 +1,5 @@
 import torch
-
-# OBSERVABLES
-def real2cmplx(phi):
-    z = phi[...,::2,:] + 1j*phi[...,1::2,:]
-    zbar = phi[...,::2,:] - 1j*phi[...,1::2,:]
-
-    return (z,zbar)
-    
-def cmplx2real(z):
-    assert z.is_complex(), "Input tensor must be complex"
-
-    dtype = z.real.dtype
-
-    re = z.real
-    im = z.imag
-    Xshape = list(z.shape) 
-    Xshape[-2] *= 2
-
-    X = torch.zeros(*Xshape,dtype=dtype)
-    X[...,::2,:] = re
-    X[...,1::2,:] = im
-
-    return X
+from linalg import *
 
 class ToyObs:
     def __init__(self):
@@ -67,7 +45,7 @@ class ToyObs:
         Parameters:
         -----------
         phi: torch.tensor
-            Batch of real fields (vectors (...,2n+1,1))
+            Batch of real fields (vectors (...,2n+2,1))
 
         i: int
             Component z_i
