@@ -42,10 +42,12 @@ def main(mode):
         # obs = lambda phi: LatObs.one_pt(phi,i,j) # fuzzy_zero
         # obs = lambda phi: LatObs.two_pt(phi,i,j)
         
-        a0 = torch.zeros(L,L,dim)
+        a0 = 0.001 * torch.rand(L,L,dim)
         deformation = Homogeneous(a0,n,mode="2D")
 
         deformation_type = "lattice"
+
+        batch_size = 16
 
     if mode == "toy":
         ################ TOY MODEL ########################
@@ -72,34 +74,43 @@ def main(mode):
         deformation_type = "homogeneous"
         rk = n
         dim = n**2 + 2*n
-        a0 = torch.zeros(2,dim) # full hom
+        a0 = torch.zeros(2,dim) 
         # a0 = 0.1*torch.randn(2,dim) # fuzzy one
         # a0 = torch.stack([torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)]),torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)])],dim=0) # torus
         deformation = Homogeneous(a0,n)
 
+        batch_size = 1024
+
     ################ TRAINING ########################
     # LEARNING RATE 
-    alpha = 1e-3 
+    alpha = 1e-3
 
     # LOSS
     loss_fct = loss
     loss_name = 'loss' if loss_fct == loss else 'logloss'
 
     # MODEL
-    params = [S,deformation,obs,beta]
-    model = CP(n,*params)
+    params = dict(
+        action = S,
+        deformation = deformation,
+        observable = obs,
+        beta = beta
+    )
+    model = CP(n,**params)
 
     # SET EPOCHS
-    epochs = 1_000
+    epochs = 5_000
 
     # TRAINING
     print("\n training model ... \n")
 
-    observable, observable_var, losses_train, losses_val, anorm, a0, af = train(model,phi,epochs=epochs,loss_fct=loss_fct,batch_size=1024,lr=alpha)
+    observable, observable_var, losses_train, losses_val, anorm, a0, af = train(model,phi,epochs=epochs,loss_fct=loss_fct,batch_size=batch_size,lr=alpha)
 
     print("\n done.\n")
 
     undeformed_obs = obs(phi)
+
+    print(f"trace of emebedding: {LieSU(n+1).embed(torch.tensor(af[0])).trace()}\n")
 
     plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,losses_val,loss_name,deformation_type)
 
@@ -128,7 +139,8 @@ def plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,l
         aW = su_n.embed(torch.tensor(af[0,1]))
 
 
-    fig, ax = plt.subplots(nrows=4,ncols=2,figsize=(15,10),gridspec_kw={'height_ratios': [1, 1, 2, 2]})
+    # OBSERVABLE
+    fig, ax = plt.subplots(nrows=2,ncols=2) #[1, 1, 2, 2] gridspec_kw={'height_ratios': [1,1]}
 
     ax[0,1].plot(anorm)
     ax[0,1].set_title('norm a')
@@ -143,8 +155,8 @@ def plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,l
     ax[1,0].plot([z.imag for z in observable],label='im',color='purple')
     ax[1,0].axhline(y=mean_re,xmin=0,xmax=epochs,label='OG re',color='red')
     ax[1,0].axhline(y=mean_im,xmin=0,xmax=epochs,label='OG im',color='orange')
-    ax[1,0].fill_between([0,epochs], [mean_re-err_re]*2, [mean_re+err_re]*2, alpha=0.5, color='red')
-    ax[1,0].fill_between([0,epochs], [mean_im-err_im]*2, [mean_im+err_im]*2, alpha=0.5, color='orange')
+    ax[1,0].fill_between([-100,epochs], [mean_re-err_re]*2, [mean_re+err_re]*2, alpha=0.5, color='red')
+    ax[1,0].fill_between([-100,epochs], [mean_im-err_im]*2, [mean_im+err_im]*2, alpha=0.5, color='orange')
     ax[1,0].set_title('defromed obs')
     ax[1,0].legend()
 
@@ -153,15 +165,20 @@ def plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,l
     ax[1,1].set_title('obs variance')
     ax[1,1].legend()
 
-    sns.heatmap(data=aZ.real,ax=ax[2,0],cmap='coolwarm',vmin=-0.1,vmax=0.1)
-    ax[2,0].set_title('real(a[0]) after training')
-    sns.heatmap(data=aZ.imag,ax=ax[2,1],cmap='coolwarm',vmin=-0.1,vmax=0.1)
-    ax[2,1].set_title('imag(a[0]) after training')
+    plt.tight_layout();
 
-    sns.heatmap(data=aW.real,ax=ax[3,0],cmap='coolwarm',vmin=-0.1,vmax=0.1)
-    ax[3,0].set_title('real(a[1]) after training')
-    sns.heatmap(data=aW.imag,ax=ax[3,1],cmap='coolwarm',vmin=-0.1,vmax=0.1)
-    ax[3,1].set_title('imag(a[1]) after training')
+    # LEARNED DEFORMATION PARAMETER
+    fig, ax = plt.subplots(nrows=2,ncols=2)
+
+    sns.heatmap(data=aZ.real,ax=ax[0,0],cmap='coolwarm')
+    ax[0,0].set_title('real(a[0]) after training')
+    sns.heatmap(data=aZ.imag,ax=ax[0,1],cmap='coolwarm')
+    ax[0,1].set_title('imag(a[0]) after training')
+
+    sns.heatmap(data=aW.real,ax=ax[1,0],cmap='coolwarm')
+    ax[1,0].set_title('real(a[1]) after training')
+    sns.heatmap(data=aW.imag,ax=ax[1,1],cmap='coolwarm')
+    ax[1,1].set_title('imag(a[1]) after training')
 
     plt.tight_layout()
     plt.show();
@@ -169,12 +186,12 @@ def plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,l
 def generate_toy_samples(n,beta,N_steps = 10_000, burnin = 1_000, skip = 10):
     """ GENERATING SAMPLES """
 
-    phi0 = torch.randn(2,(2*n + 2),1)
+    phi0 = torch.randn(2,(2*n + 2),1).double()
     phi0 /= torch.linalg.vector_norm(phi0, dim=1, keepdim=True)
 
     print("creating samples ... \n")
 
-    phi, alpha = create_samples(n=n,phi0=phi0,beta=beta,N_steps=N_steps,burnin=burnin,k=skip)
+    phi, alpha = create_samples(n=n,phi0=[phi0],beta=beta,N_steps=N_steps,burnin=burnin,k=skip)
 
     print("\ndone")
     print(f"\n{phi.shape = }\t{alpha = }\n")
@@ -186,4 +203,5 @@ def generate_toy_samples(n,beta,N_steps = 10_000, burnin = 1_000, skip = 10):
 
 
 if __name__ == "__main__":
+    # generate_toy_samples(n=2,beta=1.0)
     main("toy")

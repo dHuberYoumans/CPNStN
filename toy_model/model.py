@@ -8,8 +8,6 @@ from utils import *
 
 import tqdm
 
-
-
 class LatticeActionFunctional():
     def __init__(self,n):
         self.n = n
@@ -68,8 +66,8 @@ class LatticeActionFunctional():
         for mu in [-3,-4]:
             phi_fwd = torch.roll(phi,-1,dims=mu)
 
-            h = inner(phi,self.T @ phi_fwd)
-            hbar = inner(phi_fwd,self.T @ phi)
+            h = inner(phi, self.T @ phi_fwd)
+            hbar = inner(phi_fwd, self.T @ phi)
 
             S += (h*hbar - 1.0).sum(dim=(-1,-2))
             
@@ -95,7 +93,6 @@ class ToyActionFunctional():
         self.identity = torch.eye(2*n + 2)
         sigma_y = torch.tensor([[0,1j],[-1j,0]])
         self.T = ( self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)]) ).cdouble()
-
 
     def action(self,phi,beta):
         """
@@ -153,7 +150,6 @@ class CP(nn.Module):
         phi_tilde, detJ = self.deformation.complexify(phi) 
  
         Stilde = self.S(phi_tilde)
-
 
         O = (self.obs(phi_tilde) * detJ * torch.exp( - ( Stilde - S0 ) ) ) 
 
