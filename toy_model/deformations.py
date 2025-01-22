@@ -126,9 +126,9 @@ class Homogeneous(nn.Module):
 
         lam = torch.sqrt(1 + inner_YY)
 
-        tildeZ = X * lam + 1j*Y 
+        tildeX = X * lam + 1j*Y 
 
-        tildeZ = torch.stack((tildeZ,XS),dim=1)
+        tildeZ = torch.stack((tildeX,XS),dim=1)
         assert tildeZ.shape == phi.shape, "tilde Z has wrong shape!"
 
         # JACOBIAN
