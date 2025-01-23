@@ -6,19 +6,26 @@ from tqdm import tqdm
 
 def R(t):
     """
-    2x2 roation matrix 
+    batch of 2x2 rotation matrix
 
-    :param t: rotation angle
-    :type t: float
+    Parameters:
+    -----------
+    t: Tensor 
+        Rotation angles
 
-    :returns: rotation matrix np.array([[cos(t),-sin(t)],[sin(t),cos(t)]])
-    :rtype: np.ndarray
+    Returns:
+    --------
+
+    rot: Tensor
+        Batch of rotation matrices around angle t
     """
+    batch = len(t)
+    rot = torch.stack(
+        [torch.cos(t), -torch.sin(t),
+        torch.sin(t), torch.cos(t)],
+        dim=-1).reshape(batch, 2, 2)
 
-    c = torch.cos(t)
-    s = torch.sin(t)
-
-    return torch.tensor([[c,-s],[s,c]]).double()
+    return rot.double()
 
 def sweep_sphere(phi,pairs,f):  
     """
@@ -40,7 +47,7 @@ def sweep_sphere(phi,pairs,f):
 
         # ROTATE COMPONENT
         v = torch.tensor([phi_old[a],phi_old[b]])
-        vnew = R(theta) @ v
+        vnew = R(theta).unsqueeze(0) @ v # R returns (batch,2,2)
 
         phi_new = phi_old.detach().clone()
         phi_new[a] = vnew[0]
@@ -81,42 +88,22 @@ def metropolis(phi,pairs,f) -> float:
     """
     alpha = 0
 
-    for pair in pairs:
-        a,b = pair
+    for a,b in pairs:
+        idxs = torch.tensor([a,b])
         phi_old = phi[-1] # (2,dim,1)
-        Z_old = phi_old[0]
-        W_old = phi_old[1]
-
-        # ROTATE Z
-        theta = torch.randn(1)
-        v = torch.tensor([Z_old[a],Z_old[b]])
-        vnew = R(theta) @ v
         
-        # ROTATE W
-        theta = torch.randn(1)
-        u = torch.tensor([W_old[a],W_old[b]])
-        unew = R(theta) @ u
-
-        Z_new = Z_old.detach().clone()
-        Z_new[a] = vnew[0]
-        Z_new[b] = vnew[1]
-        Z_new /= torch.linalg.vector_norm(Z_new, keepdim=True) # normalize, else only 1e-8 precision -> adds up
-
-        W_new = W_old.detach().clone()
-        W_new[a] = unew[0]
-        W_new[b] = unew[1]
-        W_new /= torch.linalg.vector_norm(W_new, keepdim=True) 
-
-
-        Z_norm = (Z_new.transpose(-1,-2) @ Z_new)[0]
-        W_norm = (W_new.transpose(-1,-2) @ W_new)[0]
-        assert torch.allclose(Z_norm,torch.tensor(1.,dtype=torch.double),atol=1e-12), f"phi not normalized for pair {pair}: {Z_norm.item()}"
-        assert torch.allclose(W_norm,torch.tensor(1.,dtype=torch.double),atol=1e-12), f"phi not normalized for pair {pair}: {W_norm.item()}"
-   
-        phi_new = torch.stack([Z_new,W_new],dim=0) # (2,dim,1)
+        # PROPOSE NEW STATE
+        theta = torch.randn(2)
+        v = phi_old[:,idxs]
+        vnew = R(theta) @ v
+        phi_new = phi_old.detach().clone()
+        phi_new[:,idxs] = vnew # (2,dim,1)
+        phi_new /= torch.linalg.norm(phi_new,dim=1).unsqueeze(-1) # normalize
+        norm = torch.linalg.norm(phi_new,dim=1)
+        assert torch.allclose(norm,torch.tensor(1.).double(),atol=1e-12), "new phi not normalized"
 
         # ACCEPTENCE PROBABILITIES
-        A = torch.minimum(torch.tensor(1.0), f(Z_new.unsqueeze(0),W_new.unsqueeze(0)) / (f(Z_old.unsqueeze(0),W_old.unsqueeze(0))) ) # unsqueeze -> (smaples,2n+2,1)
+        A = torch.minimum(torch.tensor(1.0), f(phi_new) / (f(phi_old)) )
 
         # ACCEPTED / REJECT
         p = torch.rand(1) 
@@ -130,17 +117,68 @@ def metropolis(phi,pairs,f) -> float:
     return alpha / len(pairs)
 
 
-def create_samples(n, phi0, beta, N_steps,burnin,k):
+def create_samples_II(n, phi0, beta, N_steps,burnin,k):
     """
-    Monte Carlo Markov Chain (MCMC) sampling of the toy model
+    Monte Carlo Markov Chain (MCMC) sampling of the toy model using parallel updates
 
     Parameters:
     -----------
     n: int
         complex dimension CP^n 
 
-    phi0: list[Tensor] 
-        List of initial field configuration. Shape of Tensor (2,dimR,1)
+    phi0: Tensor
+        Initial field configuration. Shape (2,dimR,1)
+
+    beta: float
+        Coupling constant
+
+    N_steps: int
+        Number Monte Carlo steps
+
+    burnin: int 
+        Burnin
+
+    k: int
+        Return only every k-th element (to reduce correlation)
+    """
+    
+    N = 2*n + 2 
+    pairs = list(combinations(np.arange(N),2)) # indices of pairs to rotate
+
+    # LIN ALG NEEDED FOR ACTION
+    identity = torch.eye(2*(n + 1))
+    sigma_y = torch.tensor([[0,1j],[-1j,0]])
+    T = identity + torch.block_diag(*[sigma_y for _ in range(n+1)]) # dtype = cfloat 
+    
+    # DEF ACTION
+    def h(Z,W):
+        return ( Z.transpose(-1,-2).cfloat() @ ( T @ W.cfloat()) ).flatten() # (samples,)
+
+    def S(phi,beta):
+        return - beta * torch.abs(h(phi[0],phi[1]))**2
+    
+    phi = [phi0]
+
+    alpha = 0 # acceptance rate
+
+    for _ in tqdm(range(N_steps)): # tqdm for progress bar
+        alpha += metropolis(phi=phi,pairs=pairs,f = lambda phi: torch.exp(- S(phi,beta)) )
+    
+    acception_rate = alpha / (N_steps) #(2*N_steps) 
+    return (torch.stack(phi,dim=0)[burnin::k], acception_rate)
+
+
+def create_samples_seq(n, phi0, beta, N_steps,burnin,k):
+    """
+    Monte Carlo Markov Chain (MCMC) sampling of the toy model using sequential update
+
+    Parameters:
+    -----------
+    n: int
+        complex dimension CP^n 
+
+    phi0: Tensor 
+        Initial field configuration. Shape (2,dimR,1)
 
     beta: float
         Coupling constant
@@ -170,24 +208,20 @@ def create_samples(n, phi0, beta, N_steps,burnin,k):
     def S(Z,W,beta):
         return - beta * torch.abs(h(Z,W))**2
     
-    # Z0 = phi0[0] # (samples, dimR, 1)
-    # W0 = phi0[1]
+    phi = phi0 
 
-    # Z = [Z0] 
-    # W = [W0]
-
-    phi = phi0
+    Z = [phi0[0]]
+    W = [phi0[1]]
 
     alpha = 0 # acceptance rate
 
     for _ in tqdm(range(N_steps)): # tqdm for progress bar
-        # alpha += sweep_sphere(phi=Z,pairs=pairs,f=lambda z: torch.exp( -S(z,W[-1],beta))) # w fixed
-        # alpha += sweep_sphere(phi=W,pairs=pairs,f=lambda w: torch.exp( -S(Z[-1],w,beta))) # z fixed
-        alpha += metropolis(phi=phi,pairs=pairs,f = lambda Z,W: torch.exp(- S(Z,W,beta)) )
+        alpha += sweep_sphere(phi=Z,pairs=pairs,f=lambda z: torch.exp( -S(z,W[-1],beta))) # w fixed
+        alpha += sweep_sphere(phi=W,pairs=pairs,f=lambda w: torch.exp( -S(Z[-1],w,beta))) # z fixed
     
-    # samples_Z, samples_W = (torch.stack(Z,dim=0)[burnin::k], torch.stack(W,dim=0)[burnin::k])
+    samples_Z, samples_W = (torch.stack(Z,dim=0)[burnin::k], torch.stack(W,dim=0)[burnin::k])
 
-    acception_rate = alpha / (N_steps) #(2*N_steps) 
-    return (torch.stack(phi,dim=0), acception_rate)
+    acception_rate = alpha / (2* N_steps)
 
-    # return  (torch.stack([samples_Z, samples_W],dim=1), acception_rate)
+    return  (torch.stack([samples_Z, samples_W],dim=1), acception_rate)
+
