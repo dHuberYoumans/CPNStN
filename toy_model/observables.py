@@ -45,7 +45,7 @@ class ToyObs:
         Parameters:
         -----------
         phi: torch.tensor
-            Batch of real fields (vectors (...,2n+2,1))
+            Batch of real fields (...,2n+2,1)
 
         i: int
             Component z_i
@@ -60,7 +60,22 @@ class ToyObs:
 
         return O
 
-    
+    def two_pt_full(phi):
+       """
+       Full two point function < |z^\dagger w|^2 >
+
+       Parameters:
+       -----------
+       phi: torch.tensor
+            Batch of real fields (...,2n+2,1)
+       """
+       _, zbar = real2cmplx(phi[:,0]) 
+       w, _ = real2cmplx(phi[:,1])
+
+       O = torch.abs(inner(zbar,w))**2
+
+       return O
+
 class LatObs:
     def __init__(self):
         pass
