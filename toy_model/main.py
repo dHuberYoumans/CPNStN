@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def main(mode):
-    if mode == "lattice":
+    if mode[0] == "lattice":
     ################ LATTICE ########################
         L = 64
         beta = 4.5
@@ -49,13 +49,13 @@ def main(mode):
 
         batch_size = 16
 
-    if mode == "toy":
+    if mode[0] == "toy":
         ################ TOY MODEL ########################
         n = 2
         beta = 1.0
 
         # SAMPLES
-        phi = torch.load(f'samples_n{n}_b{beta:.1f}.dat',weights_only=True)
+        phi = torch.load(f'samples_n{n}_b{beta:.1f}_m{mode[1]}.dat',weights_only=True)
 
         # ACTION FUNCTIONAL
         S = lambda phi: ToyActionFunctional(n).action(phi,beta)
@@ -79,14 +79,14 @@ def main(mode):
         # a0 = torch.stack([torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)]),torch.cat([0.1*torch.randn(rk),torch.zeros(dim-rk)])],dim=0) # torus
         deformation = Homogeneous(a0,n)
 
-        batch_size = 1024
+        batch_size = 512
 
     ################ TRAINING ########################
     # LEARNING RATE 
-    alpha = 1e-3
+    alpha = 1e-4
 
     # LOSS
-    loss_fct = loss
+    loss_fct = logloss
     loss_name = 'loss' if loss_fct == loss else 'logloss'
 
     # MODEL
@@ -99,7 +99,7 @@ def main(mode):
     model = CP(n,**params)
 
     # SET EPOCHS
-    epochs = 5_000
+    epochs = 1_000
 
     # TRAINING
     print("\n training model ... \n")
@@ -109,8 +109,6 @@ def main(mode):
     print("\n done.\n")
 
     undeformed_obs = obs(phi)
-
-    print(f"trace of emebedding: {LieSU(n+1).embed(torch.tensor(af[0])).trace()}\n")
 
     plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,losses_val,loss_name,deformation_type)
 
@@ -183,25 +181,30 @@ def plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,l
     plt.tight_layout()
     plt.show();
 
-def generate_toy_samples(n,beta,N_steps = 10_000, burnin = 1_000, skip = 10):
+def generate_toy_samples(n,beta,N_steps = 10_000, burnin = 1_000, skip = 10, mode = 'II'):
     """ GENERATING SAMPLES """
 
     phi0 = torch.randn(2,(2*n + 2),1).double()
     phi0 /= torch.linalg.vector_norm(phi0, dim=1, keepdim=True)
 
-    print("creating samples ... \n")
+    print(f"creating samples ({mode = })... \n")
 
-    phi, alpha = create_samples(n=n,phi0=[phi0],beta=beta,N_steps=N_steps,burnin=burnin,k=skip)
+    fn_map = {
+            'II': create_samples_II,
+            'seq': create_samples_seq
+    }
+
+    phi, alpha = fn_map[mode](n=n,phi0=phi0,beta=beta,N_steps=N_steps,burnin=burnin,k=skip)
 
     print("\ndone")
     print(f"\n{phi.shape = }\t{alpha = }\n")
     print("\nsaving ...")
 
-    torch.save(phi, f"samples_n{n}_b{beta}.dat")
+    torch.save(phi, f"samples_n{n}_b{beta}_m{mode}.dat")
 
     print("\ndone")
 
 
 if __name__ == "__main__":
-    # generate_toy_samples(n=2,beta=1.0)
-    main("toy")
+    generate_toy_samples(n=2,beta=1.0,mode='seq')
+    main(("toy","seq"))
