@@ -65,6 +65,8 @@
 \DeclareMathOperator{\U}{U}
 \DeclareMathOperator{\diag}{diag}
 \DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\vol}{vol}
+\DeclareMathOperator{\Wg}{Wg}
 
 \newcommand{\g}{\mathfrak{g}}
 \newcommand{\h}{\mathfrak{h}}
@@ -720,6 +722,45 @@ then, acting on the complex vector $z = (z_0, \dots, z_n)$, we find
 \end{equation}
 
 \subsection{Correlators}
+\subsubsection{Generalities}
+We may try to compute correlation functions analytically.
+For this, let us view $\CP^n$ as the homogeneous space 
+\begin{equation}
+  \CP^n = \SU(n+1) / \SU(n)
+\end{equation}
+with 
+\begin{equation}
+  z = g(z) \eta \quad , \quad \eta = [1:0:\dots:0] \quad , \quad g(z) \in \SU(n+1)
+\end{equation}
+The action can therefore be written as 
+\begin{equation}
+  S = -\beta \lvert z^* w \rvert^2 = - \beta \lvert \eta^t U^*(z)U(w) \eta \rvert^2
+\end{equation}
+Note that $U \equiv U(z,w) = U^*(z)U(w) \in \SU(n)$ and so if $\mu(U(z))$ denotes the Haar measure of $\SU(n+1)$, we have
+\begin{equation}
+  \mu(U(w)) \mu(U^*(z)U(w)) = \mu(U)
+\end{equation}
+Denoting $U(z) \equiv U'$, we can perform a change of variables such that the path integral measure becomes
+\begin{equation}
+  \mu(U(w))\mu(U(z)) = \mu(U(z))\mu(U(z,w)) \equiv \mu(U')\mu(U)
+\end{equation}
+Hence the partition function can be written in terms of a single integration over $\SU(n+1)$
+\begin{equation}
+  \begin{split} 
+    Z &= \int_{\SU(n+1)} \mu(U') \int_{\SU(n+1)} \mu(U) e^{-S(U)} \\
+    &= \vol \int_{\SU(n+1)} \mu(U) e^{-S(U)}
+  \end{split}
+\end{equation}
+where $\vol$ denotes the volume $\vol(\SU(N))$.
+The action functional simplifies to 
+\begin{equation}
+  S(U) = - \beta \lvert \eta^t U \eta \rvert^2 = - \beta \lvert U_{11} \rvert^2
+\end{equation}
+and so any correlation function can be written as 
+\begin{equation}
+  \left\langle \OO(z,w) \right\rangle = \frac{1}{Z} \int_{\SU(n+1)} \mu(U') \int_{\SU(n+1)}\mu(U) e^{-S(U)} \OO(U,U') 
+\end{equation}
+
 \subsubsection{One-point function}
 It is time to look at interesting operators we would like to compute.
 We start with the one-point function.
@@ -732,7 +773,6 @@ Clearly, $\OO_{ij}$ is invariant under the $\U(1)$ action $z_k \to e^{i\varphi}z
 It's expectation value is given by
 \begin{equation}
   \left\langle \OO_{ij}(z) \right\rangle = \frac{1}{(2\pi)^2} \int_{S^{2n+1}\times S^{2n+1}} \prod_k d^nz_k d^nw_k\; z_i \bar z_j e^{- S(z,w)}  
-  \label{eq:toy_one_pt}
 \end{equation}
 where 
 \begin{equation}
@@ -751,31 +791,99 @@ for any $\alpha$ and hence we must have
   \boxed{
     \left\langle \OO_{ij}(z) \right\rangle = 0 \quad , \quad \forall z, i \neq j 
   }
-  \label{eq:toy_var_one_pt}
-\end{equation}
-Its variance is given by
-\begin{equation}
-  \begin{split} 
-    \Var(\OO_{ij}(z)) &= \left\langle \lvert \OO_{ij}(z)\rvert^2 \right\rangle  - \lvert \left\langle \OO_{ij}(z) \right\rangle \rvert^2 \\
-    &= \left\langle \OO_{ij}(z)\OO^{*}_{ij}(z) \right\rangle - \left\langle \OO_{ij}(z) \right\rangle \left\langle \OO_{ij}^*(z) \right\rangle 
-  \end{split}
-\end{equation}
-so that by \eqref{eq:toy_var_one_pt}
-\begin{equation}
-\Var(\OO_{ij}(z)) = \left\langle \lvert \OO_{ij}(z)\rvert^2 \right\rangle = \left\langle \lvert z_i \rvert^2 \lvert z_j \rvert^2 \right\rangle 
+  \label{eq:toy_one_pt}
 \end{equation}
 
-If we consider a torus / Cartan deformation as outlined in Section \ref{subsubsec:Torus_deformation}, then we find 
+We can also see this in terms of the $\SU(n+1)$ parametrization.
+In this parametrization, 
+\begin{equation}
+  \OO_{ij}(z) = z_i \bar z_j = \sum_{k,\ell} U_{ik} \eta_k \bar U_{j\ell} \eta_{\ell} = \sum_{k\ell} \delta_{k 1}\delta_{\ell 1} U_{ik}\bar U_{j\ell} = U_{i1}U^*_{1j}
+\end{equation}
+It turns out to be very useful to make a change of coordinates $U' \equiv U^*(z)U(w)$ for the integration of $U(w)$.
+Then
 \begin{equation}
   \begin{split} 
-    \Var(\widetilde{\OO}_{ij}(\tilde z)) &= \left\langle e^{-2\Delta_{ii+1}}\lvert z_i \rvert^2 e^{-2\Delta_{jj+1}}\lvert z_j \rvert^2 \right\rangle_{deformed}\\
-    &=  e^{-2\Delta_{ii+1} -2\Delta_{jj+1}} \left\langle  \lvert z_i \rvert^2\lvert z_j \rvert^2\ \det(J_{tot})\ e^{-(\tilde S - S)}\right\rangle 
+    \left\langle \OO_{ij}(U) \right\rangle &= \frac{1}{Z} \int_{\SU(n+1)}\mu(U) U_{i1}U^*_{1j} \int_{\SU(N)} \mu(U') e^{-S(U')} \\
+    &= \frac{\int_{\SU(n+1)}\mu(U) U_{i1}\bar U_{j1}}{\vol}
+  \end{split}
+  \label{eq:toy_one_pt_from_SU}
+\end{equation}
+% Let us close both eyes and make a series expansion of the exponential and swap the order of sum and integral.
+% Then 
+% \begin{equation}
+%   \left\langle \OO_{ij}(U) \right\rangle = \frac{\vol}{Z} \sum_{k} \frac{\beta^k}{k!} \int \mu(U) U_{i1}U^*_{1j} \lvert U_{11} \rvert^{2k}
+%   \label{eq:toy_one_pt_from_SU}
+% \end{equation}
+Integrals of $\SU(N)$ polynomials have been studied in the literature \cite{Borisenko_Voloshyn_Chelnokov}
+\begin{equation}
+  \begin{split} 
+    I_N(r,s) &= \int_{\SU(N)} \mu(N) \prod_{k=1}^r U_{i_kj_k} \prod_{\ell = 1}^s \bar U_{a_{\ell} b_{\ell}} \\
+    &= \sum_{q = 0}^{\infty} \delta_{s-r, Nq}\sum_{\sigma \in S_r} \Wg^{N,q}(\sigma)\sum_{\rho\in S_{r+ Nq}}\prod_{k=1}^r \delta_{i_ka_{\rho(k)}}\delta_{j_{\sigma(k)}b_{\rho(k)}}\\
+    &\cdot \frac{1}{(Nq)!} \sum_{\tau \in S_{Nq}} \chi_{q^N}(\tau) \prod_{k=1}^{Nq} \delta_{a_{\rho(\tau(k) + r)}b_{\rho(k + r)}}
+  \end{split}
+\end{equation}
+This beast simplifies for $r = s$ (which, luckily, is the case we are interested in) to 
+\begin{equation}
+  I_N(r) \equiv I_N(r,r) = \sum_{\sigma,\tau \in S_r} \Wg^N(\tau^{-1}\sigma)\prod_{k=1}^r\delta_{i_ka_{\sigma(k)}}\delta_{j_kb_{\tau(k)}}
+  \label{eq:SUN_poly_int}
+\end{equation}
+Here, $\Wg^N$ denotes the Weingarten map which for $\sigma \in S_r$ is given by
+\begin{equation}
+  \Wg^{N}(\sigma) = \frac{1}{(r!)^2} \sum_{\substack{\lambda \in irreps(S_r) \\ \ell(\lambda) \leq N}} \frac{d^2_{\lambda}}{s_{\lambda}(1^N)}\chi_{\lambda}(\sigma)
+\end{equation}
+where $d_{\lambda}$ is the dimension and $\chi_{\lambda}(\sigma)$ the character of the irreducible representation $\lambda$ of $S_r$.
+Moreover, $s_{\lambda}(X)$, $X = (X_1,\dots,X_N)$ denote the Shur functions.
+Irreps $\lambda$ of $S_r$ are enumerated by partitions $\lambda = (\lambda_1,\lambda_2,\dots,\lambda_{\ell(\lambda)})$ of $r$ such that 
+\begin{equation}
+  \lvert\lambda\rvert = \sum_{i=1}^{\ell(l)} \lambda_i = r \quad , \quad \lambda_1 \geq \lambda_2 \geq \dots \geq \lambda_{\ell(l)}
+\end{equation}
+The integer $\ell(\lambda)$ is known as the \emph{length} of the partition.
+
+Back to our one-point function.
+We can rewrite \eqref{eq:toy_one_pt_from_SU} as follows:
+\begin{equation}
+  \begin{split} 
+    \left\langle \OO_{ij}(U) \right\rangle &= \frac{1}{\vol} \int_{\SU(n+1)}\mu(U) U_{i1}\bar U_{j1} \\
+    &= \frac{1}{\vol} \sum_{\tau,\sigma \in S_1} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^1 \delta_{i_k a_{\sigma(k)}}\delta_{j_k b_{\tau(k)}} \\
+    &= \frac{1}{\vol} \Wg^{n+1}(id) \delta_{i1}\delta_{j1}\\
+    &= \frac{\Wg^{n+1}(id)}{\vol} \delta_{ij}
   \end{split}
 \end{equation}
 
+Let us now have a look at its variance
+\begin{equation}
+  Var = \left\langle \lvert \OO_{ij}(z) \rvert^2  \right\rangle = \left\langle \lvert z_i \rvert^2 \lvert z_j \rvert^2 \right\rangle 
+\end{equation}
+which by the same reasoning can be written as
+\begin{equation}
+  \begin{split} 
+    Var &= \frac{1}{\vol} \int_{\SU(n+1)} \mu(U) U_{i1}U_{j1}\bar U_{i1} \bar U_{j1} \\
+  &= \frac{1}{\vol} \sum_{\tau,\sigma \in S_2} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^2 \delta_{i_k a_{\sigma(k)}}\delta_{j_k b_{\tau(k)}} \\
+  \end{split}
+\end{equation}
+Since $S_2 = \{ id, (12) \}$, we find
+\begin{equation}
+  \begin{split} 
+    Var &= \frac{1}{\vol} \Big( \Wg^{n+1}(id) \left( \delta_{ii}\delta_{i1}\delta_{jj}\delta_{j1} + \delta_{i1}^2 \delta_{j1}^2 \right) +  \Wg^{n+1}(\ (12)\ ) \left( \delta_{i1}^2\delta_{jj}\delta_{11} + \delta_{j1}^2\delta_{11}\delta_{ii} \right)\Big)\\
+    &= \frac{1}{\vol} \Big( \Wg^{n+1}(id)(1 + \delta_{ij}) + \Wg^{n+1}((12)) (\delta_{ii} + \delta_{jj}) \Big)\\
+    &= \frac{1}{\vol} \Big( \Wg^{n+1}(id)(1 + \delta_{ij}) + 2 \Wg^{n+1}((12)) \Big)
+  \end{split}
+\end{equation}
+
+\begin{remark}
+  If we consider a torus / Cartan deformation as outlined in Section \ref{subsubsec:Torus_deformation}, then we find 
+  \begin{equation}
+    \begin{split} 
+      \Var(\widetilde{\OO}_{ij}(\tilde z)) &= \left\langle e^{-2\Delta_{ii+1}}\lvert z_i \rvert^2 e^{-2\Delta_{jj+1}}\lvert z_j \rvert^2 \right\rangle_{deformed}\\
+      &=  e^{-2\Delta_{ii+1} -2\Delta_{jj+1}} \left\langle  \lvert z_i \rvert^2\lvert z_j \rvert^2\ \det(J_{tot})\ e^{-(\tilde S - S)}\right\rangle 
+    \end{split}
+  \end{equation}
+\end{remark}
 
 \subsubsection{Two-point function}
 \begin{thebibliography}{99}
+  \bibitem{Borisenko_Voloshyn_Chelnokov} O.\ Borisenko, S.\  Voloshyn and V.\ Chelnokov. SU(N) Polynomial Integrals and Some Applications. Rept. Math. Phys. 85, 129–145. arXiv: \href{https://arxiv.org/abs/1812.06069}{1812.06069 [hep-lat]} (2020).
+
   \bibitem{Bruhat_Whitney} F.\ Bruhat and H.\ Whitney, Quelques propri\'et\'es fondamentales des ensembles analytiques-r\'eels, Comment. Math. Helv. 33, 132-160 (1959).
 
   \bibitem{CEbook} K.\ Cieliebak and Y.\ Eliashberg. From Stein to Weinstein and back: symplectic geometry of affine complex manifolds. Vol. 59. American Mathematical Soc., 2012.
