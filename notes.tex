@@ -744,22 +744,34 @@ Denoting $U(z) \equiv U'$, we can perform a change of variables such that the pa
 \begin{equation}
   \mu(U(w))\mu(U(z)) = \mu(U(z))\mu(U(z,w)) \equiv \mu(U')\mu(U)
 \end{equation}
+Moreover, recall that in our model instead of integrating over $\CP^n \times \CP^n$ directly, we integrate out the $\U(1) \subset \CC^*$ first and use the resulting $\RR_+ \subset \CC^*$ gauge freedom to fix the norm, hence integrating over $S^{2n+1} \times S^{2n+1}$. 
+Now, $S^{2n+1} = \SU(n+1)/SU(n)$ and so 
+\begin{equation}
+  \int_{\SU(n+1)} \mu = \int_{\SU(n)} \mu \int_{\SU(n+1)/\SU(n)} \hat{\mu} = \int_{S^{2n+1}}\hat{\mu}
+\end{equation}
+It is important to remark that we are working with the \emph{normalized} Haar measure $\mu$ so that 
+\begin{equation}
+  \int_{\SU(n)} \mu = 1
+\end{equation}
 Hence the partition function can be written in terms of a single integration over $\SU(n+1)$
 \begin{equation}
   \begin{split} 
     Z &= \int_{\SU(n+1)} \mu(U') \int_{\SU(n+1)} \mu(U) e^{-S(U)} \\
-    &= \vol \int_{\SU(n+1)} \mu(U) e^{-S(U)}
+    &= \int_{\SU(n+1)} \mu(U) e^{-S(U)}
   \end{split}
 \end{equation}
-where $\vol$ denotes the volume $\vol(\SU(N))$.
 The action functional simplifies to 
 \begin{equation}
   S(U) = - \beta \lvert \eta^t U \eta \rvert^2 = - \beta \lvert U_{11} \rvert^2
 \end{equation}
-and so any correlation function can be written as 
+and any correlation function can be written as 
 \begin{equation}
   \left\langle \OO(z,w) \right\rangle = \frac{1}{Z} \int_{\SU(n+1)} \mu(U') \int_{\SU(n+1)}\mu(U) e^{-S(U)} \OO(U,U') 
 \end{equation}
+\begin{remark}
+  Obviously we could have chosen a different $\eta$ (having its only non-zero entry sitting at the $i$th component, say.
+    This choice cannot affect the result and we will see later that we use this freedom to simply certain expressions.
+\end{remark}
 
 \subsubsection{One-point function}
 It is time to look at interesting operators we would like to compute.
@@ -804,16 +816,11 @@ Then
 \begin{equation}
   \begin{split} 
     \left\langle \OO_{ij}(U) \right\rangle &= \frac{1}{Z} \int_{\SU(n+1)}\mu(U) U_{i1}U^*_{1j} \int_{\SU(N)} \mu(U') e^{-S(U')} \\
-    &= \frac{\int_{\SU(n+1)}\mu(U) U_{i1}\bar U_{j1}}{\vol}
+    &= \int_{\SU(n+1)}\mu(U) U_{i1}\bar U_{j1}
   \end{split}
   \label{eq:toy_one_pt_from_SU}
 \end{equation}
-% Let us close both eyes and make a series expansion of the exponential and swap the order of sum and integral.
-% Then 
-% \begin{equation}
-%   \left\langle \OO_{ij}(U) \right\rangle = \frac{\vol}{Z} \sum_{k} \frac{\beta^k}{k!} \int \mu(U) U_{i1}U^*_{1j} \lvert U_{11} \rvert^{2k}
-%   \label{eq:toy_one_pt_from_SU}
-% \end{equation}
+
 Integrals of $\SU(N)$ polynomials have been studied in the literature, see for example \cite{Borisenko_Voloshyn_Chelnokov}
 \begin{equation}
   \begin{split} 
@@ -843,19 +850,11 @@ Back to our one-point function.
 We can rewrite \eqref{eq:toy_one_pt_from_SU} as follows:
 \begin{equation}
   \begin{split} 
-    \left\langle \OO_{ij}(U) \right\rangle &= \frac{1}{\vol} \int_{\SU(n+1)}\mu(U) U_{i1}\bar U_{j1} \\
-    &= \frac{1}{\vol} \sum_{\tau,\sigma \in S_1} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^1 \delta_{i_k i'_{\sigma(k)}}\delta_{j_k j'_{\tau(k)}} \\
-    &= \frac{1}{\vol} \Wg^{n+1}(id) \delta_{i1}\delta_{j1}\\
-    &= \frac{\Wg^{n+1}(id)}{\vol} \delta_{ij}
+    \left\langle \OO_{ij}(U) \right\rangle &= \int_{\SU(n+1)}\mu(U) U_{i1}\bar U_{j1} \\
+    &= \sum_{\tau,\sigma \in S_1} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^1 \delta_{i_k i'_{\sigma(k)}}\delta_{j_k j'_{\tau(k)}} \\
+    &= \Wg^{n+1}(id) \delta_{ij}
   \end{split}
 \end{equation}
-\begin{remark}\label{rmk:important!}
-  In fact, $\delta_{i1}\delta_{j1}$ is the more accurate result. 
-  However, this depends on our choice of $\eta$. 
-  For example, if we would choose $\eta = (0,1,\dots)$, then we would find $\delta_{i2}\delta_{j1}$.
-  Of course, things must be independent of this choice.
-  In particular, we could always ``adapt'' $\eta$ to $i$, that is for given $i$ we can always choose $\eta = (0,\dots,1,\dots,0)$ where $1$ is in the $i$th position and the last equal sign follows.
-\end{remark}
 
 Let us now have a look at its variance
 \begin{equation}
@@ -864,49 +863,27 @@ Let us now have a look at its variance
 which by the same reasoning can be written as
 \begin{equation}
   \begin{split} 
-    Var &= \frac{1}{\vol} \int_{\SU(n+1)} \mu(U) U_{i1}U_{j1}\bar U_{i1} \bar U_{j1} \\
-  &= \frac{1}{\vol} \sum_{\tau,\sigma \in S_2} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^2 \delta_{i_k i'_{\sigma(k)}}\delta_{j_k j'_{\tau(k)}} 
+    Var &=  \int_{\SU(n+1)} \mu(U) U_{i1}U_{j1}\bar U_{i1} \bar U_{j1} \\
+    &= \sum_{\tau,\sigma \in S_2} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^2 \delta_{i_k i'_{\sigma(k)}}\delta_{j_k j'_{\tau(k)}} 
   \end{split}
 \end{equation}
-Since $S_2 = \{ 1^2 \equiv id, (12) \}$, we find
+Since $S_2 = \{ 1^2 \equiv id, 2 \equiv (12) \}$, we find
 \begin{equation}
   \begin{split} 
-    Var &= \frac{1}{\vol} \Big( \Wg^{n+1}(1^2) \left( \delta_{ii}\delta_{i1}\delta_{jj}\delta_{j1} + \delta^2_{ij}\delta^2_{11} \right) +  \Wg^{n+1}(12) \left( \delta_{ii}\delta_{jj}\delta^2_{11} + \delta_{ij}^2\delta^2_{11} \right)\Big) \\
-    &= \frac{1}{\vol} \Big( \Wg^{n+1}(1^2) \left( \delta_{ii}\delta_{i1}\delta_{jj}\delta_{j1} + \delta^2_{ij} \right) +  \Wg^{n+1}(12) \left( \delta_{ii}\delta_{jj} + \delta_{ij}^2 \right)\Big) 
-%     &= \frac{1}{\vol} \Big[ \delta_{ij}^2 \Big(\Wg^{n+1}(1^2) + \Wg^{n+1}(12)\Big) + \delta_{ii}\delta_{jj} \Big(\delta_{i1}\delta_{j1}\Wg^{n+1}(1^2) + \Wg^{n+1}(12)\Big)\Big] \\
-  \end{split}
-\end{equation}
-As outlined in Remark \ref{rmk:important!}, we can adapt our choice of $\eta$ such that for fixed $i$, $\eta$ has only its $i$th component non-zero.
-It follows that $\delta_{i1} \to \delta_{ii} = 1$ and $\delta_{j1}\to\delta_{ji}$.
-Hence
-\begin{equation}
-  \begin{split} 
-    Var &= \frac{1}{\vol} \Big( \Wg^{n+1}(1^2) \left( \delta^2_{ii}\delta_{jj}\delta_{ij} + \delta^2_{ij} \right) +  \Wg^{n+1}(12) \left( \delta_{ii}\delta_{jj} + \delta_{ij}^2 \right)\Big) \\
-    &= \frac{1}{\vol} \Big( 2\delta_{ij}\Wg^{n+1}(1^2) +  \Wg^{n+1}(12) \left( 1  + \delta_{ij} \right)\Big) \\
+    Var &= \Big( \Wg^{n+1}(1^2) \left( \delta_{ii}\delta_{11}\delta_{jj}\delta_{11} + \delta^2_{ij}\delta^2_{11} \right) +  \Wg^{n+1}(2) \left( \delta_{ii}\delta_{jj}\delta^2_{11} + \delta_{ij}^2\delta^2_{11} \right)\Big) \\
+    &= \left( 1 + \delta_{ij} \right) \Big( \Wg^{n+1}(1^2) + \Wg^{n+1}(2) \Big) 
   \end{split}
 \end{equation}
 According to \href{https://en.wikipedia.org/wiki/Weingarten_function}{Wikipedia}, 
 \begin{equation}
-  \Wg^{d}(1^2) = \frac{1}{d^2 - 1} \quad , \quad \Wg^d(12) = \frac{-1}{(d^2 - 1)(d^2-4)}
+  \Wg^{d}(1^2) = \frac{1}{d^2 - 1} \quad , \quad \Wg^d(2) = \frac{-1}{d(d^2-1)}
 \end{equation}
 so that 
 \begin{equation}
   \boxed{
-    Var(\OO_{ij}(z)) = \frac{1}{\vol} \frac{1}{(n+1)^2 - 1} \left[ 2\delta_{ij} - \frac{1 + \delta_{ij}}{( (n+1)^2 - 4)} \right]
-  }
-\end{equation}
-According to \cite{Zhang}, the volume of $\SU(N)$ is given by
-\begin{equation}
-  \vol(\SU(N)) = 2^{\binom{N}{2}} \prod_{k=1}^{N-1} \vol\left( S^{2k + 1} \right)
-\end{equation}
-so that 
-\begin{equation}
-  \vol = \vol(\SU(n+1)) = 2^{\binom{n + 1}{2}}\prod_{k=1}^{n} \vol\left( S^{2k + 1} \right) = 2^{\binom{n + 1}{2}} \prod_{k=1}^n \frac{2\pi^{k+1}}{k!}
-\end{equation}
-where the volume of $S^{2k + 1}$ is given by 
-\begin{equation}
-  \vol\left( S^{2k + 1} \right) = \frac{2\pi^{k + 1}}{\Gamma(k+1)} = \frac{2\pi^{k+1}}{k!}
-\end{equation}
+  Var(\OO_{ij}(z)) = \frac{1 + \delta_{ij}}{(n+1)(n+2)}
+}
+  \end{equation}
 
 \begin{remark}
   If we consider a torus / Cartan deformation as outlined in Section \ref{subsubsec:Torus_deformation}, then we find 
