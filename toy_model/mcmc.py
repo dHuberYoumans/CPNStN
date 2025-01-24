@@ -19,11 +19,11 @@ def R(t):
     rot: Tensor
         Batch of rotation matrices around angle t
     """
-    batch = len(t)
+    batch = t.shape
     rot = torch.stack(
         [torch.cos(t), -torch.sin(t),
         torch.sin(t), torch.cos(t)],
-        dim=-1).reshape(batch, 2, 2)
+        dim=-1).reshape(*batch, 2, 2)
 
     return rot.double()
 
