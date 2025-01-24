@@ -221,7 +221,7 @@ Verification that $\Psi$ does indeed define a diffeomorphism goes by a straight 
 
 There exists another very interesting diffeomorphism (which I have discovered in this \href{https://math.stackexchange.com/questions/4871752/tangent-bundle-of-a-sphere-t-mathbb-sn-is-diffeomorphic-to-mathbb-sn-time}{stackexchange post}
 \begin{equation}
-  \Phi \colon S^N \time S^N / \Delta \to TS^N \quad , \quad (u,v) \mapsto \left( u, \frac{v - \left\langle u, v \right\rangle u}{1 - \left\langle u, v \right\rangle } \right)
+  \Phi \colon S^N \times S^N / \Delta \to TS^N \quad , \quad (u,v) \mapsto \left( u, \frac{v - \left\langle u, v \right\rangle u}{1 - \left\langle u, v \right\rangle } \right)
   \label{eq:diff_SNSN_TSN}
 \end{equation}
 Its inverse is given by 
@@ -814,22 +814,22 @@ Then
 %   \left\langle \OO_{ij}(U) \right\rangle = \frac{\vol}{Z} \sum_{k} \frac{\beta^k}{k!} \int \mu(U) U_{i1}U^*_{1j} \lvert U_{11} \rvert^{2k}
 %   \label{eq:toy_one_pt_from_SU}
 % \end{equation}
-Integrals of $\SU(N)$ polynomials have been studied in the literature \cite{Borisenko_Voloshyn_Chelnokov}
+Integrals of $\SU(N)$ polynomials have been studied in the literature, see for example \cite{Borisenko_Voloshyn_Chelnokov}
 \begin{equation}
   \begin{split} 
-    I_N(r,s) &= \int_{\SU(N)} \mu(N) \prod_{k=1}^r U_{i_kj_k} \prod_{\ell = 1}^s \bar U_{a_{\ell} b_{\ell}} \\
-    &= \sum_{q = 0}^{\infty} \delta_{s-r, Nq}\sum_{\sigma \in S_r} \Wg^{N,q}(\sigma)\sum_{\rho\in S_{r+ Nq}}\prod_{k=1}^r \delta_{i_ka_{\rho(k)}}\delta_{j_{\sigma(k)}b_{\rho(k)}}\\
-    &\cdot \frac{1}{(Nq)!} \sum_{\tau \in S_{Nq}} \chi_{q^N}(\tau) \prod_{k=1}^{Nq} \delta_{a_{\rho(\tau(k) + r)}b_{\rho(k + r)}}
+    I_N(r,s) &= \int_{\SU(N)} \mu(N) \prod_{k=1}^r U_{i_kj_k} \prod_{\ell = 1}^s \bar U_{i'_{\ell} j'_{\ell}} \\
+    &= \sum_{q = 0}^{\infty} \delta_{s-r, Nq}\sum_{\sigma \in S_r} \Wg^{N,q}(\sigma)\sum_{\rho\in S_{r+ Nq}}\prod_{k=1}^r \delta_{i_ki'_{\rho(k)}}\delta_{j_{\sigma(k)}j'_{\rho(k)}}\\
+    &\cdot \frac{1}{(Nq)!} \sum_{\tau \in S_{Nq}} \chi_{q^N}(\tau) \prod_{k=1}^{Nq} \delta_{i'_{\rho(\tau(k) + r)}j'_{\rho(k + r)}}
   \end{split}
 \end{equation}
 This beast simplifies for $r = s$ (which, luckily, is the case we are interested in) to 
 \begin{equation}
-  I_N(r) \equiv I_N(r,r) = \sum_{\sigma,\tau \in S_r} \Wg^N(\tau^{-1}\sigma)\prod_{k=1}^r\delta_{i_ka_{\sigma(k)}}\delta_{j_kb_{\tau(k)}}
+  I_N(r) \equiv I_N(r,r) = \sum_{\sigma,\tau \in S_r} \Wg^N(\tau^{-1}\sigma)\prod_{k=1}^r\delta_{i_ki'_{\sigma(k)}}\delta_{j_kj'_{\tau(k)}}
   \label{eq:SUN_poly_int}
 \end{equation}
 Here, $\Wg^N$ denotes the Weingarten map which for $\sigma \in S_r$ is given by
 \begin{equation}
-  \Wg^{N}(\sigma) = \frac{1}{(r!)^2} \sum_{\substack{\lambda \in irreps(S_r) \\ \ell(\lambda) \leq N}} \frac{d^2_{\lambda}}{s_{\lambda}(1^N)}\chi_{\lambda}(\sigma)
+  \Wg^{N}(\sigma) = \frac{1}{(r!)^2} \sum_{\substack{\lambda \in irreps(S_r) \\ \ell(\lambda) \leq N}} \frac{d^2_{\lambda}\chi_{\lambda}(\sigma)}{s_{\lambda}(1^N)}
 \end{equation}
 where $d_{\lambda}$ is the dimension and $\chi_{\lambda}(\sigma)$ the character of the irreducible representation $\lambda$ of $S_r$.
 Moreover, $s_{\lambda}(X)$, $X = (X_1,\dots,X_N)$ denote the Shur functions.
@@ -844,11 +844,18 @@ We can rewrite \eqref{eq:toy_one_pt_from_SU} as follows:
 \begin{equation}
   \begin{split} 
     \left\langle \OO_{ij}(U) \right\rangle &= \frac{1}{\vol} \int_{\SU(n+1)}\mu(U) U_{i1}\bar U_{j1} \\
-    &= \frac{1}{\vol} \sum_{\tau,\sigma \in S_1} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^1 \delta_{i_k a_{\sigma(k)}}\delta_{j_k b_{\tau(k)}} \\
+    &= \frac{1}{\vol} \sum_{\tau,\sigma \in S_1} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^1 \delta_{i_k i'_{\sigma(k)}}\delta_{j_k j'_{\tau(k)}} \\
     &= \frac{1}{\vol} \Wg^{n+1}(id) \delta_{i1}\delta_{j1}\\
     &= \frac{\Wg^{n+1}(id)}{\vol} \delta_{ij}
   \end{split}
 \end{equation}
+\begin{remark}\label{rmk:important!}
+  In fact, $\delta_{i1}\delta_{j1}$ is the more accurate result. 
+  However, this depends on our choice of $\eta$. 
+  For example, if we would choose $\eta = (0,1,\dots)$, then we would find $\delta_{i2}\delta_{j1}$.
+  Of course, things must be independent of this choice.
+  In particular, we could always ``adapt'' $\eta$ to $i$, that is for given $i$ we can always choose $\eta = (0,\dots,1,\dots,0)$ where $1$ is in the $i$th position and the last equal sign follows.
+\end{remark}
 
 Let us now have a look at its variance
 \begin{equation}
@@ -858,16 +865,47 @@ which by the same reasoning can be written as
 \begin{equation}
   \begin{split} 
     Var &= \frac{1}{\vol} \int_{\SU(n+1)} \mu(U) U_{i1}U_{j1}\bar U_{i1} \bar U_{j1} \\
-  &= \frac{1}{\vol} \sum_{\tau,\sigma \in S_2} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^2 \delta_{i_k a_{\sigma(k)}}\delta_{j_k b_{\tau(k)}} \\
+  &= \frac{1}{\vol} \sum_{\tau,\sigma \in S_2} \Wg^{n+1}(\tau^{-1}\sigma) \prod_{k = 1}^2 \delta_{i_k i'_{\sigma(k)}}\delta_{j_k j'_{\tau(k)}} 
   \end{split}
 \end{equation}
-Since $S_2 = \{ id, (12) \}$, we find
+Since $S_2 = \{ 1^2 \equiv id, (12) \}$, we find
 \begin{equation}
   \begin{split} 
-    Var &= \frac{1}{\vol} \Big( \Wg^{n+1}(id) \left( \delta_{ii}\delta_{i1}\delta_{jj}\delta_{j1} + \delta_{i1}^2 \delta_{j1}^2 \right) +  \Wg^{n+1}(\ (12)\ ) \left( \delta_{i1}^2\delta_{jj}\delta_{11} + \delta_{j1}^2\delta_{11}\delta_{ii} \right)\Big)\\
-    &= \frac{1}{\vol} \Big( \Wg^{n+1}(id)(1 + \delta_{ij}) + \Wg^{n+1}((12)) (\delta_{ii} + \delta_{jj}) \Big)\\
-    &= \frac{1}{\vol} \Big( \Wg^{n+1}(id)(1 + \delta_{ij}) + 2 \Wg^{n+1}((12)) \Big)
+    Var &= \frac{1}{\vol} \Big( \Wg^{n+1}(1^2) \left( \delta_{ii}\delta_{i1}\delta_{jj}\delta_{j1} + \delta^2_{ij}\delta^2_{11} \right) +  \Wg^{n+1}(12) \left( \delta_{ii}\delta_{jj}\delta^2_{11} + \delta_{ij}^2\delta^2_{11} \right)\Big) \\
+    &= \frac{1}{\vol} \Big( \Wg^{n+1}(1^2) \left( \delta_{ii}\delta_{i1}\delta_{jj}\delta_{j1} + \delta^2_{ij} \right) +  \Wg^{n+1}(12) \left( \delta_{ii}\delta_{jj} + \delta_{ij}^2 \right)\Big) 
+%     &= \frac{1}{\vol} \Big[ \delta_{ij}^2 \Big(\Wg^{n+1}(1^2) + \Wg^{n+1}(12)\Big) + \delta_{ii}\delta_{jj} \Big(\delta_{i1}\delta_{j1}\Wg^{n+1}(1^2) + \Wg^{n+1}(12)\Big)\Big] \\
   \end{split}
+\end{equation}
+As outlined in Remark \ref{rmk:important!}, we can adapt our choice of $\eta$ such that for fixed $i$, $\eta$ has only its $i$th component non-zero.
+It follows that $\delta_{i1} \to \delta_{ii} = 1$ and $\delta_{j1}\to\delta_{ji}$.
+Hence
+\begin{equation}
+  \begin{split} 
+    Var &= \frac{1}{\vol} \Big( \Wg^{n+1}(1^2) \left( \delta^2_{ii}\delta_{jj}\delta_{ij} + \delta^2_{ij} \right) +  \Wg^{n+1}(12) \left( \delta_{ii}\delta_{jj} + \delta_{ij}^2 \right)\Big) \\
+    &= \frac{1}{\vol} \Big( 2\delta_{ij}\Wg^{n+1}(1^2) +  \Wg^{n+1}(12) \left( 1  + \delta_{ij} \right)\Big) \\
+  \end{split}
+\end{equation}
+According to \href{https://en.wikipedia.org/wiki/Weingarten_function}{Wikipedia}, 
+\begin{equation}
+  \Wg^{d}(1^2) = \frac{1}{d^2 - 1} \quad , \quad \Wg^d(12) = \frac{-1}{(d^2 - 1)(d^2-4)}
+\end{equation}
+so that 
+\begin{equation}
+  \boxed{
+    Var(\OO_{ij}(z)) = \frac{1}{\vol} \frac{1}{(n+1)^2 - 1} \left[ 2\delta_{ij} - \frac{1 + \delta_{ij}}{( (n+1)^2 - 4)} \right]
+  }
+\end{equation}
+According to \cite{Zhang}, the volume of $\SU(N)$ is given by
+\begin{equation}
+  \vol(\SU(N)) = 2^{\binom{N}{2}} \prod_{k=1}^{N-1} \vol\left( S^{2k + 1} \right)
+\end{equation}
+so that 
+\begin{equation}
+  \vol = \vol(\SU(n+1)) = 2^{\binom{n + 1}{2}}\prod_{k=1}^{n} \vol\left( S^{2k + 1} \right) = 2^{\binom{n + 1}{2}} \prod_{k=1}^n \frac{2\pi^{k+1}}{k!}
+\end{equation}
+where the volume of $S^{2k + 1}$ is given by 
+\begin{equation}
+  \vol\left( S^{2k + 1} \right) = \frac{2\pi^{k + 1}}{\Gamma(k+1)} = \frac{2\pi^{k+1}}{k!}
 \end{equation}
 
 \begin{remark}
@@ -887,5 +925,7 @@ Since $S_2 = \{ id, (12) \}$, we find
   \bibitem{Bruhat_Whitney} F.\ Bruhat and H.\ Whitney, Quelques propri\'et\'es fondamentales des ensembles analytiques-r\'eels, Comment. Math. Helv. 33, 132-160 (1959).
 
   \bibitem{CEbook} K.\ Cieliebak and Y.\ Eliashberg. From Stein to Weinstein and back: symplectic geometry of affine complex manifolds. Vol. 59. American Mathematical Soc., 2012.
+
+  \bibitem{Zhang} L.\ Zhang. Volumes of Orthogonal Groups and Unitary Groups. preprint. arXiv: \href{https://arxiv.org/abs/1509.00537v5}{1509.00537}
 \end{thebibliography}
 \end{document}
