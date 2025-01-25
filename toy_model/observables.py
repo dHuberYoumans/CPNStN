@@ -86,28 +86,14 @@ class LatObs:
     
     @staticmethod
     def one_pt(phi,p,i,j): # fuzzy zero
+        """ 
         """
-        Observable z_i \\bar z_j
 
-        Parameters:
-        -----------
-        phi: torch.tensor
-            Batch of real fields (vectors (...,2n+1,1))
-
-        p: tuple
-            Lattice point
-
-        i: int
-            Component z_i
-
-        j: int
-            Component \\bar z_j
-        """
         x,y = p
 
-        z, zbar = real2cmplx(phi[:,0])
+        z, zbar = real2cmplx(phi[:,x,y])
 
-        O = (z[:,x,y,i,:]*zbar[:,x,y,j,:]).squeeze(-1) # (samples,)
+        O = (z[:,i]*zbar[:,j]).squeeze(-1) # (samples,)
 
         assert len(O.shape) == 1
 
