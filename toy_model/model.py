@@ -234,32 +234,36 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     a0 = model.get_deformation_param().copy() 
 
     # TRAINING
-    for _ in tqdm.tqdm(range(epochs)):
+    for i in tqdm.tqdm(range(epochs)):
         optimizer_.zero_grad()
 
         # MINI-BATCHING
         minibatch = np.random.randint(low=0,high=len(phi_train),size=batch_size_)
+        phi_batched = phi_train[minibatch]
+        rotate_lattice(phi_batched)
 
         # TRAIN
-        Otilde = model(phi_train[minibatch]) 
+        Otilde = model(phi_batched) 
         loss_train = loss_fct(Otilde)
+        losses_train.append((i,grab(loss_train)))
         loss_train.backward()
 
         with torch.no_grad():
-            observable.append(grab(Otilde).mean())
-
-            observable_var.append(grab(Otilde).var())
+            observable.append((i,grab(Otilde).mean()))
+            observable_var.append((i,grab(Otilde).var()))
 
         optimizer_.step()
 
         # VALIDATION
-        with torch.no_grad():
-            Otilde_val = model(phi_val) 
+        if (i + 1) % 50 == 0:
+            with torch.no_grad():
+                Otilde_val = model(phi_val) 
 
-            loss_val = loss_fct(Otilde_val)
+                loss_val = loss_fct(Otilde_val)
+                losses_val.append((i+1,grab(loss_val)))
+                
+        
             
-        losses_train.append(grab(loss_train))
-        losses_val.append(grab(loss_val))
 
         anorm.append(np.linalg.norm(model.get_deformation_param().ravel()))
 
@@ -267,3 +271,10 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     af = model.get_deformation_param() 
 
     return observable, observable_var, losses_train, losses_val, anorm, a0, af
+
+def rotate_lattice(phi_mini_batched):
+    lattice_shape = phi_mini_batched.shape[1:-2]
+
+    for i in range(len(phi_mini_batched)):
+        dx = tuple(np.random.randint(L) for L in lattice_shape)
+        phi_mini_batched[i] = torch.roll(phi_mini_batched[i],dx,dims=tuple(range(len(dx))))
