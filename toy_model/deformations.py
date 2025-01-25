@@ -74,8 +74,8 @@ class Homogeneous(nn.Module):
     def complexify(self,phi):
         assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dim. Expected {2*self.n + 2}, got {phi.shape[-2]}"
 
-        X = phi
-        dtype = X.dtype # I don't like this!
+        X = phi # (samples, Lx,Ly,dim,1)
+        dtype = X.dtype 
 
         a_ = rho(1j*self.su_n.embed(self.a)).to(dtype) # assuming Hermitian su(n) generators 
 
@@ -98,8 +98,9 @@ class Homogeneous(nn.Module):
         if self.spacetime == "0D":
             detJ = torch.prod(detJ,dim=-1) # total Jacobian (samples,)
         elif self.spacetime == "2D":
-            Lx = detJ.shape[-2]
-            Ly = detJ.shape[-1]
+            Lx = X.shape[-4]
+            Ly = X.shape[-3]
+
             detJ = torch.prod(detJ.view(-1,Lx*Ly),dim=-1) # total Jacobian (samples,)
 
         assert len(detJ.shape) == 1, f'detJ has wrong dim: {detJ.shape} but must be 1' 
