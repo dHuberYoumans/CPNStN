@@ -4,14 +4,18 @@ from deformations import *
 from model import *
 from losses import *
 from observables import *
-from utils import grab
+from utils import *
 
 import analysis as al
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from torch.nn.parallel import DistributedDataParallel as DDP
+import torch.distributed as dist
+
 def main(mode):
+    
     if mode[0] == "lattice":
     ################ LATTICE ########################
         L = 64
@@ -28,7 +32,7 @@ def main(mode):
         dim_su = n**2 + 2*n
 
         print("Preparing samples..\n")
-        phi = cmplx2real(torch.tensor(ens).unsqueeze(-1))
+        phi = cmplx2real(torch.tensor(ens).unsqueeze(-1).to(device))
         print("...done\n")
         print(f"{phi.shape = }")
         print(f"{phi.dtype = }")
@@ -55,7 +59,7 @@ def main(mode):
 
         deformation_type = "lattice"
 
-        batch_size = 64
+        batch_size = 16
 
     if mode[0] == "toy":
         ################ TOY MODEL ########################
@@ -117,21 +121,55 @@ def main(mode):
     )
     model = CP(n,**params)
 
+    if torch.cuda.is_available():
+        dist.init_process_group("nccl")
+    else:
+        dist.init_process_group("gloo")
+
+    rank = dist.get_rank()
+    print(f"Start running DDP on rank {rank}\n")
+
+    if torch.cuda.is_available():
+        device_id = rank % torch.cuda.device_count()
+        torch.cuda.set_device(device_id)
+        ddp_model = DDP(model.to(device_id),device_ids=[device_id])
+    else:
+        ddp_model = DDP(model)
+
     # SET EPOCHS
-    epochs = 10_000
+    epochs = 100
 
     # TRAINING
     print("\n training model ... \n")
 
-    observable, observable_var, losses_train, losses_val, anorm, a0, af = train(model,phi,epochs=epochs,loss_fct=loss_fct,batch_size=batch_size,lr=lr)
+    observable, observable_var, losses_train, losses_val, anorm, a0, af = train(ddp_model,model,phi,epochs=epochs,loss_fct=loss_fct,batch_size=batch_size,lr=lr)
+    
+    dist.destroy_process_group()
 
     print("\n done.\n")
 
     undeformed_obs = obs(phi)
     deformed_obs = model.Otilde(phi)
 
-    plot_comparison(undeformed_obs,deformed_obs)
-    plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,losses_val,loss_fct.__name__,deformation_type,obs.__name__)#loss_name[loss_fct]
+    if rank == 0:
+        plot_params = dict(
+            n = n,
+            observable = observable,
+            observable_var = observable_var,
+            undeformed_obs = undeformed_obs,
+            deformed_obs = deformed_obs,
+            af = af,
+            anorm = anorm,
+            losses_train = losses_train,
+            losses_val = losses_val,
+            loss_name = loss_fct.__name__,
+            deformation_type = deformation_type,
+            title = obs.__name__
+        )
+        
+        save_plots(**plot_params)
+        # plot_comparison(undeformed_obs,deformed_obs)
+        # plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,losses_val,loss_fct.__name__,deformation_type,obs.__name__)#loss_name[loss_fct]
 
 def plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,losses_val,loss_name,deformation_type,title=None):
     # VARIANCE PLOT
@@ -245,6 +283,88 @@ def plot_comparison(undeformed_obs, deformed_obs):
     plt.title("errorbar comparison before and after training")
     plt.legend();
     # plt.show();
+
+def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,losses_train,losses_val,loss_name,deformation_type,title=None):
+    # VARIANCE PLOT
+    epochs = len(observable)
+    
+
+    Nboot = 1_000
+    mean_re, err_re = al.bootstrap(grab(undeformed_obs),Nboot=Nboot,f=al.rmean)
+
+    # LINEAR DEFORMATION
+    if deformation_type == "Linear":
+        aZ = torch.tensor(af[0]).cfloat()
+        aW = torch.tensor(af[1]).cfloat()
+    elif deformation_type == "Homogeneous":
+    # HOMOGENEOUS DEFORMATION
+        su_n = LieSU(n+1)
+        aZ = su_n.embed(torch.tensor(af[0]))
+        aW = su_n.embed(torch.tensor(af[1]))
+    else:
+        su_n = LieSU(n+1)
+        aZ = su_n.embed(torch.tensor(af[0,0]))
+        aW = su_n.embed(torch.tensor(af[0,1]))
+
+
+    # OBSERVABLE
+    fig, ax = plt.subplots(nrows=2,ncols=2) #[1, 1, 2, 2] gridspec_kw={'height_ratios': [1,1]}
+
+    ax[0,1].plot(anorm)
+    ax[0,1].set_title('norm a')
+
+    ax[0,0].plot(*np.transpose(losses_train),label='loss')
+    ax[0,0].plot(*np.transpose(losses_val),label='val_loss')
+    ax[0,0].legend()
+    ax[0,0].set_title(loss_name)
+    ax[0,0].legend()
+
+    ax[1,0].plot(*np.transpose([(e,z.real) for e,z in observable]),label='re')
+    ax[1,0].axhline(y=mean_re,xmin=0,xmax=epochs,label='OG re',color='red')
+    ax[1,0].fill_between([-100,epochs], [mean_re-err_re]*2, [mean_re+err_re]*2, alpha=0.5, color='red')
+    ax[1,0].set_title('defromed obs')
+    ax[1,0].legend()
+
+    ax[1,1].plot(*np.transpose([(e,z.real) for e,z in observable_var]),label='deformed')
+    ax[1,1].axhline(y=undeformed_obs.var(),xmin=0,xmax=epochs,label='undeformed',color='red')
+    ax[1,1].set_title('obs variance')
+    ax[1,1].legend()
+
+    plt.suptitle(title)
+    plt.tight_layout()
+    fig.savefig("./plots/loss.pdf");
+
+    # LEARNED DEFORMATION PARAMETER
+    fig, ax = plt.subplots(nrows=2,ncols=2)
+
+    sns.heatmap(data=aZ.real,ax=ax[0,0],cmap='coolwarm')
+    ax[0,0].set_title('real(a[0]) after training')
+    sns.heatmap(data=aZ.imag,ax=ax[0,1],cmap='coolwarm')
+    ax[0,1].set_title('imag(a[0]) after training')
+
+    sns.heatmap(data=aW.real,ax=ax[1,0],cmap='coolwarm')
+    ax[1,0].set_title('real(a[1]) after training')
+    sns.heatmap(data=aW.imag,ax=ax[1,1],cmap='coolwarm')
+    ax[1,1].set_title('imag(a[1]) after training')
+
+    plt.suptitle(title + " deformation params")
+    plt.tight_layout()
+
+    fig.savefig("./plots/deformation_params.pdf");
+
+
+    # COMPARISON
+    Nboot = 1000
+    mean_re_og, err_re_og = al.bootstrap(grab(undeformed_obs),Nboot=Nboot,f=al.rmean)
+    mean_re, err_re = al.bootstrap(grab(deformed_obs),Nboot=Nboot,f=al.rmean)
+
+    fig = plt.figure()
+    plt.errorbar([0],[mean_re_og],[err_re_og],color='blue',label='OG',marker='o',capsize=2)
+    plt.errorbar([1],[mean_re],[err_re],color='red',label='def',marker='o',capsize=2)
+    plt.xlim(-1,2)
+    plt.title("errorbar comparison before and after training")
+    plt.legend()
+    fig.savefig("./plots/errorbars_comp.pdf");
 
 
 if __name__ == "__main__":

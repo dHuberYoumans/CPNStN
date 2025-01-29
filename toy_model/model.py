@@ -2,11 +2,13 @@ import torch
 from torch import nn
 import torch.optim as optim
 
+
 import numpy as np
 from linalg import *
 from utils import *
 
 import tqdm
+
 
 class LatticeActionFunctional():
     def __init__(self,n):
@@ -161,7 +163,7 @@ class CP(nn.Module):
     def get_deformation_param(self):
         return self.deformation.get_param()    
 
-def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
+def train(ddp_model,model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     """
     Training.
 
@@ -212,6 +214,7 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     af: torch.Tensor
         deformation parameter after training
     """
+    
     # TRAIN-TEST SPLIT
     split_ = int(split*phi.shape[0])
     
@@ -219,7 +222,7 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     phi_val = phi[split_:]
 
     # OPTIMIZER
-    optimizer_ = optim.Adam(model.parameters(),lr=lr)
+    optimizer_ = optim.Adam(ddp_model.parameters(),lr=lr)
     
     # MINI-BATCHING
     batch_size_ = batch_size
@@ -243,7 +246,7 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
         rotate_lattice(phi_batched)
 
         # TRAIN
-        Otilde = model(phi_batched) 
+        Otilde = ddp_model(phi_batched) 
         loss_train = loss_fct(Otilde)
         losses_train.append((i,grab(loss_train)))
         loss_train.backward()
@@ -261,9 +264,7 @@ def train(model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
 
                 loss_val = loss_fct(Otilde_val)
                 losses_val.append((i+1,grab(loss_val)))
-                
-        
-            
+                       
 
         anorm.append(np.linalg.norm(model.get_deformation_param().ravel()))
 
