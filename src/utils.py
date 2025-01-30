@@ -121,7 +121,7 @@ def plot_data(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,l
     plt.errorbar([1],[mean_re],[err_re],color='red',label=r"$\varepsilon_{def}$",marker='o',capsize=2)
     plt.xlim(-1,2)
     plt.xticks([],[])
-    plt.title(f"errorbars for deformed and undeformed observable\n $\\varepsilon_{{og}} / \\varepsilon_{{def}}$ = {err_re_og / err_re:.2f}")
+    plt.title(f"error bars for deformed and undeformed observable\n $\\varepsilon_{{og}} / \\varepsilon_{{def}}$ = {err_re_og / err_re:.2f}")
     plt.legend()
     plt.show();
 
@@ -202,7 +202,7 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
     plt.errorbar([1],[mean_re],[err_re],color='red',label=r"$\varepsilon_{def}$",marker='o',capsize=2)
     plt.xlim(-1,2)
     plt.xticks([],[])
-    plt.title(f"errorbars for deformed and undeformed observable\n $\\varepsilon_{{og}} / \\varepsilon_{{def}}$ = {err_re_og / err_re:.2f}")
+    plt.title(f"error bars for deformed and undeformed observable\n $\\varepsilon_{{og}} / \\varepsilon_{{def}}$ = {err_re_og / err_re:.2f}")
     plt.legend()
     fig.savefig("./plots/errorbars_comp.pdf");
 
