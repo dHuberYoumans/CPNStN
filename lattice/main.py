@@ -42,7 +42,7 @@ def main(mode):
     Nc = 3
     n_cfg = 1_000
     print("Reading samples..\n")
-    ens = np.fromfile(f'../lattice/data/cpn_b{beta:.1f}_L{L}_Nc{Nc}_ens.dat', dtype=np.complex128).reshape(n_cfg, L, L, Nc)
+    ens = np.fromfile(f'./data/cpn_b{beta:.1f}_L{L}_Nc{Nc}_ens.dat', dtype=np.complex128).reshape(n_cfg, L, L, Nc)
     print("...done\n")
 
     # SAMPLES
@@ -78,7 +78,7 @@ def main(mode):
 
     deformation_type = "lattice"
 
-    batch_size = 16
+    batch_size = 128
 
     ################ TRAINING ########################
     # LEARNING RATE 
@@ -102,7 +102,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 100
+    epochs = 60_000
 
     # TRAINING
     print("\n training model ... \n")
