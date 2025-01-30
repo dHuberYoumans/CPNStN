@@ -1,0 +1,11 @@
+name: cpn
+channels:
+  - pytorch
+dependencies:
+  - python=3.12
+  - numpy
+  - pytorch
+  - pytorch-cuda
+  - matplotlib
+  - seaborn
+  - tqdm

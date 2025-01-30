@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../src")
+
 import torch
 from mcmc import * 
 from deformations import *
@@ -18,6 +21,7 @@ def main(mode):
     if torch.cuda.is_available():
         dist.init_process_group("nccl")
     else:
+        print("cuda not available. setting backend to gloo")
         dist.init_process_group("gloo")
 
     rank = dist.get_rank()
@@ -39,7 +43,7 @@ def main(mode):
         Nc = 3
         n_cfg = 1_000
         print("Reading samples..\n")
-        ens = np.fromfile(f'cpn_b{beta:.1f}_L{L}_Nc{Nc}_ens.dat', dtype=np.complex128).reshape(n_cfg, L, L, Nc)
+        ens = np.fromfile(f'../lattice/data/cpn_b{beta:.1f}_L{L}_Nc{Nc}_ens.dat', dtype=np.complex128).reshape(n_cfg, L, L, Nc)
         print("...done\n")
 
         # SAMPLES
@@ -83,7 +87,7 @@ def main(mode):
         beta = 4.5
 
         # SAMPLES
-        phi = torch.load(f'samples_n{n}_b{beta:.1f}_m{mode[1]}.dat',weights_only=True)
+        phi = torch.load(f'./data/samples_n{n}_b{beta:.1f}_m{mode[1]}.dat',weights_only=True)
 
         # ACTION FUNCTIONAL
         S = lambda phi: ToyActionFunctional(n).action(phi,beta)
@@ -143,7 +147,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 100
+    epochs = 5_000
 
     # TRAINING
     print("\n training model ... \n")
@@ -374,7 +378,7 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
 
 
 if __name__ == "__main__":
-    # mode = ("toy","II")
+    mode = ("toy","II")
     # generate_toy_samples(n=2,beta=4.5,N_steps=50_000,mode=mode)
-    mode = ("lattice",)
+    # mode = ("lattice",)
     main(mode)

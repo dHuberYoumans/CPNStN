@@ -314,4 +314,4 @@ TSWLatexianTemp*
 **/.DS_Store
 **/__pycache__
 **/*~
-toy_model/*.dat
+**/*.dat
