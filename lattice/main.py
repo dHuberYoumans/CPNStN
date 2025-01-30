@@ -36,49 +36,49 @@ def main(mode):
 
     torch.set_default_device(device)
 
-    ################ TOY MODEL ########################
-    n = 2
-    beta = 4.5
+    ################ LATTICE ########################
+    L = 64
+    beta = 4.0
+    Nc = 3
+    n_cfg = 1_000
+    print("Reading samples..\n")
+    ens = np.fromfile(f'../lattice/data/cpn_b{beta:.1f}_L{L}_Nc{Nc}_ens.dat', dtype=np.complex128).reshape(n_cfg, L, L, Nc)
+    print("...done\n")
 
     # SAMPLES
-    phi = torch.load(f'./data/samples_n{n}_b{beta:.1f}_m{mode[1]}.dat',weights_only=True)
+    n=2
+    rk = n
+    dim_su = n**2 + 2*n
+
+    print("Preparing samples..\n")
+    phi = cmplx2real(torch.tensor(ens).unsqueeze(-1).to(device))
+    print("...done\n")
+    print(f"{phi.shape = }")
+    print(f"{phi.dtype = }")
 
     # ACTION FUNCTIONAL
-    S = lambda phi: ToyActionFunctional(n).action(phi,beta)
+    S = lambda phi: LatticeActionFunctional(n).action(phi.cdouble(),beta)
 
     # OBSERVABLE
-    i,j = 0, 1
+    i, j = 0, 1 
+    p = (0, 0) # lattice point
 
-    # obs = ToyObs.fuzzy_one
-    # obs.__name__ = f"1, $\\beta$ = {beta:.1f}"
+    # obs = LatObs.fuzzy_one
+    # obs.__name__ = "fuzzy one"
 
-    # obs = lambda phi: ToyObs.one_pt(phi,i,j) # fuzzy_zero
-    # obs.__name__ = f"$O_{{ {i}{j} }}$(z), $\\beta$ = {beta:.1f}"
+    obs = lambda phi: LatObs.one_pt(phi,p,i,j) # fuzzy_zero
+    obs.__name__ = f"$O_{{{i}{j}}}${p}, $\\beta$ = {beta:.1f}"
 
-    obs = lambda phi: ToyObs.two_pt(phi,i,j)
-    obs.__name__ = f"$O_{{{i}{j}}}$(z,w), $\\beta$ = {beta:.1f}"
+    # obs = lambda phi: LatObs.two_pt(phi,i,j)
+    
+    
+    a0 = torch.zeros(L,L,dim_su) #1e-8 * torch.rand(L,L,dim)
+    # a0[0,0] = 0.1*torch.randn(dim_su)
+    deformation = Homogeneous(a0,n,spacetime="2D")
 
-    # obs = lambda phi: ToyObs.two_pt_full(phi)
-    # obs.__name__ = f"$\langle |z^\dagger w|^2 \\rangle$, $\\beta$ = {beta:.1f}"
+    deformation_type = "lattice"
 
-
-
-    # DEFORMATION
-
-    # linear
-    # a0 = 0.1*torch.randn(phi[0].shape) # dim(a) = 2n + 2
-    # deformation = Linear(a0,n)
-
-    # homogeneous: su(n+1)
-    rk = n
-    dim_g = n**2 + 2*n
-    a0 = torch.zeros(2,dim_g) 
-    # a0 = 0.1*torch.randn(2,dim_g) # fuzzy one 
-    deformation = Homogeneous(a0,n)
-
-
-    deformation_type = deformation.__class__.__name__
-    batch_size = 1024
+    batch_size = 16
 
     ################ TRAINING ########################
     # LEARNING RATE 
@@ -102,7 +102,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 10_000
+    epochs = 100
 
     # TRAINING
     print("\n training model ... \n")
@@ -137,6 +137,5 @@ def main(mode):
 
 
 if __name__ == "__main__":
-    mode = ("toy","II")
-    # generate_toy_samples(n=2,beta=4.5,N_steps=50_000,mode=mode)
+    mode = ("lattice",)
     main(mode)
