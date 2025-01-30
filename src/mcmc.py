@@ -116,7 +116,6 @@ def metropolis(phi,pairs,f) -> float:
 
     return alpha / len(pairs)
 
-
 def create_samples_II(n, phi0, beta, N_steps,burnin,k):
     """
     Monte Carlo Markov Chain (MCMC) sampling of the toy model using parallel updates
@@ -166,7 +165,6 @@ def create_samples_II(n, phi0, beta, N_steps,burnin,k):
     
     acception_rate = alpha / (N_steps) #(2*N_steps) 
     return (torch.stack(phi,dim=0)[burnin::k], acception_rate)
-
 
 def create_samples_seq(n, phi0, beta, N_steps,burnin,k):
     """
@@ -224,4 +222,28 @@ def create_samples_seq(n, phi0, beta, N_steps,burnin,k):
     acception_rate = alpha / (2* N_steps)
 
     return  (torch.stack([samples_Z, samples_W],dim=1), acception_rate)
+
+def generate_toy_samples(n,beta,N_steps = 10_000, burnin = 1_000, skip = 10, mode = 'II'):
+    """ GENERATING SAMPLES """
+
+    phi0 = torch.randn(2,(2*n + 2),1).double()
+    phi0 /= torch.linalg.vector_norm(phi0, dim=1, keepdim=True)
+
+    print(f"creating samples ({mode = })... \n")
+
+    fn_map = {
+            'II': create_samples_II,
+            'seq': create_samples_seq
+    }
+
+    phi, alpha = fn_map[mode](n=n,phi0=phi0,beta=beta,N_steps=N_steps,burnin=burnin,k=skip)
+
+    print("\ndone")
+    print(f"\n{phi.shape = }\t{alpha = }\n")
+    print("\nsaving ...")
+
+    torch.save(phi, f"samples_n{n}_b{beta}_m{mode}.dat")
+
+    print("\ndone")
+
 
