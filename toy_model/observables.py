@@ -62,7 +62,7 @@ class ToyObs:
 
     def two_pt_full(phi):
        """
-       Full two point function < |z^\dagger w|^2 >
+       Full two point function < |z^dagger w|^2 >
 
        Parameters:
        -----------

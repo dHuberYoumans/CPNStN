@@ -15,7 +15,23 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
 
 def main(mode):
-    
+    if torch.cuda.is_available():
+        dist.init_process_group("nccl")
+    else:
+        dist.init_process_group("gloo")
+
+    rank = dist.get_rank()
+    print(f"Start running DDP on rank {rank}\n")
+
+    if torch.cuda.is_available():
+        device_id = rank % torch.cuda.device_count()
+        torch.cuda.set_device(device_id)
+        device = torch.device("cuda:" + str(device_id)) 
+    else:
+        device = torch.device("cpu")
+
+    torch.set_default_device(device)
+
     if mode[0] == "lattice":
     ################ LATTICE ########################
         L = 64
@@ -122,16 +138,6 @@ def main(mode):
     model = CP(n,**params)
 
     if torch.cuda.is_available():
-        dist.init_process_group("nccl")
-    else:
-        dist.init_process_group("gloo")
-
-    rank = dist.get_rank()
-    print(f"Start running DDP on rank {rank}\n")
-
-    if torch.cuda.is_available():
-        device_id = rank % torch.cuda.device_count()
-        torch.cuda.set_device(device_id)
         ddp_model = DDP(model.to(device_id),device_ids=[device_id])
     else:
         ddp_model = DDP(model)
@@ -219,7 +225,7 @@ def plot_data(n,observable,observable_var,undeformed_obs,af,anorm,losses_train,l
     ax[1,0].legend()
 
     ax[1,1].plot(*np.transpose([(e,z.real) for e,z in observable_var]),label='deformed')
-    ax[1,1].axhline(y=undeformed_obs.var(),xmin=0,xmax=epochs,label='undeformed',color='red')
+    ax[1,1].axhline(y=grab(undeformed_obs.var()),xmin=0,xmax=epochs,label='undeformed',color='red')
     ax[1,1].set_title('obs variance')
     ax[1,1].legend()
 
@@ -326,7 +332,7 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
     ax[1,0].legend()
 
     ax[1,1].plot(*np.transpose([(e,z.real) for e,z in observable_var]),label='deformed')
-    ax[1,1].axhline(y=undeformed_obs.var(),xmin=0,xmax=epochs,label='undeformed',color='red')
+    ax[1,1].axhline(y=grab(undeformed_obs.var()),xmin=0,xmax=epochs,label='undeformed',color='red')
     ax[1,1].set_title('obs variance')
     ax[1,1].legend()
 
@@ -337,14 +343,14 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
     # LEARNED DEFORMATION PARAMETER
     fig, ax = plt.subplots(nrows=2,ncols=2)
 
-    sns.heatmap(data=aZ.real,ax=ax[0,0],cmap='coolwarm')
+    sns.heatmap(data=grab(aZ.real),ax=ax[0,0],cmap='coolwarm')
     ax[0,0].set_title('real(a[0]) after training')
-    sns.heatmap(data=aZ.imag,ax=ax[0,1],cmap='coolwarm')
+    sns.heatmap(data=grab(aZ.imag),ax=ax[0,1],cmap='coolwarm')
     ax[0,1].set_title('imag(a[0]) after training')
 
-    sns.heatmap(data=aW.real,ax=ax[1,0],cmap='coolwarm')
+    sns.heatmap(data=grab(aW.real),ax=ax[1,0],cmap='coolwarm')
     ax[1,0].set_title('real(a[1]) after training')
-    sns.heatmap(data=aW.imag,ax=ax[1,1],cmap='coolwarm')
+    sns.heatmap(data=grab(aW.imag),ax=ax[1,1],cmap='coolwarm')
     ax[1,1].set_title('imag(a[1]) after training')
 
     plt.suptitle(title + " deformation params")

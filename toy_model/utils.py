@@ -2,9 +2,6 @@ import numpy as np
 import time
 import torch 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-torch.set_default_device(device)
-
 def grab(x,safe=True): 
     arr = x.detach().cpu().numpy()
 
