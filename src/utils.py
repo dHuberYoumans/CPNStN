@@ -7,6 +7,9 @@ import seaborn as sns
 import analysis as al
 from linalg import *
 
+import os
+import datetime
+
 def grab(x,safe=True): 
     arr = x.detach().cpu().numpy()
 
@@ -126,6 +129,11 @@ def plot_data(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,l
     plt.show();
 
 def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,losses_train,losses_val,loss_name,deformation_type,title=None):
+    # SETUP
+    ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
+    path = os.path.join("./plots/",ts + "/")
+    os.mkdir(path)
+
     # VARIANCE PLOT
     epochs = len(observable)
     
@@ -175,9 +183,9 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
 
     plt.suptitle(title)
     plt.tight_layout()
-    fig.savefig("./plots/loss.pdf");
+    fig.savefig(path + "loss.pdf");
 
-    # LEARNED DEFORMATION PARAMETER
+    # EXAMPLE LEARNED DEFORMATION PARAMETER
     fig, ax = plt.subplots(nrows=2,ncols=2)
 
     sns.heatmap(data=grab(aZ.real),ax=ax[0,0],cmap='coolwarm')
@@ -193,8 +201,7 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
     plt.suptitle(title + ", deformation parameters")
     plt.tight_layout()
 
-    fig.savefig("./plots/deformation_params.pdf");
-
+    fig.savefig(path + "deformation_params.pdf");
 
     # ERRORBARS
     fig = plt.figure()
@@ -204,6 +211,13 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
     plt.xticks([],[])
     plt.title(f"error bars for deformed and undeformed observable\n $\\varepsilon_{{og}} / \\varepsilon_{{def}}$ = {err_re_og / err_re:.2f}")
     plt.legend()
-    fig.savefig("./plots/errorbars_comp.pdf");
+    fig.savefig(path + "errorbars_comp.pdf");
+
+    # LATTICE OF DEFORMATION PARAMETERS
+    fig = plt.figure()
+    norms_ = torch.linalg.norm(torch.tensor(af),dim=-1)
+    sns.heatmap(norms_,lw = 0.01,cmap='coolwarm')
+    plt.title(r"$\Vert a(x,y) \Vert$")
+    fig.savefig(path + "deformation_params_norms.pdf");
 
 
