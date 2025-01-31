@@ -2,17 +2,15 @@ import sys
 sys.path.append("../src")
 
 import torch
+import numpy as np
 from mcmc import * 
 from deformations import *
 from model import *
 from losses import *
 from observables import *
 from utils import *
+from unet import UNET
 
-import analysis as al
-
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
@@ -47,7 +45,6 @@ def main(mode):
 
     # SAMPLES
     n=2
-    rk = n
     dim_su = n**2 + 2*n
 
     print("Preparing samples..\n")
@@ -74,7 +71,10 @@ def main(mode):
     
     a0 = torch.zeros(L,L,dim_su) #1e-8 * torch.rand(L,L,dim)
     # a0[0,0] = 0.1*torch.randn(dim_su)
-    deformation = Homogeneous(a0,n,spacetime="2D")
+    # deformation = Homogeneous(a0,n,spacetime="2D")
+    unet = UNET(n,L,L)
+
+    deformation = NNHom(unet,n,spacetime="2D")
 
     deformation_type = "lattice"
 
@@ -94,6 +94,7 @@ def main(mode):
         observable = obs,
         beta = beta
     )
+
     model = CP(n,**params)
 
     if torch.cuda.is_available():
@@ -102,7 +103,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 60_000
+    epochs = 10
 
     # TRAINING
     print("\n training model ... \n")
@@ -132,8 +133,8 @@ def main(mode):
             title = obs.__name__
         )
         
-        save_plots(**plot_params)
-        # plot_data(**plot_params)
+        # save_plots(**plot_params)
+        plot_data(**plot_params)
 
 
 if __name__ == "__main__":
