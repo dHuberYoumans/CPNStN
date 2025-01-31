@@ -215,7 +215,7 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
 
     # LATTICE OF DEFORMATION PARAMETERS
     fig = plt.figure()
-    norms_ = torch.linalg.norm(torch.tensor(af),dim=-1)
+    norms_ = grab(torch.linalg.norm(torch.tensor(af),dim=-1))
     sns.heatmap(norms_,lw = 0.01,cmap='coolwarm')
     plt.title(r"$\Vert a(x,y) \Vert$")
     fig.savefig(path + "deformation_params_norms.pdf");

@@ -23,7 +23,7 @@ def main(mode):
         dist.init_process_group("gloo")
 
     rank = dist.get_rank()
-    print(f"Start running DDP on rank {rank}\n")
+    print(f"Start running DDP on rank {rank}")
 
     if torch.cuda.is_available():
         device_id = rank % torch.cuda.device_count()
@@ -39,19 +39,19 @@ def main(mode):
     beta = 4.0
     Nc = 3
     n_cfg = 1_000
-    print("Reading samples..\n")
+    print(f"rank {rank}: reading samples...")
     ens = np.fromfile(f'./data/cpn_b{beta:.1f}_L{L}_Nc{Nc}_ens.dat', dtype=np.complex128).reshape(n_cfg, L, L, Nc)
-    print("...done\n")
+    # print("...done\n")
 
     # SAMPLES
     n=2
     dim_su = n**2 + 2*n
 
-    print("Preparing samples..\n")
+    print(f"rank {rank}: preparing samples...")
     phi = cmplx2real(torch.tensor(ens).unsqueeze(-1).to(device))
-    print("...done\n")
-    print(f"{phi.shape = }")
-    print(f"{phi.dtype = }")
+    # print("...done\n")
+    # print(f"{phi.shape = }")
+    # print(f"{phi.dtype = }")
 
     # ACTION FUNCTIONAL
     S = lambda phi: LatticeActionFunctional(n).action(phi.cdouble(),beta)
@@ -103,16 +103,16 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 100
+    epochs = 35_000
 
     # TRAINING
-    print("\n training model ... \n")
+    # print("\n training model ... \n")
 
     observable, observable_var, losses_train, losses_val, anorm, a0, af = train(ddp_model,model,phi,epochs=epochs,loss_fct=loss_fct,batch_size=batch_size,lr=lr)
     
     dist.destroy_process_group()
 
-    print("\n done.\n")
+    # print("\n done.\n")
 
     undeformed_obs = obs(phi)
     deformed_obs = model.Otilde(phi)
@@ -133,9 +133,9 @@ def main(mode):
             title = obs.__name__
         )
         
-        # save_plots(**plot_params)
-        torch.save(af,'./def_params.pt')
-        plot_data(**plot_params)
+        save_plots(**plot_params)
+        # torch.save(af,'./def_params.pt')
+        # plot_data(**plot_params)
 
 
 if __name__ == "__main__":
