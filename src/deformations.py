@@ -150,12 +150,15 @@ class NNHom(nn.Module):
     def __init__(self,neural_net,n,spacetime="0D",safe_grab=True):
         super().__init__()
 
-        a_ = neural_net()
-        a_dim_g, a_Lx, a_Ly = a_.shape
-        a_ = a_.view(a_Lx,a_Ly,a_dim_g)
+        self.nn = neural_net
         
-        self.a = nn.Parameter(a_)
         self.n = n # CP(n)
+        self.dim_g = n**2 + 2*n
+        self.Lx = self.nn.mask.shape[-2]
+        self.Ly = self.nn.mask.shape[-1]
+
+        self.a = self.nn().view(self.Lx,self.Ly,self.dim_g)
+
         self.identity = torch.eye(2*n + 2)
 
         self.su_n = LieSU(n+1)
@@ -169,6 +172,8 @@ class NNHom(nn.Module):
 
         X = phi # (samples, Lx,Ly,dim,1)
         dtype = X.dtype 
+
+        self.a = self.nn().view(self.Lx,self.Ly,self.dim_g)
 
         a_ = rho(1j*self.su_n.embed(self.a)).to(dtype) # assuming Hermitian su(n) generators 
 
