@@ -103,7 +103,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 10
+    epochs = 1_000
 
     # TRAINING
     print("\n training model ... \n")
@@ -133,8 +133,9 @@ def main(mode):
             title = obs.__name__
         )
         
-        # save_plots(**plot_params)
-        plot_data(**plot_params)
+        save_plots(**plot_params)
+        torch.save(af,'./def_params.pt')
+        # plot_data(**plot_params)
 
 
 if __name__ == "__main__":
