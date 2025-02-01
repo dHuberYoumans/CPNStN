@@ -223,8 +223,9 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,ano
 
     # sns.heatmap(a0norms_,lw = 0.01,ax=ax[0],cmap='coolwarm')
     # sns.heatmap(afnorms_,lw = 0.01,ax=ax[1],cmap='coolwarm')
-    scatter_heatmap(ax[0],a0norms_,"before training")
-    scatter_heatmap(ax[1],afnorms_,"after training")
+    color_map = scatter_heatmap(ax[1],afnorms_,"after training",return_color_map=True) # color map after training
+    scatter_heatmap(ax[0],a0norms_,"before training",color_map=color_map) # use same color map
+
 
     ax[0].set_xlabel("Lx")
     ax[0].set_ylabel("Ly")
@@ -238,14 +239,14 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,ano
 
     fig.savefig(path + "deformation_params_norms.pdf", bbox_inches='tight');
 
-def scatter_heatmap(ax, anorm, title):
+def scatter_heatmap(ax, anorm, title, color_map = None, return_color_map = False):
     x, y = np.meshgrid(np.arange(anorm.shape[1]), np.arange(anorm.shape[0]))
     x = x.flatten()
     y = y.flatten()
     colors = anorm.flatten()
-    cmap = cm.coolwarm  
-    norm = mcolors.Normalize(vmin=colors.min(), vmax=colors.max()) 
-    mapped_colors = [cmap(norm(value)) for value in colors]  
+    cmap = cm.inferno  
+    color_map_ = color_map if color_map is not None else mcolors.Normalize(vmin=colors.min(), vmax=colors.max()) 
+    mapped_colors = [cmap(color_map_(value)) for value in colors]  
 
     sns.scatterplot(x=x,y=y,color=mapped_colors,s=70,ax=ax,legend=False)
 
@@ -257,7 +258,10 @@ def scatter_heatmap(ax, anorm, title):
     ax.margins(y=0.01,x = 0.01)
     ax.set_title(title,fontsize=24)
 
-    sm = cm.ScalarMappable(cmap=cmap, norm=norm)  # Create color scale reference
-    sm.set_array([])  # Required for colorbar
-    plt.colorbar(sm, ax=ax)  # Attach colorbar
+    sm = cm.ScalarMappable(cmap=cmap, norm=color_map_)  # color scale reference
+    sm.set_array([]) 
+    plt.colorbar(sm, ax=ax) 
+
+    if return_color_map:
+        return color_map_ 
     
