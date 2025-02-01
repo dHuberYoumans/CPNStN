@@ -47,7 +47,7 @@ class UNET(nn.Module):
 
         n = dim_C
         dim_g = n**2 + 2*n # CP(n) -> su(n+1)
-        self.mask = 1e-7*torch.ones(dim_g,Lx,Ly)
+        self.mask = torch.ones(dim_g,Lx,Ly)
 
         self.enc1 = EncBlock(in_c = dim_g, out_c = 64) #(dim_g, Lx, Ly)-> (64,Lx/2,Ly/2)
         self.enc2 = EncBlock(in_c = 64, out_c = 128)   # -> (128,Lx/4,Ly/4)
