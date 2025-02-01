@@ -2,6 +2,8 @@ import numpy as np
 import time
 import torch 
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 import seaborn as sns
 
 import analysis as al
@@ -219,19 +221,43 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,ano
     a0norms_ = grab(torch.linalg.norm(torch.tensor(a0),dim=-1))
     afnorms_ = grab(torch.linalg.norm(torch.tensor(af),dim=-1))
 
-    sns.heatmap(a0norms_,lw = 0.01,ax=ax[0],cmap='coolwarm')
-    sns.heatmap(afnorms_,lw = 0.01,ax=ax[1],cmap='coolwarm')
+    # sns.heatmap(a0norms_,lw = 0.01,ax=ax[0],cmap='coolwarm')
+    # sns.heatmap(afnorms_,lw = 0.01,ax=ax[1],cmap='coolwarm')
+    scatter_heatmap(ax[0],a0norms_,"before training")
+    scatter_heatmap(ax[1],afnorms_,"after training")
 
-    ax[0].set_xlabel("Lx");
-    ax[0].set_ylabel("Ly");
-    ax[1].set_xlabel("Lx");
-    ax[1].set_ylabel("Ly");
-    ax[0].set_title("before training")
-    ax[1].set_title("after training")
+    ax[0].set_xlabel("Lx")
+    ax[0].set_ylabel("Ly")
+    ax[1].set_xlabel("Lx")
+    ax[1].set_ylabel("Ly")
+    # ax[0].set_title("before training")
+    # ax[1].set_title("after training")
 
-    plt.suptitle(title + r", $\Vert a(x,y) \Vert$", fontsize=24)
+    fig.suptitle(title + r", $\Vert a(x,y) \Vert$", fontsize=32,y=1.03,x=0.47)
     plt.tight_layout()
 
-    fig.savefig(path + "deformation_params_norms.pdf");
+    fig.savefig(path + "deformation_params_norms.pdf", bbox_inches='tight');
 
+def scatter_heatmap(ax, anorm, title):
+    x, y = np.meshgrid(np.arange(anorm.shape[1]), np.arange(anorm.shape[0]))
+    x = x.flatten()
+    y = y.flatten()
+    colors = anorm.flatten()
+    cmap = cm.coolwarm  
+    norm = mcolors.Normalize(vmin=colors.min(), vmax=colors.max()) 
+    mapped_colors = [cmap(norm(value)) for value in colors]  
 
+    sns.scatterplot(x=x,y=y,color=mapped_colors,s=70,ax=ax,legend=False)
+
+    ax.invert_yaxis() # match heatmap orientation
+    ax.set_xticks(np.arange(anorm.shape[1]))
+    ax.set_yticks(np.arange(anorm.shape[0]))
+    ax.set_xticklabels(range(0,len(anorm)),rotation=-90)
+    ax.set_yticklabels(range(0,len(anorm)))
+    ax.margins(y=0.01,x = 0.01)
+    ax.set_title(title,fontsize=24)
+
+    sm = cm.ScalarMappable(cmap=cmap, norm=norm)  # Create color scale reference
+    sm.set_array([])  # Required for colorbar
+    plt.colorbar(sm, ax=ax)  # Attach colorbar
+    
