@@ -15,7 +15,6 @@ class ConvBlock(nn.Module):
     def forward(self,inputs):
         return self.conv(inputs)
 
-
 class EncBlock(nn.Module):
     def __init__(self,in_c, out_c):
         super().__init__()
@@ -41,7 +40,6 @@ class DecBlock(nn.Module):
 
         return x
 
-
 class UNET(nn.Module): 
     # lattice deformation params: (dim_g, Lx, Ly) 
     def __init__(self, dim_C, Lx, Ly):
@@ -65,6 +63,8 @@ class UNET(nn.Module):
 
         self.output = nn.Conv2d(in_channels=64,out_channels=dim_g,kernel_size=3,stride=1,padding=1) #(64,Lx,Ly) -> (dim_g,Lx,Ly)
 
+        self.set_weights_to_zero()
+
     def forward(self):
         lvl1, down1 = self.enc1(self.mask)
         lvl2, down2 = self.enc2(down1)
@@ -82,5 +82,9 @@ class UNET(nn.Module):
 
         return output
 
+    def set_weights_to_zero(self):
+        with torch.no_grad():
+            for param in self.parameters():
+                param.fill_(0.0)
 
         

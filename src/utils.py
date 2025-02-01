@@ -128,7 +128,7 @@ def plot_data(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,l
     plt.legend()
     plt.show();
 
-def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,losses_train,losses_val,loss_name,deformation_type,title=None):
+def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,anorm,losses_train,losses_val,loss_name,deformation_type,title=None):
     # SETUP
     ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
     path = os.path.join("./plots/",ts + "/")
@@ -136,7 +136,7 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
 
     # VARIANCE PLOT
     epochs = len(observable)
-    
+
     Nboot = 1_000
     mean_re_og, err_re_og = al.bootstrap(grab(undeformed_obs),Nboot=Nboot,f=al.rmean)
     mean_re, err_re = al.bootstrap(grab(deformed_obs),Nboot=Nboot,f=al.rmean)
@@ -156,7 +156,7 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
 
 
     # OBSERVABLE
-    fig, ax = plt.subplots(nrows=2,ncols=2) 
+    fig, ax = plt.subplots(nrows=2,ncols=2)
 
     ax[0,1].plot(anorm)
     ax[0,1].set_xlabel("epochs")
@@ -214,10 +214,24 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
     fig.savefig(path + "errorbars_comp.pdf");
 
     # LATTICE OF DEFORMATION PARAMETERS
-    fig = plt.figure()
-    norms_ = grab(torch.linalg.norm(torch.tensor(af),dim=-1))
-    sns.heatmap(norms_,lw = 0.01,cmap='coolwarm')
-    plt.title(r"$\Vert a(x,y) \Vert$")
+    fig, ax  = plt.subplots(nrows=1,ncols=2,figsize=(20,10))
+
+    a0norms_ = grab(torch.linalg.norm(torch.tensor(a0),dim=-1))
+    afnorms_ = grab(torch.linalg.norm(torch.tensor(af),dim=-1))
+
+    sns.heatmap(a0norms_,lw = 0.01,ax=ax[0],cmap='coolwarm')
+    sns.heatmap(afnorms_,lw = 0.01,ax=ax[1],cmap='coolwarm')
+
+    ax[0].set_xlabel("Lx");
+    ax[0].set_ylabel("Ly");
+    ax[1].set_xlabel("Lx");
+    ax[1].set_ylabel("Ly");
+    ax[0].set_title("before training")
+    ax[1].set_title("after training")
+
+    plt.suptitle(title + r", $\Vert a(x,y) \Vert$", fontsize=24)
+    plt.tight_layout()
+
     fig.savefig(path + "deformation_params_norms.pdf");
 
 

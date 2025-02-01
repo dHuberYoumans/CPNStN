@@ -64,10 +64,9 @@ def main(mode):
     # obs.__name__ = "fuzzy one"
 
     obs = lambda phi: LatObs.one_pt(phi,p,i,j) # fuzzy_zero
-    obs.__name__ = f"$O_{{{i}{j}}}${p}, $\\beta$ = {beta:.1f}"
+    obs.__name__ = f"$O_{{{i}{j}}}${str(p).replace(' ','')}, $\\beta$ = {beta:.1f}"
 
     # obs = lambda phi: LatObs.two_pt(phi,i,j)
-    
     
     a0 = torch.zeros(L,L,dim_su) #1e-8 * torch.rand(L,L,dim)
     # a0[0,0] = 0.1*torch.randn(dim_su)
@@ -103,7 +102,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 35_000
+    epochs = 5
 
     # TRAINING
     # print("\n training model ... \n")
@@ -124,6 +123,7 @@ def main(mode):
             observable_var = observable_var,
             undeformed_obs = undeformed_obs,
             deformed_obs = deformed_obs,
+            a0 = a0,
             af = af,
             anorm = anorm,
             losses_train = losses_train,
