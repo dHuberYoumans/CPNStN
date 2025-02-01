@@ -173,7 +173,7 @@ class NNHom(nn.Module):
         X = phi # (samples, Lx,Ly,dim,1)
         dtype = X.dtype 
 
-        self.a = self.nn().view(self.Lx,self.Ly,self.dim_g)
+        self.a = self.nn().permute(1,2,0)
 
         a_ = rho(1j*self.su_n.embed(self.a)).to(dtype) # assuming Hermitian su(n) generators 
 

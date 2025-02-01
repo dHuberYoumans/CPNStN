@@ -239,7 +239,7 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,ano
 
     fig.savefig(path + "deformation_params_norms.pdf", bbox_inches='tight');
 
-def scatter_heatmap(ax, anorm, title, color_map = None, return_color_map = False):
+def scatter_heatmap(ax, anorm, title, color_map = None, return_color_map = False, plot_cbar = True):
     x, y = np.meshgrid(np.arange(anorm.shape[1]), np.arange(anorm.shape[0]))
     x = x.flatten()
     y = y.flatten()
@@ -260,7 +260,9 @@ def scatter_heatmap(ax, anorm, title, color_map = None, return_color_map = False
 
     sm = cm.ScalarMappable(cmap=cmap, norm=color_map_)  # color scale reference
     sm.set_array([]) 
-    plt.colorbar(sm, ax=ax) 
+
+    if plot_cbar:
+        plt.colorbar(sm, ax=ax) 
 
     if return_color_map:
         return color_map_ 
