@@ -58,7 +58,7 @@ def main(mode):
 
     # OBSERVABLE
     i, j = 0, 1 
-    p = (0, 0) # lattice point
+    p = (0,0) # lattice point
 
     # obs = LatObs.fuzzy_one
     # obs.__name__ = "fuzzy one"
@@ -102,7 +102,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 5
+    epochs = 120_000
 
     # TRAINING
     # print("\n training model ... \n")
