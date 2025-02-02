@@ -110,7 +110,6 @@ class ToyActionFunctional():
         return - beta * hXY * hYX
     
 class CP(nn.Module):
-
     def __init__(self,dim_C,action,deformation,observable,beta):
         """
     

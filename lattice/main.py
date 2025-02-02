@@ -45,7 +45,7 @@ def main(mode):
 
     # SAMPLES
     n=2
-    dim_su = n**2 + 2*n
+    dim_g = n**2 + 2*n
 
     print(f"rank {rank}: preparing samples...")
     phi = cmplx2real(torch.tensor(ens).unsqueeze(-1).to(device))
@@ -68,10 +68,12 @@ def main(mode):
 
     # obs = lambda phi: LatObs.two_pt(phi,i,j)
     
-    a0 = torch.zeros(L,L,dim_su) #1e-8 * torch.rand(L,L,dim)
-    # a0[0,0] = 0.1*torch.randn(dim_su)
+    a0 = torch.zeros(L,L,dim_g) #1e-8 * torch.rand(L,L,dim)
+    # a0[0,0] = 0.1*torch.randn(dim_g)
     # deformation = Homogeneous(a0,n,spacetime="2D")
-    unet = UNET(n,L,L)
+    lattice_mask = torch.zeros(dim_g,L,L)
+    lattice_mask[:,0,0] = 1
+    unet = UNET(n,lattice_mask)
 
     deformation = NNHom(unet,n,spacetime="2D")
 
