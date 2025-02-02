@@ -72,7 +72,7 @@ def main(mode):
     # a0[0,0] = 0.1*torch.randn(dim_g)
     # deformation = Homogeneous(a0,n,spacetime="2D")
     lattice_mask = torch.zeros(dim_g,L,L)
-    lattice_mask[:,0,0] = 1
+    lattice_mask[:,i,j] = 1
     unet = UNET(n,lattice_mask)
 
     deformation = NNHom(unet,n,spacetime="2D")
@@ -104,7 +104,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 50_000
+    epochs = 1_000
 
     # TRAINING
     # print("\n training model ... \n")
