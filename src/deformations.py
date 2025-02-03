@@ -147,17 +147,17 @@ class Homogeneous(nn.Module):
         return grab(self.a,safe=self.safe_grab)
     
 class NNHom(nn.Module):
-    def __init__(self,neural_net,n,spacetime="0D",safe_grab=True):
+    def __init__(self,neural_net,n,spacetime="2D",safe_grab=False):
         super().__init__()
 
         self.nn = neural_net
         
         self.n = n # CP(n)
         self.dim_g = n**2 + 2*n
-        self.Lx = self.nn.mask.shape[-2]
+        self.Lx = self.nn.mask.shape[-2] # mask = (dim_g, Lx, Ly)
         self.Ly = self.nn.mask.shape[-1]
 
-        self.a = self.nn().view(self.Lx,self.Ly,self.dim_g)
+        self.a = self.nn().permute(1,2,0) # (Lx,Ly,dim_g)
 
         self.identity = torch.eye(2*n + 2)
 

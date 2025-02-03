@@ -55,41 +55,40 @@ class UNET(nn.Module):
         self.enc1 = EncBlock(in_c = dim_g, out_c = 64) #(dim_g, Lx, Ly)-> (64,Lx/2,Ly/2)
         self.enc2 = EncBlock(in_c = 64, out_c = 128)   # -> (128,Lx/4,Ly/4)
         self.enc3 = EncBlock(in_c = 128, out_c = 256)  # -> (256, Lx/8,Ly/8)
-        self.enc4 = EncBlock(in_c = 256, out_c = 512)  # -> (512, Lx/16, Ly/16)
 
-        self.bottle_neck = ConvBlock(in_c = 512, out_c=1024) # bottle neck -> (1024,Lx/16,Ly/16)
+        self.bottle_neck = ConvBlock(in_c = 256, out_c=512) # bottle neck -> (1024,Lx/8,Ly/8)
 
-        self.dec1 = DecBlock(in_c = 1024,out_c=512) # -> (512,Lx/8,Ly/8)
-        self.dec2 = DecBlock(in_c = 512,out_c=256)  # -> (256,Lx/4,Ly/4)
-        self.dec3 = DecBlock(in_c = 256,out_c=128)  # -> (128,Lx/2,Ly/2)
-        self.dec4 = DecBlock(in_c = 128,out_c=64)   # -> (64,Lx,Ly)
+        self.dec1 = DecBlock(in_c = 512,out_c=256)  # -> (256,Lx/4,Ly/4)
+        self.dec2 = DecBlock(in_c = 256,out_c=128)  # -> (128,Lx/2,Ly/2)
+        self.dec3 = DecBlock(in_c = 128,out_c=64)   # -> (64,Lx,Ly)
 
         self.output = nn.Conv2d(in_channels=64,out_channels=dim_g,kernel_size=3,stride=1,padding=1) #(64,Lx,Ly) -> (dim_g,Lx,Ly)
 
-        self.set_weights_to_zero()
+        self.set_inf_rnd_weights() # set kernel weights once (<< 1, rndn)
 
     def forward(self):
+        # down sampling
         lvl1, down1 = self.enc1(self.mask)
         lvl2, down2 = self.enc2(down1)
         lvl3, down3 = self.enc3(down2)
-        lvl4, down4 =self.enc4(down3)
 
-        bn = self.bottle_neck(down4)
+        # bottle neck
+        bn = self.bottle_neck(down3)
 
-        up1 = self.dec1(bn,lvl4)
-        up2 = self.dec2(up1,lvl3)
-        up3 = self.dec3(up2,lvl2)
-        up4 = self.dec4(up3,lvl1)
+        # upsampling
+        up1 = self.dec1(bn,lvl3)
+        up2 = self.dec2(up1,lvl2)
+        up3 = self.dec3(up2,lvl1)
 
-        output = self.output(up4)
+        output = self.output(up3)
 
         return output
 
-    def set_weights_to_zero(self):
+    def set_inf_rnd_weights(self):
         """ Sets all kernel weights to zero """
 
         with torch.no_grad():
             for param in self.parameters():
-                param.fill_(0.0)
+                param.copy_(torch.randn_like(param) * 1e-5)
 
         

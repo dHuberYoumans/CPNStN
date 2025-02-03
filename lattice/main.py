@@ -104,7 +104,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 1_000
+    epochs = 10
 
     # TRAINING
     # print("\n training model ... \n")
@@ -136,7 +136,7 @@ def main(mode):
         )
         
         save_plots(**plot_params)
-        # torch.save(af,'./def_params.pt')
+        torch.save(af,'./def_params.pt')
         # plot_data(**plot_params)
 
 
