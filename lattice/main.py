@@ -1,4 +1,6 @@
 import sys
+import os
+# sys.path.append(os.path.abspath("CPNStN/src"))
 sys.path.append("../src")
 
 import torch
