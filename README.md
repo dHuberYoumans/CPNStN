@@ -25,14 +25,14 @@ $ make
 
 3. Run GNU Screen
 ``` 
-screen -S <session_name>
+$ screen -S <session_name>
 ```
 
 ## Prerequisites
 
 Dependencies are listed in [environment.yml](https://github.com/dHuberYoumans/CPNStN/blob/main/environment.yml) which can be used with anaconda to create the virtual environment _cpn_:
 ```
-conda env create -f environment.yml
+$ conda env create -f environment.yml
 ```
 
 ## Running main.py
