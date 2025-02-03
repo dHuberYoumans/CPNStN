@@ -25,8 +25,10 @@ $ make
 
 3. Run GNU Screen
 ``` 
-$ screen -S <session_name>
+$ ./screen -S <session_name>
 ```
+
+We recommend to create an alias for `v.4.3.1/src/screen`.
 
 ## Prerequisites
 
