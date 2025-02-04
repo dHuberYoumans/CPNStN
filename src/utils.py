@@ -199,9 +199,10 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,ano
         ax[0].set_title(r"${\rm Re}(a_{max})$")
         sns.heatmap(data=grab(gamma.imag),ax=ax[1],cmap='inferno')
         ax[1].set_title(r"${\rm Im}(a_{max})$")
+
+        plt.suptitle(title + ", deformation parameter")
         plt.tight_layout()
 
-        plt.title(title + ", deformation parameter")
         fig.savefig(path + "deformation_params.pdf")
 
     elif deformation_type == "Homogeneous":
