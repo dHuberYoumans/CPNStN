@@ -1,7 +1,7 @@
 import sys
 import os
-# sys.path.append(os.path.abspath("CPNStN/src"))
 sys.path.append("../src")
+import datetime
 
 import torch
 import numpy as np
@@ -79,7 +79,7 @@ def main(mode):
 
     deformation = NNHom(unet,n,spacetime="2D")
 
-    deformation_type = "lattice"
+    deformation_type = "Lattice"
 
     batch_size = 128
 
@@ -106,7 +106,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 150_000
+    epochs = 1_000
 
     # TRAINING
     # print("\n training model ... \n")
@@ -120,7 +120,12 @@ def main(mode):
     undeformed_obs = obs(phi)
     deformed_obs = model.Otilde(phi)
 
-    if rank == 0:
+    if rank == 0:        # SETUP
+        ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
+        path = os.path.join("./plots/",ts + "/")
+        path_raw_data = path + "raw_data/"
+        os.makedirs(path_raw_data)
+
         plot_params = dict(
             n = n,
             observable = observable,
@@ -134,11 +139,16 @@ def main(mode):
             losses_val = losses_val,
             loss_name = loss_fct.__name__,
             deformation_type = deformation_type,
-            title = obs.__name__
+            title = obs.__name__,
+            path = path
         )
-        
+
+        # SAVE DATA
         save_plots(**plot_params)
-        torch.save(af,'./def_params.pt')
+        save_tensor(observable,path_raw_data, "observable.pt")
+        save_tensor(losses_train,path_raw_data, "losses_train.pt")
+        save_tensor(losses_val,path_raw_data, "losses_val.pt")
+        save_tensor(af,path_raw_data, "af.pt")
         # plot_data(**plot_params)
 
 

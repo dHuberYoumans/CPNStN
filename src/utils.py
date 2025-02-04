@@ -130,11 +130,11 @@ def plot_data(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,l
     plt.legend()
     plt.show();
 
-def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,anorm,losses_train,losses_val,loss_name,deformation_type,title=None):
+def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,anorm,losses_train,losses_val,loss_name,deformation_type,title=None,path=None):
     # SETUP
-    ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
-    path = os.path.join("./plots/",ts + "/")
-    os.mkdir(path)
+    # ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
+    # path = os.path.join("./plots/",ts + "/")
+    # os.mkdir(path)
 
     # VARIANCE PLOT
     epochs = len(observable)
@@ -147,14 +147,18 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,ano
         aZ = torch.tensor(af[0]).cfloat()
         aW = torch.tensor(af[1]).cfloat()
     elif deformation_type == "Homogeneous":
-    # HOMOGENEOUS DEFORMATION
+        # HOMOGENEOUS DEFORMATION
         su_n = LieSU(n+1)
         aZ = su_n.embed(torch.tensor(af[0]))
         aW = su_n.embed(torch.tensor(af[1]))
-    else:
+    elif deformation_type == "Lattice":
         su_n = LieSU(n+1)
-        aZ = su_n.embed(torch.tensor(af[0,0]))
-        aW = su_n.embed(torch.tensor(af[0,1]))
+        # a0norms_ = grab(torch.linalg.norm(torch.tensor(a0),dim=-1))
+        afnorms_ = grab(torch.linalg.norm(torch.tensor(af),dim=-1))
+        a_max = af[np.unravel_index(afnorms_.argmax(),afnorms_.shape)] # def param with largest norm
+        gamma = su_n.embed(torch.tensor(a_max))
+        # aZ = su_n.embed(torch.tensor(af[0,0]))
+        # aW = su_n.embed(torch.tensor(af[0,1]))
 
 
     # OBSERVABLE
@@ -185,25 +189,38 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,ano
 
     plt.suptitle(title)
     plt.tight_layout()
-    fig.savefig(path + "loss.pdf");
+    fig.savefig(path + "loss.pdf")
 
     # EXAMPLE LEARNED DEFORMATION PARAMETER
-    fig, ax = plt.subplots(nrows=2,ncols=2)
+    if deformation_type == "Lattice":
+        fig, ax = plt.subplots(nrows=1,ncols=2,figsize=(12,5))
 
-    sns.heatmap(data=grab(aZ.real),ax=ax[0,0],cmap='coolwarm')
-    ax[0,0].set_title(r"${\rm Re}(a(z))$")
-    sns.heatmap(data=grab(aZ.imag),ax=ax[0,1],cmap='coolwarm')
-    ax[0,1].set_title(r"${\rm Im}(a(z))$")
+        sns.heatmap(data=grab(gamma.real),ax=ax[0],cmap='inferno')
+        ax[0].set_title(r"${\rm Re}(a_{max})$")
+        sns.heatmap(data=grab(gamma.imag),ax=ax[1],cmap='inferno')
+        ax[1].set_title(r"${\rm Im}(a_{max})$")
+        plt.tight_layout()
 
-    sns.heatmap(data=grab(aW.real),ax=ax[1,0],cmap='coolwarm')
-    ax[1,0].set_title(r"${\rm Re}(a(w))$")
-    sns.heatmap(data=grab(aW.imag),ax=ax[1,1],cmap='coolwarm')
-    ax[1,1].set_title(r"${\rm Im}(a(w))$")
+        plt.title(title + ", deformation parameter")
+        fig.savefig(path + "deformation_params.pdf")
 
-    plt.suptitle(title + ", deformation parameters")
-    plt.tight_layout()
+    elif deformation_type == "Homogeneous":
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+    
+        sns.heatmap(data=grab(aZ.real),ax=ax[0,0],cmap='coolwarm')
+        ax[0,0].set_title(r"${\rm Re}(a(z))$")
+        sns.heatmap(data=grab(aZ.imag),ax=ax[0,1],cmap='coolwarm')
+        ax[0,1].set_title(r"${\rm Im}(a(z))$")
+    
+        sns.heatmap(data=grab(aW.real),ax=ax[1,0],cmap='coolwarm')
+        ax[1,0].set_title(r"${\rm Re}(a(w))$")
+        sns.heatmap(data=grab(aW.imag),ax=ax[1,1],cmap='coolwarm')
+        ax[1,1].set_title(r"${\rm Im}(a(w))$")
 
-    fig.savefig(path + "deformation_params.pdf");
+        plt.suptitle(title + ", deformation parameters")
+        plt.tight_layout()
+
+        fig.savefig(path + "deformation_params.pdf");
 
     # ERRORBARS
     fig = plt.figure()
@@ -216,28 +233,18 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,ano
     fig.savefig(path + "errorbars_comp.pdf");
 
     # LATTICE OF DEFORMATION PARAMETERS
-    fig, ax  = plt.subplots(nrows=1,ncols=2,figsize=(20,10))
+    if deformation_type == "Lattice":
+        fig, ax  = plt.subplots(figsize=(20,10))
 
-    a0norms_ = grab(torch.linalg.norm(torch.tensor(a0),dim=-1))
-    afnorms_ = grab(torch.linalg.norm(torch.tensor(af),dim=-1))
+        scatter_heatmap(ax,afnorms_,"after training") # color map after training
+        # scatter_heatmap(ax[0],a0norms_,"before training",color_map=color_map) # use same color map
 
-    # sns.heatmap(a0norms_,lw = 0.01,ax=ax[0],cmap='coolwarm')
-    # sns.heatmap(afnorms_,lw = 0.01,ax=ax[1],cmap='coolwarm')
-    color_map = scatter_heatmap(ax[1],afnorms_,"after training",return_color_map=True) # color map after training
-    scatter_heatmap(ax[0],a0norms_,"before training",color_map=color_map) # use same color map
+        ax.set_xlabel("Lx")
+        ax.set_ylabel("Ly")
+        ax.set_title(title + r", $\Vert a(x,y) \Vert$", fontsize=32,y=1.03,x=0.47)
+        plt.tight_layout()
 
-
-    ax[0].set_xlabel("Lx")
-    ax[0].set_ylabel("Ly")
-    ax[1].set_xlabel("Lx")
-    ax[1].set_ylabel("Ly")
-    # ax[0].set_title("before training")
-    # ax[1].set_title("after training")
-
-    fig.suptitle(title + r", $\Vert a(x,y) \Vert$", fontsize=32,y=1.03,x=0.47)
-    plt.tight_layout()
-
-    fig.savefig(path + "deformation_params_norms.pdf", bbox_inches='tight');
+        fig.savefig(path + "deformation_params_norms.pdf", bbox_inches='tight')
 
 def scatter_heatmap(ax, anorm, title, color_map = None, return_color_map = False, plot_cbar = True):
     x, y = np.meshgrid(np.arange(anorm.shape[1]), np.arange(anorm.shape[0]))
@@ -266,4 +273,6 @@ def scatter_heatmap(ax, anorm, title, color_map = None, return_color_map = False
 
     if return_color_map:
         return color_map_ 
-    
+
+def save_tensor(t,path,filename):
+    torch.save(t, path + filename)
