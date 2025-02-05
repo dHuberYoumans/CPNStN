@@ -149,6 +149,7 @@ def main(mode):
         save_tensor(losses_train,path_raw_data, "losses_train.pt")
         save_tensor(losses_val,path_raw_data, "losses_val.pt")
         save_tensor(af,path_raw_data, "af.pt")
+        torch.save(model,path_raw_data + "model.pt") # save model
         # plot_data(**plot_params)
 
 
