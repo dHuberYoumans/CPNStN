@@ -11,15 +11,16 @@ import tqdm
 
 
 class LatticeActionFunctional():
-    def __init__(self,n):
+    def __init__(self,n,beta):
         self.n = n
+        self.beta = beta
         self.identity = torch.eye(2*n + 2)
         sigma_y = torch.tensor([[0,1j],[-1j,0]]) 
         self.T = (
             self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)])
                     ).cdouble()
 
-    def action(self,phi,beta):
+    def action(self,phi):
         """
         Parameters:
         -----------
@@ -45,9 +46,9 @@ class LatticeActionFunctional():
 
             S += (h*hbar).sum(dim=(-1,-2))
             
-        return - beta * S
+        return - self.beta * S
     
-    def action_centered(self,phi,beta):
+    def action_centered(self,phi):
         """
         Parameters:
         -----------
@@ -73,7 +74,7 @@ class LatticeActionFunctional():
 
             S += (h*hbar - 1.0).sum(dim=(-1,-2))
             
-        return - beta * S
+        return - self.beta * S
     
     def u(self,phi):
         assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"

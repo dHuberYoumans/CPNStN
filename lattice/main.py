@@ -56,7 +56,7 @@ def main(mode):
     # print(f"{phi.dtype = }")
 
     # ACTION FUNCTIONAL
-    S = lambda phi: LatticeActionFunctional(n).action(phi.cdouble(),beta)
+    S = LatticeActionFunctional(n,beta).action
 
     # OBSERVABLE
     i, j = 0, 1 
@@ -65,10 +65,9 @@ def main(mode):
     # obs = LatObs.fuzzy_one
     # obs.__name__ = "fuzzy one"
 
-    obs = lambda phi: LatObs.one_pt(phi,p,i,j) # fuzzy_zero
-    obs.__name__ = f"$O_{{{i}{j}}}${str(p).replace(' ','')}, $\\beta$ = {beta:.1f}"
+    obs = LatOnePt(p,i,j) # fuzzy_zero
+    obs.name = f"$O_{{{i}{j}}}${str(p).replace(' ','')}, $\\beta$ = {beta:.1f}"
 
-    # obs = lambda phi: LatObs.two_pt(phi,i,j)
     
     a0 = torch.zeros(L,L,dim_g) #1e-8 * torch.rand(L,L,dim)
     # a0[0,0] = 0.1*torch.randn(dim_g)
@@ -139,7 +138,7 @@ def main(mode):
             losses_val = losses_val,
             loss_name = loss_fct.__name__,
             deformation_type = deformation_type,
-            title = obs.__name__,
+            title = obs.name,
             path = path
         )
 

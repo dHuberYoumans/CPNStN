@@ -84,16 +84,21 @@ class LatObs:
     def fuzzy_one(phi):
         return torch.ones(phi.shape[0],dtype=torch.cdouble)
     
-    @staticmethod
-    def one_pt(phi,p,i,j): # fuzzy zero
-        """ 
-        """
 
-        x,y = p
+class LatOnePt(): # fuzzy zero
+    """ 
+    """
+    def __init__(self,p,i,j):
+        self.p = p
+        self.i = i
+        self.j = j
+
+    def __call__(self, phi):
+        x,y = self.p
 
         z, zbar = real2cmplx(phi[:,x,y])
 
-        O = (z[:,i]*zbar[:,j]).squeeze(-1) # (samples,)
+        O = (z[:,self.i]*zbar[:,self.j]).squeeze(-1) # (samples,)
 
         assert len(O.shape) == 1
 
