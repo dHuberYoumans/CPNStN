@@ -35,7 +35,8 @@ class LatticeActionFunctional():
             action functional evaluated on lattice
         """
         assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
-        
+
+        phi = phi.cdouble()
         S = torch.zeros(phi.shape[0],dtype=torch.cdouble)
 
         for mu in [-3,-4]:
