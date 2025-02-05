@@ -105,7 +105,7 @@ def main(mode):
         ddp_model = DDP(model)
 
     # SET EPOCHS
-    epochs = 75_000
+    epochs = 100
 
     # TRAINING
     # print("\n training model ... \n")
