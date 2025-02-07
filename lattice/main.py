@@ -13,11 +13,30 @@ from observables import *
 from utils import *
 from unet import UNET
 
+import argparse
+
 
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
 
-def main(mode):
+def tuple_type(strings):
+    strings = strings.replace("(", "").replace(")", "")
+    mapped_int = map(int, strings.split(","))
+    return tuple(mapped_int)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--obs', help='observable', type=str, default='LatOnePt')
+    parser.add_argument('--p', help='point', type=tuple_type, default='(0,0)')
+    parser.add_argument('--q', help='point', type=tuple_type, default='(0,0)')
+    parser.add_argument('--i', help='component', type=int, default=0)
+    parser.add_argument('--j', help='component', type=int, default=0)
+    parser.add_argument('--k', help='component', type=int, default=0)
+    parser.add_argument('--l', help='component', type=int, default=0)
+    parser.add_argument('--tag', help='tag for saving', type=str, required=True)
+    args = parser.parse_args()
+
     if torch.cuda.is_available():
         dist.init_process_group("nccl")
     else:
@@ -59,25 +78,33 @@ def main(mode):
     S = LatticeActionFunctional(n,beta).action
 
     # OBSERVABLE
-    i, j = 0, 1 
-    p = (0,0) # lattice point
+    i = args.i
+    j = args.j
+    k = args.k
+    l = args.l
+    p = args.p # lattice point
+    q = args.q # lattice point
 
     # obs = LatObs.fuzzy_one
     # obs.__name__ = "fuzzy one"
+    lattice_mask = torch.zeros(dim_g,L,L)
 
-    obs = LatOnePt(p,i,j) # fuzzy_zero
-    obs.name = f"$O_{{{i}{j}}}${str(p).replace(' ','')}, $\\beta$ = {beta:.1f}"
+    if args.obs == 'LatOnePt':
+        obs = LatOnePt(p,i,j) # fuzzy_zero
+        obs.name = rf"$O_{{{i}{j}}}${str(p).replace(' ','')}, $\beta$ = {beta:.1f}"
+        lattice_mask[:,i,j] = 1
+    elif args.obs == 'LatTwoPt':
+        obs = LatTwoPt(p,q,i,j,k,l)
+        obs.name = rf"$O_{{{i}{j}}}${str(p).replace(' ','')}O^\dagger_{{{k}{l}}}${str(q).replace(' ','')}, $\beta$ = {beta:.1f}"
+        lattice_mask[:,i,j] = 1
+        lattice_mask[:,k,l] = -1
 
     
-    a0 = torch.zeros(L,L,dim_g) #1e-8 * torch.rand(L,L,dim)
+    # a0 = torch.zeros(L,L,dim_g) #1e-8 * torch.rand(L,L,dim)
     # a0[0,0] = 0.1*torch.randn(dim_g)
     # deformation = Homogeneous(a0,n,spacetime="2D")
-    lattice_mask = torch.zeros(dim_g,L,L)
-    lattice_mask[:,i,j] = 1
     unet = UNET(n,lattice_mask)
-
     deformation = NNHom(unet,n,spacetime="2D")
-
     deformation_type = "Lattice"
 
     batch_size = 128
@@ -119,9 +146,10 @@ def main(mode):
     undeformed_obs = obs(phi)
     deformed_obs = model.Otilde(phi)
 
-    if rank == 0:        # SETUP
+    if rank == 0:        
+        # SETUP
         ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
-        path = os.path.join("./plots/",ts + "/")
+        path = os.path.join(f"./plots/{args.tag}/",ts + "/")
         path_raw_data = path + "raw_data/"
         os.makedirs(path_raw_data)
 
@@ -153,5 +181,4 @@ def main(mode):
 
 
 if __name__ == "__main__":
-    mode = ("lattice",)
-    main(mode)
+    main()
