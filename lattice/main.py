@@ -175,7 +175,6 @@ def main():
     else:
         ddp_model = DDP(model)
 
-
     print(f"rank {rank}: reading samples..\n")
     logger.info(f"rank {rank}: reading samples..\n")
     ens = np.fromfile(f'./data/cpn_b{beta:.1f}_L{L}_Nc{Nc}_ens.dat', dtype=np.complex128).reshape(n_cfg, L, L, Nc)
