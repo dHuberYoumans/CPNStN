@@ -103,3 +103,29 @@ class LatOnePt(): # fuzzy zero
         assert len(O.shape) == 1
 
         return O
+
+class LatTwoPt(): # fuzzy zero
+    """ 
+    """
+    def __init__(self,p,q,i,j,k,l):
+        # lattice sides
+        self.p = p
+        self.q = q
+        # components
+        self.i = i
+        self.j = j
+        self.k = k
+        self.l = l
+
+    def __call__(self, phi):
+        x1,y1 = self.p
+        x2,y2 = self.q
+
+        z, zbar = real2cmplx(phi[:,x1,y1])
+        w, wbar = real2cmplx(phi[:,x2,y2])
+
+        O = (z[:,self.i]*zbar[:,self.j]*wbar[:,self.k]*w[:,self.l]).squeeze(-1) # (samples,)
+
+        assert len(O.shape) == 1
+
+        return O
