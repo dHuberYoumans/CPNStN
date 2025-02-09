@@ -45,12 +45,11 @@ class DecBlock(nn.Module):
 
 class UNET(nn.Module): 
     # lattice deformation params: (dim_g, Lx, Ly) 
-    def __init__(self, dim_C, mask):
+    def __init__(self, dim_C):
         super().__init__()
 
         n = dim_C
         dim_g = n**2 + 2*n # CP(n) -> su(n+1)
-        self.mask = mask
 
         self.enc1 = EncBlock(in_c = dim_g, out_c = 64) #(dim_g, Lx, Ly)-> (64,Lx/2,Ly/2)
         self.enc2 = EncBlock(in_c = 64, out_c = 128)   # -> (128,Lx/4,Ly/4)
@@ -66,9 +65,9 @@ class UNET(nn.Module):
 
         self.set_inf_rnd_weights() # set kernel weights once (<< 1, rndn)
 
-    def forward(self):
+    def forward(self, mask):
         # down sampling
-        lvl1, down1 = self.enc1(self.mask)
+        lvl1, down1 = self.enc1(mask)
         lvl2, down2 = self.enc2(down1)
         lvl3, down3 = self.enc3(down2)
 
@@ -89,6 +88,6 @@ class UNET(nn.Module):
 
         with torch.no_grad():
             for param in self.parameters():
-                param.copy_(torch.randn_like(param) * 1e-5)
+                param.copy_(torch.randn_like(param) * 1e-8)
 
         
