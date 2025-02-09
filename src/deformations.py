@@ -154,10 +154,8 @@ class NNHom(nn.Module):
         
         self.n = n # CP(n)
         self.dim_g = n**2 + 2*n
-        self.Lx = self.nn.mask.shape[-2] # mask = (dim_g, Lx, Ly)
-        self.Ly = self.nn.mask.shape[-1]
 
-        self.a = self.nn().permute(1,2,0) # (Lx,Ly,dim_g)
+        # self.a = self.nn().permute(1,2,0) # (Lx,Ly,dim_g)
 
         self.identity = torch.eye(2*n + 2)
 
@@ -167,13 +165,13 @@ class NNHom(nn.Module):
         self.safe_grab = safe_grab
 
     # DEFORM 
-    def complexify(self,phi):
+    def complexify(self, phi, mask):
         assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dim. Expected {2*self.n + 2}, got {phi.shape[-2]}"
 
         X = phi # (samples, Lx,Ly,dim,1)
         dtype = X.dtype 
 
-        self.a = self.nn().permute(1,2,0)
+        self.a = self.nn(mask).permute(1,2,0)
 
         a_ = rho(1j*self.su_n.embed(self.a)).to(dtype) # assuming Hermitian su(n) generators 
 
