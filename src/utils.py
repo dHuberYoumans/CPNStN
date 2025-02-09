@@ -130,7 +130,7 @@ def plot_data(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,l
     plt.legend()
     plt.show();
 
-def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,a0,af,anorm,losses_train,losses_val,loss_name,deformation_type,title=None,path=None):
+def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,losses_train,losses_val,loss_name,deformation_type,title=None,path=None):
     # SETUP
     # ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
     # path = os.path.join("./plots/",ts + "/")
