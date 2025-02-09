@@ -112,7 +112,7 @@ class ToyActionFunctional():
         return - beta * hXY * hYX
     
 class CP(nn.Module):
-    def __init__(self,dim_C,action,deformation,observable,beta):
+    def __init__(self,dim_C,action,deformation,beta):
         """
     
         obs = observable
@@ -122,13 +122,12 @@ class CP(nn.Module):
 
         # HYPERPARAMETERS
         self.beta = beta
-        self.obs = observable
         self.deformation = deformation
 
         # ACTION
         self.S = action
 
-    def Otilde(self,phi):
+    def Otilde(self, obs, phi):
         """
         Computes the operator corresponding to the deformed observable inside the undeformed path integral: Jac * O(tilde phi) exp[ - ( S( tilde phi) - S(phi) ) ]
 
@@ -150,21 +149,21 @@ class CP(nn.Module):
 
         S0 = self.S(phi)
 
-        phi_tilde, detJ = self.deformation.complexify(phi) 
+        phi_tilde, detJ = self.deformation.complexify(phi, obs.mask) 
  
         Stilde = self.S(phi_tilde)
 
-        O = (self.obs(phi_tilde) * detJ * torch.exp( - ( Stilde - S0 ) ) ) 
+        O = (obs(phi_tilde) * detJ * torch.exp( - ( Stilde - S0 ) ) ) 
 
         return O
     
-    def forward(self,phi):
-        return self.Otilde(phi)
+    def forward(self, obs, phi):
+        return self.Otilde(obs, phi)
         
     def get_deformation_param(self):
         return self.deformation.get_param()    
 
-def train(ddp_model,model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
+def train(ddp_model, model, obs, phi, epochs, loss_fct, lr=1e-4, split=0.7, batch_size=32):
     """
     Training.
 
@@ -172,6 +171,9 @@ def train(ddp_model,model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     -----------
     model: ZeroDModel
         model to train
+
+    observable: Observable
+        observable
 
     phi: torch.Tensor
         MCMC samples 
@@ -209,10 +211,7 @@ def train(ddp_model,model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     anorm: list[float]
         vector/matrix norm of deformation parameter
 
-    a0: torch.Tensor
-        deformation parameter before training
-
-    af: torch.Tensor
+    a: torch.Tensor
         deformation parameter after training
     """
     
@@ -234,9 +233,6 @@ def train(ddp_model,model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
     losses_val = []
     anorm = []
 
-    # a0 FOR COMPARISON
-    a0 = model.get_deformation_param().copy() 
-
     # TRAINING
     for i in tqdm.tqdm(range(epochs)):
         optimizer_.zero_grad()
@@ -247,7 +243,7 @@ def train(ddp_model,model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
         rotate_lattice(phi_batched)
 
         # TRAIN
-        Otilde = ddp_model(phi_batched) 
+        Otilde = ddp_model(obs, phi_batched) 
         loss_train = loss_fct(Otilde)
         losses_train.append((i,grab(loss_train)))
         loss_train.backward()
@@ -261,7 +257,7 @@ def train(ddp_model,model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
         # VALIDATION
         if (i + 1) % 50 == 0:
             with torch.no_grad():
-                Otilde_val = model(phi_val) 
+                Otilde_val = model(obs, phi_val) 
 
                 loss_val = loss_fct(Otilde_val)
                 losses_val.append((i+1,grab(loss_val)))
@@ -270,9 +266,9 @@ def train(ddp_model,model,phi,epochs,loss_fct,lr=1e-4,split=0.7,batch_size=32):
         anorm.append(np.linalg.norm(model.get_deformation_param().ravel()))
 
     # GET DEFORMATION PARAMETER AFTER TRAINING 
-    af = model.get_deformation_param() 
+    a = model.get_deformation_param() 
 
-    return observable, observable_var, losses_train, losses_val, anorm, a0, af
+    return observable, observable_var, losses_train, losses_val, anorm, a
 
 def rotate_lattice(phi_mini_batched):
     lattice_shape = phi_mini_batched.shape[1:-2]
