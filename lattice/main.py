@@ -97,20 +97,15 @@ def main():
     p = args.p # lattice point
     q = args.q # lattice point
 
-    lattice_mask = torch.zeros(dim_g,L,L)
 
     if args.obs == 'LatOnePt':
-        obs = LatOnePt(p,i,j) # fuzzy_zero
+        obs = LatOnePt(p,i,j, dim_g, L) # fuzzy_zero
         obs.name = f"$\\langle O_{{{i}{j}}}${str(p).replace(' ','')}$\\rangle$, $\\beta$ = {beta:.1f}"
-        lattice_mask[:,i,j] = 1
     elif args.obs == 'LatTwoPt':
-        obs = LatTwoPt(p,q,i,j,k,ell)
+        obs = LatTwoPt(p,q,i,j,k,ell, dim_g, L)
         obs.name = f"$\\langle O_{{{i}{j}}}${str(p).replace(' ','')}$O^\dagger_{{{k}{ell}}}${str(q).replace(' ','')}$\\rangle$, $\\beta$ = {beta:.1f}"
-        lattice_mask[:,i,j] = 1
-        lattice_mask[:,k,ell] = -1
-
     
-    unet = UNET(n,lattice_mask)
+    unet = UNET(n)
     deformation = NNHom(unet,n,spacetime="2D")
     deformation_type = "Lattice"
 
@@ -126,7 +121,6 @@ def main():
     params = dict([
         ('action', S),
         ('deformation', deformation),
-        ('observable', obs),
         ('beta', beta)
         ])
 
@@ -186,7 +180,18 @@ def main():
     print(f"rank {rank}: starting training..\n")
     logger.info(f"rank {rank}: starting training..\n")
 
-    observable, observable_var, losses_train, losses_val, anorm, a0, af = train(ddp_model,model,phi,epochs=epochs,loss_fct=loss_fct,batch_size=batch_size,lr=lr)
+    training_param = dict([
+        ('ddp_model', ddp_model),
+        ('model', model),
+        ('obs', obs),
+        ('phi', phi),
+        ('epochs', epochs),
+        ('loss_fct', loss_fct),
+        ('lr', lr),
+        ('batch_size', batch_size)
+        ])
+
+    observable, observable_var, losses_train, losses_val, anorm, af = train(**training_param)
     
     logger.info(f"rank {rank}: ...finished.\n")
 
@@ -194,7 +199,7 @@ def main():
 
 
     undeformed_obs = obs(phi)
-    deformed_obs = model.Otilde(phi)
+    deformed_obs = model.Otilde(obs, phi)
 
     if rank == 0:        
         print("Saving data..\n")
@@ -231,7 +236,6 @@ def main():
             ('observable_var' , observable_var),
             ('undeformed_obs' , undeformed_obs),
             ('deformed_obs' , deformed_obs),
-            ('a0' , a0),
             ('af' , af),
             ('anorm' , anorm),
             ('losses_train' , losses_train),
