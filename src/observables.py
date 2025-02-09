@@ -83,15 +83,17 @@ class LatObs:
     @staticmethod
     def fuzzy_one(phi):
         return torch.ones(phi.shape[0],dtype=torch.cdouble)
-    
 
 class LatOnePt(): # fuzzy zero
-    """ 
+    r""" 
+    One point function < z_i z^\dagger_j >
     """
-    def __init__(self,p,i,j):
+    def __init__(self,p,i,j,dim_g,L):
         self.p = p
         self.i = i
         self.j = j
+        self.mask = torch.zeros(dim_g, L, L)
+        self.mask[:,*p] = 1
 
     def __call__(self, phi):
         x,y = self.p
@@ -105,9 +107,10 @@ class LatOnePt(): # fuzzy zero
         return O
 
 class LatTwoPt(): # fuzzy zero
-    """ 
+    r""" 
+    Two point function < z_i z^\dagger_j w^\dagger_k w_ell >
     """
-    def __init__(self,p,q,i,j,k,l):
+    def __init__(self,p,q,i,j,k,l,dim_g,L):
         # lattice sides
         self.p = p
         self.q = q
@@ -116,6 +119,9 @@ class LatTwoPt(): # fuzzy zero
         self.j = j
         self.k = k
         self.l = l
+        self.mask = torch.zeros(dim_g, L, L)
+        self.mask[:,*p] = 1
+        self.mask[:,*q] = 1
 
     def __call__(self, phi):
         x1,y1 = self.p
