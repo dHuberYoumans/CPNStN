@@ -57,6 +57,11 @@ def main():
     assert args.obs == 'LatOnePt' or args.obs == 'LatTwoPt', "Wrong observable, please specify one of 'LatOnePt' or 'LatTwoPt'"
     assert args.tag == 'one-pt' or args.tag == 'two-pt', "Wrong tag: please specify one of 'one-pt' or 'two-pt'"
 
+    if args.obs == 'LatOnePt':
+        assert args.tag == 'one-pt', f"Incompatible arguments: --obs={args.obs} and --tag={args.tag}"
+
+    if args.obs == 'LatTwoPt':
+        assert args.tag == 'two-pt', f"Incompatible arguments: --obs={args.obs} and --tag={args.tag}"
     
     ################ SETUP DEVICE  ########################
 
