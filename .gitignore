@@ -315,3 +315,4 @@ TSWLatexianTemp*
 **/__pycache__
 **/*~
 **/*.dat
+!**/run.log
