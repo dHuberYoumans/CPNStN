@@ -1,0 +1,32 @@
+2025-02-10 00:16:10,355 - INFO: Start running DDP on rank 3
+
+2025-02-10 00:16:10,355 - INFO: Start running DDP on rank 0
+
+2025-02-10 00:16:10,355 - INFO: Start running DDP on rank 1
+
+2025-02-10 00:16:10,355 - INFO: Start running DDP on rank 2
+
+2025-02-10 00:17:10,821 - INFO: rank 0: reading samples..
+
+2025-02-10 00:17:10,821 - INFO: rank 3: reading samples..
+
+2025-02-10 00:17:10,821 - INFO: rank 2: reading samples..
+
+2025-02-10 00:17:10,822 - INFO: rank 1: reading samples..
+
+2025-02-10 00:17:11,098 - INFO: rank 1: preparing samples..
+
+2025-02-10 00:17:11,099 - INFO: rank 3: preparing samples..
+
+2025-02-10 00:17:11,101 - INFO: rank 2: preparing samples..
+
+2025-02-10 00:17:11,104 - INFO: rank 0: preparing samples..
+
+2025-02-10 00:17:11,919 - INFO: rank 3: starting training..
+
+2025-02-10 00:17:11,919 - INFO: rank 0: starting training..
+
+2025-02-10 00:17:11,924 - INFO: rank 2: starting training..
+
+2025-02-10 00:17:11,925 - INFO: rank 1: starting training..
+
