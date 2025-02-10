@@ -178,7 +178,8 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
     ax[1,0].axhline(y=mean_re_og,xmin=0,xmax=epochs,label='og',color='red')
     ax[1,0].fill_between([-100,epochs], [mean_re_og-err_re]*2, [mean_re_og+err_re]*2, alpha=0.5, color='red')
     ax[1,0].set_xlabel("epochs")
-    ax[1,0].set_title(r"$\langle$" + title.split(' ')[0][:-1] + r"$\rangle$")
+    ax[1,0].set_title(title)
+    #ax[1,0].set_title(r"$\langle$" + title.split(' ')[0][:-1] + r"$\rangle$")
     ax[1,0].legend()
 
     ax[1,1].plot(*np.transpose([(e,z.real) for e,z in observable_var]),label='def')

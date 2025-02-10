@@ -167,7 +167,7 @@ def main():
     model = CP(n,**params)
 
     # SET EPOCHS
-    epochs = 1_000
+    epochs = 25_000
 
     
     ################ TRAINING ########################
