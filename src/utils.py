@@ -195,9 +195,9 @@ def save_plots(n,observable,observable_var,undeformed_obs,deformed_obs,af,anorm,
     if deformation_type == "Lattice":
         fig, ax = plt.subplots(nrows=1,ncols=2,figsize=(12,5))
 
-        sns.heatmap(data=grab(gamma.real),ax=ax[0],cmap='inferno')
+        sns.heatmap(data=grab(gamma.real),ax=ax[0],cmap='coolwarm')
         ax[0].set_title(r"${\rm Re}(a_{max})$")
-        sns.heatmap(data=grab(gamma.imag),ax=ax[1],cmap='inferno')
+        sns.heatmap(data=grab(gamma.imag),ax=ax[1],cmap='coolwarm')
         ax[1].set_title(r"${\rm Im}(a_{max})$")
 
         plt.suptitle(title + ", deformation parameter")
@@ -252,7 +252,7 @@ def scatter_heatmap(ax, anorm, title, color_map = None, return_color_map = False
     x = x.flatten()
     y = y.flatten()
     colors = anorm.flatten()
-    cmap = cm.inferno  
+    cmap = cm.coolwarm  
     color_map_ = color_map if color_map is not None else mcolors.Normalize(vmin=colors.min(), vmax=colors.max()) 
     mapped_colors = [cmap(color_map_(value)) for value in colors]  
 
