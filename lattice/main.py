@@ -57,6 +57,41 @@ def main():
     assert args.obs == 'LatOnePt' or args.obs == 'LatTwoPt', "Wrong observable, please specify one of 'LatOnePt' or 'LatTwoPt'"
     assert args.tag == 'one-pt' or args.tag == 'two-pt', "Wrong tag: please specify one of 'one-pt' or 'two-pt'"
 
+    
+    ################ SETUP DEVICE  ########################
+
+    if torch.cuda.is_available():
+        dist.init_process_group("nccl")
+    else:
+        print("cuda not available. setting backend to gloo\n")
+        dist.init_process_group("gloo")
+
+    ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
+    path = os.path.join(f"./plots/{args.tag}/",ts + "/")
+    path_raw_data = path + "raw_data/"
+
+    try:
+        os.makedirs(path_raw_data)
+    except FileExistsError:
+        pass
+
+    if dist.is_initialized(): # wait for dir to be created / passed exception
+        dist.barrier()
+
+    logger = setup_logger(path)
+    rank = dist.get_rank()
+    print(f"Start running DDP on rank {rank}\n")
+    logger.info(f"Start running DDP on rank {rank}\n")
+
+    if torch.cuda.is_available():
+        device_id = rank % torch.cuda.device_count()
+        torch.cuda.set_device(device_id)
+        device = torch.device("cuda:" + str(device_id)) 
+    else:
+        device = torch.device("cpu")
+
+    torch.set_default_device(device)
+
     # if torch.cuda.is_available():
         # dist.init_process_group("nccl")
     # else:
@@ -103,7 +138,7 @@ def main():
         obs.name = f"$\\langle O_{{{i}{j}}}${str(p).replace(' ','')}$\\rangle$, $\\beta$ = {beta:.1f}"
     elif args.obs == 'LatTwoPt':
         obs = LatTwoPt(p,q,i,j,k,ell, dim_g, L)
-        obs.name = f"$\\langle O_{{{i}{j}}}${str(p).replace(' ','')}$O^\dagger_{{{k}{ell}}}${str(q).replace(' ','')}$\\rangle$, $\\beta$ = {beta:.1f}"
+        obs.name = f"$\\langle O_{{{i}{j}}}${str(p).replace(' ','')}$O^\\dagger_{{{k}{ell}}}${str(q).replace(' ','')}$\\rangle$, $\\beta$ = {beta:.1f}"
     
     unet = UNET(n)
     deformation = NNHom(unet,n,spacetime="2D")
@@ -127,43 +162,10 @@ def main():
     model = CP(n,**params)
 
     # SET EPOCHS
-    epochs = 10
+    epochs = 1_000
 
     
     ################ TRAINING ########################
-    ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
-    path = os.path.join(f"./plots/{args.tag}/",ts + "/")
-    path_raw_data = path + "raw_data/"
-
-    try:
-        os.makedirs(path_raw_data)
-    except FileExistsError:
-        pass
-
-    if dist.is_initialized(): # wait for dir to be created / passed exception
-        dist.barrier()
-
-    logger = setup_logger(path)
-
-    if torch.cuda.is_available():
-        dist.init_process_group("nccl")
-    else:
-        print("cuda not available. setting backend to gloo\n")
-        dist.init_process_group("gloo")
-
-    rank = dist.get_rank()
-    print(f"Start running DDP on rank {rank}\n")
-    logger.info(f"Start running DDP on rank {rank}\n")
-
-    if torch.cuda.is_available():
-        device_id = rank % torch.cuda.device_count()
-        torch.cuda.set_device(device_id)
-        device = torch.device("cuda:" + str(device_id)) 
-    else:
-        device = torch.device("cpu")
-
-    torch.set_default_device(device)
-
     if torch.cuda.is_available():
         ddp_model = DDP(model.to(device_id),device_ids=[device_id])
     else:
