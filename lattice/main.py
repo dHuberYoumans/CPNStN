@@ -71,22 +71,8 @@ def main():
         print("cuda not available. setting backend to gloo\n")
         dist.init_process_group("gloo")
 
-    ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
-    path = os.path.join(f"./plots/{args.tag}/",ts + "/")
-    path_raw_data = path + "raw_data/"
-
-    try:
-        os.makedirs(path_raw_data)
-    except FileExistsError:
-        pass
-
-    if dist.is_initialized(): # wait for dir to be created / passed exception
-        dist.barrier()
-
-    logger = setup_logger(path)
     rank = dist.get_rank()
     print(f"Start running DDP on rank {rank}\n")
-    logger.info(f"Start running DDP on rank {rank}\n")
 
     if torch.cuda.is_available():
         device_id = rank % torch.cuda.device_count()
@@ -97,23 +83,6 @@ def main():
 
     torch.set_default_device(device)
 
-    # if torch.cuda.is_available():
-        # dist.init_process_group("nccl")
-    # else:
-        # print("cuda not available. setting backend to gloo\n")
-        # dist.init_process_group("gloo")
-# 
-    # rank = dist.get_rank()
-    # print(f"Start running DDP on rank {rank}\n")
-# 
-    # if torch.cuda.is_available():
-        # device_id = rank % torch.cuda.device_count()
-        # torch.cuda.set_device(device_id)
-        # device = torch.device("cuda:" + str(device_id)) 
-    # else:
-        # device = torch.device("cpu")
-# 
-    # torch.set_default_device(device)
 
     ################ LATTICE ########################
     L = 64
@@ -139,10 +108,10 @@ def main():
 
 
     if args.obs == 'LatOnePt':
-        obs = LatOnePt(p,i,j, dim_g, L) # fuzzy_zero
+        obs = LatOnePt(p,i,j, n, L) # fuzzy_zero
         obs.name = f"$\\langle O_{{{i}{j}}}${str(p).replace(' ','')}$\\rangle$, $\\beta$ = {beta:.1f}"
     elif args.obs == 'LatTwoPt':
-        obs = LatTwoPt(p,q,i,j,k,ell, dim_g, L)
+        obs = LatTwoPt(p,q,i,j,k,ell, n, L)
         obs.name = f"$\\langle O_{{{i}{j}}}${str(p).replace(' ','')}$O^\\dagger_{{{k}{ell}}}${str(q).replace(' ','')}$\\rangle$, $\\beta$ = {beta:.1f}"
     
     unet = UNET(n)
@@ -177,15 +146,12 @@ def main():
         ddp_model = DDP(model)
 
     print(f"rank {rank}: reading samples..\n")
-    logger.info(f"rank {rank}: reading samples..\n")
     ens = np.fromfile(f'./data/cpn_b{beta:.1f}_L{L}_Nc{Nc}_ens.dat', dtype=np.complex128).reshape(n_cfg, L, L, Nc)
 
     print(f"rank {rank}: preparing samples..\n")
-    logger.info(f"rank {rank}: preparing samples..\n")
     phi = cmplx2real(torch.tensor(ens).unsqueeze(-1).to(device))
 
     print(f"rank {rank}: starting training..\n")
-    logger.info(f"rank {rank}: starting training..\n")
 
     training_param = dict([
         ('ddp_model', ddp_model),
@@ -200,7 +166,7 @@ def main():
 
     observable, observable_var, losses_train, losses_val, anorm, af = train(**training_param)
     
-    logger.info(f"rank {rank}: ...finished.\n")
+    print(f"rank {rank}: ...finished.\n")
 
     dist.destroy_process_group()
 
@@ -208,9 +174,19 @@ def main():
     undeformed_obs = obs(phi)
     deformed_obs = model.Otilde(obs, phi)
 
-    if rank == 0:        
+    if rank == 0: 
+        ts = datetime.datetime.today().strftime('%Y.%m.%d_%H:%M')
+        path = os.path.join(f"./plots/{args.tag}/",ts + "/")
+        path_raw_data = path + "raw_data/"
+
+        try:
+            os.makedirs(path_raw_data)
+        except FileExistsError:
+            pass
+
+        logger = setup_logger(path)
+
         print("Saving data..\n")
-        logger.info("Saving data..\n")
 
         # LOGGING PARAMETERS
         log_data = [
