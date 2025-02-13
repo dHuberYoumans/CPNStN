@@ -163,7 +163,7 @@ class CP(nn.Module):
     def get_deformation_param(self):
         return self.deformation.get_param()    
 
-def train(ddp_model, model, obs, phi, epochs, loss_fct, lr=1e-4, split=0.7, batch_size=32):
+def train(ddp_model, model, obs, phi, epochs, loss_fn, lr=1e-4, split=0.7, batch_size=32):
     """
     Training.
 
@@ -181,7 +181,7 @@ def train(ddp_model, model, obs, phi, epochs, loss_fct, lr=1e-4, split=0.7, batc
     epochs: int
         max number of epochs
 
-    loss_fct: Callable
+    loss_fn: Callable
         loss function 
 
     lr: float, optional, default = 1e-4
@@ -244,7 +244,7 @@ def train(ddp_model, model, obs, phi, epochs, loss_fct, lr=1e-4, split=0.7, batc
 
         # TRAIN
         Otilde = ddp_model(obs, phi_batched) 
-        loss_train = loss_fct(Otilde)
+        loss_train = loss_fn(Otilde)
         losses_train.append((i,grab(loss_train)))
         loss_train.backward()
 
@@ -259,7 +259,7 @@ def train(ddp_model, model, obs, phi, epochs, loss_fct, lr=1e-4, split=0.7, batc
             with torch.no_grad():
                 Otilde_val = model(obs, phi_val) 
 
-                loss_val = loss_fct(Otilde_val)
+                loss_val = loss_fn(Otilde_val)
                 losses_val.append((i+1,grab(loss_val)))
                        
 
