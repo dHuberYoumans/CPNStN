@@ -52,6 +52,9 @@ def main():
     parser.add_argument('--k', help='component', type=int, default=0)
     parser.add_argument('--ell', help='component', type=int, default=0)
     parser.add_argument('--tag', help='tag for saving (one-pt | two-pt)', type=str, required=True)
+    parser.add_argument('--epochs', help='epochs', type=int, default=1_000)
+    parser.add_argument('--loss_fn', help='loss function', type=str, default='rlogloss')
+    parser.add_argument('--batch_size', help='batch size', type=int, default=1024)
     args = parser.parse_args()
 
     assert args.obs == 'LatOnePt' or args.obs == 'LatTwoPt', "Wrong observable, please specify one of 'LatOnePt' or 'LatTwoPt'"
@@ -118,13 +121,22 @@ def main():
     deformation = NNHom(unet,n,spacetime="2D")
     deformation_type = "Lattice"
 
-    batch_size = 128
+    batch_size = args.batch_size
 
     # LEARNING RATE 
     lr = 1e-5
 
     # LOSS
-    loss_fct = rlogloss
+    if args.loss_fn == 'logloss':
+        loss_fn = logloss
+    if args.loss_fn == 'rlogloss':
+        loss_fn = rlogloss
+    if args.loss_fn == 'ilogloss':
+        loss_fn = ilogloss
+    if args.loss_fn == 'rloss':
+        loss_fn = rloss
+    if args.loss_fn == 'iloss':
+        loss_fn = iloss
 
     # MODEL
     params = dict([
@@ -136,7 +148,7 @@ def main():
     model = CP(n,**params)
 
     # SET EPOCHS
-    epochs = 25_000
+    epochs = args.epochs 
 
     
     ################ TRAINING ########################
@@ -159,7 +171,7 @@ def main():
         ('obs', obs),
         ('phi', phi),
         ('epochs', epochs),
-        ('loss_fct', loss_fct),
+        ('loss_fn', loss_fn),
         ('lr', lr),
         ('batch_size', batch_size)
         ])
@@ -197,7 +209,7 @@ def main():
                 ["dim_g",dim_g],
                 ["lr (learning rate)", lr],
                 ["batch size", batch_size],
-                ["loss_fct",loss_fct.__name__],
+                ["loss_fn",loss_fn.__name__],
                 ["epochs",epochs],
                 ["obs", args.obs],
             ]
@@ -208,6 +220,10 @@ def main():
             log_data.append(["(p,q)",(p,q)])
             log_data.append(["(i,j)",(i,j)])
             log_data.append(["(k,l)",(k,ell)])
+        try:
+            log_data.append(["SLURM_JOB_ID", os.environ['SLURM_JOB_ID'])
+        except:
+            pass
 
         table = tabulate(log_data, headers=["param", "value"], tablefmt="grid")
 
@@ -223,7 +239,7 @@ def main():
             ('anorm' , anorm),
             ('losses_train' , losses_train),
             ('losses_val' , losses_val),
-            ('loss_name' , loss_fct.__name__),
+            ('loss_name' , loss_fn.__name__),
             ('deformation_type' , deformation_type),
             ('title' , obs.name),
             ('path' , path)
