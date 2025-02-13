@@ -3,6 +3,7 @@
 **/*~
 **/*.dat
 scrapbook.ipynb
+MCMC/
 notes/
 !notes/notes.tex
 !notes/notes.pdf
