@@ -1,15 +1,18 @@
 import torch 
 import torch.nn as nn
 
+def set_conv2d(in_c, out_c, ksize):
+    return nn.Conv2d(in_channels=in_c,out_channels=out_c,kernel_size=ksize,stride=1,padding=ksize//2,padding_mode='circular') # (in_c,H,W) -> (out_c,H,W)
+
 class ConvBlock(nn.Module):
     """ Convolution block """
     def __init__(self,in_c,out_c,ksize=3):
         super().__init__()
 
         self.conv = nn.Sequential(
-                nn.Conv2d(in_channels=in_c,out_channels=out_c,kernel_size=ksize,stride=1,padding=1), # (in_c,H,W) -> (out_c,H,W)
+                set_conv2d(in_c,out_c,ksize), # (in_c,H,W) -> (out_c,H,W)
                 nn.ReLU(),
-                nn.Conv2d(in_channels=out_c,out_channels=out_c,kernel_size=ksize,stride=1,padding=1), # (out_c,H,W) -> (out_c,H,W)
+                set_conv2d(out_c,out_c,ksize), # (out_c,H,W) -> (out_c,H,W)
                 nn.ReLU(),
                 )
 
@@ -45,7 +48,7 @@ class DecBlock(nn.Module):
 
 class UNET(nn.Module): 
     # lattice deformation params: (dim_g, Lx, Ly) 
-    def __init__(self, dim_C):
+    def __init__(self, dim_C, ksize=3):
         super().__init__()
 
         n = dim_C
@@ -61,7 +64,7 @@ class UNET(nn.Module):
         self.dec2 = DecBlock(in_c = 256,out_c=128)  # -> (128,Lx/2,Ly/2)
         self.dec3 = DecBlock(in_c = 128,out_c=64)   # -> (64,Lx,Ly)
 
-        self.output = nn.Conv2d(in_channels=64,out_channels=dim_g,kernel_size=3,stride=1,padding=1) #(64,Lx,Ly) -> (dim_g,Lx,Ly)
+        self.output = set_conv2d(64,dim_g,ksize) # (64,Lx,Ly) -> (dim_g,Lx,Ly)
 
         self.set_inf_rnd_weights() # set kernel weights once (<< 1, rndn)
 
