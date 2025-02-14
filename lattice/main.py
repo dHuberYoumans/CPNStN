@@ -221,7 +221,7 @@ def main():
             log_data.append(["(i,j)",(i,j)])
             log_data.append(["(k,l)",(k,ell)])
         try:
-            log_data.append(["SLURM_JOB_ID", os.environ['SLURM_JOB_ID'])
+            log_data.append(["SLURM_JOB_ID", os.environ['SLURM_JOB_ID']])
         except:
             pass
 
