@@ -2,95 +2,12 @@ import torch
 from torch import nn
 import torch.optim as optim
 
-
 import numpy as np
 from linalg import *
+from deformations import *
 from utils import *
 
 import tqdm
-
-
-class LatticeActionFunctional():
-    def __init__(self,n,beta):
-        self.n = n
-        self.beta = beta
-        self.identity = torch.eye(2*n + 2)
-        sigma_y = torch.tensor([[0,1j],[-1j,0]]) 
-        self.T = (
-            self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)])
-                    ).cdouble()
-
-    def action(self,phi):
-        """
-        Parameters:
-        -----------
-        phi: torch.Tensor
-            field evaluated on 2d square lattice
-        beta: float
-            coupling constant
-
-        Returns:
-        --------
-        S: torch.Tensor
-            action functional evaluated on lattice
-        """
-        assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
-
-        phi = phi.cdouble()
-        S = torch.zeros(phi.shape[0],dtype=torch.cdouble)
-
-        for mu in [-3,-4]:
-            phi_fwd = torch.roll(phi,-1,dims=mu)
-            
-            h = inner(phi,self.T @ phi_fwd)
-            hbar = inner(phi_fwd,self.T @ phi)
-
-            S += (h*hbar).sum(dim=(-1,-2))
-            
-        return - self.beta * S
-    
-    def action_centered(self,phi):
-        """
-        Parameters:
-        -----------
-        phi: torch.Tensor
-            field evaluated on 2d square lattice
-        beta: float
-            coupling constant
-
-        Returns:
-        --------
-        S: torch.Tensor
-            action functional evaluated on lattice
-        """
-        assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
-        
-        S = torch.zeros(phi.shape[0],dtype=torch.cdouble)
-
-        for mu in [-3,-4]:
-            phi_fwd = torch.roll(phi,-1,dims=mu)
-
-            h = inner(phi, self.T @ phi_fwd)
-            hbar = inner(phi_fwd, self.T @ phi)
-
-            S += (h*hbar - 1.0).sum(dim=(-1,-2))
-            
-        return - self.beta * S
-    
-    def u(self,phi):
-        assert phi.shape[-2] == 2*self.n + 2, f"phi has wrong (vector, real) dimension; expected {2*self.n + 2} but got {phi.shape[-2]}"
-
-        L = phi.shape[-3]
-        V = L**2
-
-        u_ = torch.zeros(phi.shape[:-2],dtype=torch.cdouble)
-
-        for mu in [-3,-4]:
-            z_fwd = ( phi.transpose(-1,-2) @ (self.T @ torch.roll(phi,-1,dims=mu) ) ).squeeze(-1,-2) 
-            zbar_fwd = ( torch.roll(phi,-1,dims=mu).transpose(-1,-2) @ (self.T @ phi ) ).squeeze(-1,-2)  
-            u_ +=  1.0 - z_fwd * zbar_fwd
-
-        return u_.sum(dim=(-1,-2)) / V
 
 class ToyActionFunctional():
     def __init__(self,n):
@@ -112,7 +29,7 @@ class ToyActionFunctional():
         return - beta * hXY * hYX
     
 class CP(nn.Module):
-    def __init__(self,dim_C,action,deformation,beta):
+    def __init__(self,n,action,deformation,beta):
         """
     
         obs = observable
@@ -149,7 +66,7 @@ class CP(nn.Module):
 
         S0 = self.S(phi)
 
-        phi_tilde, detJ = self.deformation.complexify(phi, obs.mask) 
+        phi_tilde, detJ = self.deformation.complexify(phi) 
  
         Stilde = self.S(phi_tilde)
 
@@ -222,7 +139,7 @@ def train(ddp_model, model, obs, phi, epochs, loss_fn, lr=1e-4, split=0.7, batch
     phi_val = phi[split_:]
 
     # OPTIMIZER
-    optimizer_ = optim.Adam(ddp_model.parameters(),lr=lr)
+    optimizer_ = optim.Adam(ddp_model.parameters(), lr=lr)
     
     # MINI-BATCHING
     batch_size_ = batch_size
@@ -238,9 +155,8 @@ def train(ddp_model, model, obs, phi, epochs, loss_fn, lr=1e-4, split=0.7, batch
         optimizer_.zero_grad()
 
         # MINI-BATCHING
-        minibatch = np.random.randint(low=0,high=len(phi_train),size=batch_size_)
+        minibatch = np.random.randint(low=0, high=len(phi_train), size=batch_size_)
         phi_batched = phi_train[minibatch]
-        rotate_lattice(phi_batched)
 
         # TRAIN
         Otilde = ddp_model(obs, phi_batched) 
@@ -269,10 +185,3 @@ def train(ddp_model, model, obs, phi, epochs, loss_fn, lr=1e-4, split=0.7, batch
     a = model.get_deformation_param() 
 
     return observable, observable_var, losses_train, losses_val, anorm, a
-
-def rotate_lattice(phi_mini_batched):
-    lattice_shape = phi_mini_batched.shape[1:-2]
-
-    for i in range(len(phi_mini_batched)):
-        dx = tuple(np.random.randint(L) for L in lattice_shape)
-        phi_mini_batched[i] = torch.roll(phi_mini_batched[i],dx,dims=tuple(range(len(dx))))

@@ -1,10 +1,9 @@
 import sys
 import os
-sys.path.append("../src")
+sys.path.append("src/")
 
 import torch
 import numpy as np
-from mcmc import * 
 from deformations import *
 from model import *
 from losses import *
