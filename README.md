@@ -185,6 +185,8 @@ $ torchrun --nnodes=1 --nproc_per_node=2 main.py \
 ```
 
 ### On Tursa
+#### Interactive Session
+
 When running the scripts in an interactive session at Tursa, for conectivity purposes, we recommend to use GNU Screen. 
 After allocating resrouces using `salloc`, 
 
@@ -192,11 +194,70 @@ After allocating resrouces using `salloc`,
 2. navigate to `CPNStN/lattice/`
 3. use `srun` to execute `torchrun`
 
-**Example**:
+**Example srun**:
 ```
 $ salloc -N1 --time=00:10:00 --qos=dev --partition=gpu
 $ conda activate cpn
 $ cd CPNStN/lattice/
-$ srun torchrun --nnodes=1 --nproc_per_node=4 main.py
+$ srun torchrun --nnodes=1 --nproc_per_node=4 main.py --obs=LatTwoPt --p="(5,7)" --q="(11,13)" --i=0 --j=1 --k=0 --ell=1 --tag=two-pt --epochs=1000 --batch_size=128
 ```
+
+#### Using Slurm
+**Example slurm job script**:
+```
+#!/bin/bash
+
+# Slurm job options
+#SBATCH --job-name=cpn_lat_uet
+#SBATCH --time=01:00:00
+#SBATCH --partition=gpu
+#SBATCH --qos=standard
+#SBATCH --account=[NAME]
+
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1
+#SBATCH --gres=gpu:4
+
+#SBATCH --output="slurm_logs/two-pt/slurm-%j.out"
+
+# load modules
+module load gcc/9.3.0
+module load cuda/12.3
+module load openmpi/4.1.5-cuda12.3
+
+source activate
+conda activate pytorch2.5
+
+cd ~/CPNStN/lattice
+
+# name of script
+application="main.py"
+
+
+# run script
+echo 'working dir: ' $(pwd)
+echo $'\nrun started on ' `date` $'\n'
+
+export OMP_NUM_THREADS=4
+
+srun torchrun \
+	--nnodes=1 \
+	--nproc_per_node=4 \
+	${application} \
+	--obs=LatTwoPt \
+	--p="(8,8)" \
+	--q="(8,9)" \
+	--i=0 \
+	--j=1 \
+	--k=0 \
+	--ell=1 \
+	--tag=two-pt \
+	--loss_fn=rloss \
+	--epochs=10000 \
+	--batch_size=256
+ 
+echo $'\nrun completed on ' `date`
+```
+
 
