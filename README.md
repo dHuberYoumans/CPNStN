@@ -7,6 +7,114 @@
 
 ## Getting Started
 
+### File Tree
+
+#### toy_model/
+```
+.
+├── data
+│   ├── samples_n2_b1.0.dat
+│   ├── samples_n2_b1.0_mII.dat
+│   └── ...
+├── main.py
+├── plots
+│   ├── fuzzy-one
+│   │   └── 2025.02.15_17:42
+│   │       ├── deformation_params.pdf
+│   │       ├── errorbars_comp.pdf
+│   │       ├── loss.pdf
+│   │       ├── raw_data
+│   │       └── run.log
+│   ├── one-pt
+│   │   └── 2025.02.15_17:31
+│   │       └── ...
+│   └── two-pt
+│       └── 2025.02.15_17:35
+│           └──...
+└── src
+    ├── analysis.py
+    ├── deformations.py
+    ├── linalg.py
+    ├── losses.py
+    ├── mcmc.py
+    ├── model.py
+    ├── observables.py
+    └── utils.py
+```
+
+#### lattice/
+```
+.
+├── data
+│   ├── cpn_b4.0_L64_Nc3_ens.dat
+│   └── cpn_b4.0_L64_Nc3_u.dat
+├── main.py
+├── plots
+│   ├── one-pt
+│   │   └── 2025.02.12_17:15
+│   │       ├── deformation_params.pdf
+│   │       ├── deformation_params_norms.pdf
+│   │       ├── errorbars_comp.pdf
+│   │       ├── loss.pdf
+│   │       ├── raw_data
+│   │       │   ├── af.pt
+│   │       │   ├── losses_train.pt
+│   │       │   ├── losses_val.pt
+│   │       │   ├── model.pt
+│   │       │   └── observable.pt
+│   │       └── run.log
+│   └── two-pt
+│       └── 2025.02.14_19:14
+│           └── ...
+└── src
+    ├── analysis.py
+    ├── deformations.py
+    ├── linalg.py
+    ├── losses.py
+    ├── model.py
+    ├── observables.py
+    ├── unet.py
+    └── utils.py
+```
+
+### Example run.log
+```
+2025-02-14 19:14:16,341 - INFO: Used Parameters
+
++---------------------+------------------+
+| param               | value            |
++=====================+==================+
+| device              | cuda:0           |
++---------------------+------------------+
+| L (lattice size)    | 64               |
++---------------------+------------------+
+| beta (coupling cst) | 4.0              |
++---------------------+------------------+
+| n (dimC CP)         | 2                |
++---------------------+------------------+
+| dim_g               | 8                |
++---------------------+------------------+
+| lr (learning rate)  | 1e-05            |
++---------------------+------------------+
+| batch size          | 256              |
++---------------------+------------------+
+| loss_fn             | rloss            |
++---------------------+------------------+
+| epochs              | 10000            |
++---------------------+------------------+
+| obs                 | LatTwoPt         |
++---------------------+------------------+
+| (p,q)               | ((8, 8), (8, 9)) |
++---------------------+------------------+
+| (i,j)               | (0, 1)           |
++---------------------+------------------+
+| (k,l)               | (0, 1)           |
++---------------------+------------------+
+| SLURM_JOB_ID        | 48886            |
++---------------------+------------------+
+```
+
+
 ### GNU Screen
 
 1. Download the source and extract 
@@ -39,16 +147,42 @@ $ conda env create -f environment.yml
 
 ## Running main.py
 
-### Locally
-The main script uses torch's _ Distributed Data Parallel_ and has to be called using `torchrun`.
+### Usage main.py
+usage: main.py [-h] [--obs OBS] [--i I] [--j J] [--particle PARTICLE] --tag TAG [--deformation DEFORMATION] [--epochs EPOCHS] [--loss_fn LOSS_FN] [--batch_size BATCH_SIZE] [--load_samples LOAD_SAMPLES]
+
+options:
+  -h, --help            show this help message and exit
+  --obs OBS             observable: ToyOnePt | ToyTwoPt
+  --i I                 z component
+  --j J                 z* component
+  --particle PARTICLE   0 => z, 1 => w
+  --tag TAG             tag for saving (one-pt | two-pt | fuzzy-one)
+  --deformation DEFORMATION
+                        type of deformation: Linear | Homogeneous
+  --epochs EPOCHS       epochs
+  --loss_fn LOSS_FN     loss function
+  --batch_size BATCH_SIZE
+                        batch size
+  --load_samples LOAD_SAMPLES
+                        which samples to load, those created sequentuially (seq) or with parallel (II) metropolis updates
+
+### Locally 
+The (toy_model) main script uses torch's _ Distributed Data Parallel_ and has to be called using `torchrun`.
 
 1. navigate to `CPNStN/lattice`
 2. exectue `main.py` using `torchrun`
 
 ```
-$ torchrun --nnodes=1 --nproc_per_node=2 main.py
+$ torchrun --nnodes=1 --nproc_per_node=2 main.py \
+    --obs=ToyFuzzyOne \
+    --i=0 \
+    --j=1 \
+    --tag=fuzzy-one \
+    --epochs=1000 \
+    --deformation=Homogeneous \
+    --loss_fn=rlogloss \
+    --batch_size=1024
 ```
-
 
 ### On Tursa
 When running the scripts in an interactive session at Tursa, for conectivity purposes, we recommend to use GNU Screen. 
