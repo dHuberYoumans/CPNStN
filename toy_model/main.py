@@ -1,14 +1,14 @@
 import sys
 import os
-sys.path.append("src/")
+sys.path.append("src")
 
 import torch
-from mcmc import * 
-from deformations import *
-from model import *
-from losses import *
-from observables import *
-from utils import *
+from src.mcmc import * 
+from src.deformations import *
+from src.model import *
+from src.losses import *
+from src.observables import *
+from src.utils import *
 
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist

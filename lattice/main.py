@@ -1,15 +1,15 @@
 import sys
 import os
-sys.path.append("src/")
+sys.path.append("src")
 
 import torch
 import numpy as np
-from deformations import *
-from model import *
-from losses import *
-from observables import *
-from utils import *
-from unet import UNET
+from src.deformations import *
+from src.model import *
+from src.losses import *
+from src.observables import *
+from src.utils import *
+from src.unet import UNET
 
 import argparse
 import logging
