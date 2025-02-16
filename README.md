@@ -5,6 +5,8 @@
 - [Getting Started](#getting-started)
 - [Prerequisites](#prerequisites)
 - [main.py](#mainpy)
+  * [Locally](#locally)
+  * [Tursa](#tursa)	
 
 ## Scope of this Project
 This projects contains the code for a lattice simulation of the $\mathbb{CP}^n$ model, using "contour deformation" (more precisely complexifications of the path integral domain) ideas put forward in [[1]](#1) , [[2]](#2), and [[3]](#3).
@@ -63,7 +65,6 @@ Rindlisbacher, Tobias, and Philippe de Forcrand.
 "A Worm Algorithm for the Lattice CP (N-1) Model." \
 arXiv preprint (2017)\
 [arXiv:1703.08571](https://arxiv.org/abs/1703.08571)
-
 
 
 
@@ -246,7 +247,7 @@ $ torchrun --nnodes=1 --nproc_per_node=2 main.py \
     --batch_size=1024
 ```
 
-### On Tursa
+### Tursa
 #### Interactive Session
 
 When running the scripts in an interactive session at Tursa, for conectivity purposes, we recommend to use GNU Screen. 
