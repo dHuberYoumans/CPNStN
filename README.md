@@ -1,9 +1,71 @@
-# CPNStN
+# CPNStN 
 
 ##### Table of Contents
-- [Getting Started](#getting-started)  
+- [Scope of this Project](#scope-of-this-project)  
+- [Getting Started](#getting-started)
 - [Prerequisites](#prerequisites)
-- [Running main.py](#running-mainpy)
+- [main.py](#mainpy)
+
+## Scope of this Project
+This projects contains the code for a lattice simulation of the $\mathbb{CP}^n$ model, using "contour deformation" (more precisely complexifications of the path integral domain) ideas put forward in [[1]](#1) , [[2]](#2), and [[3]](#3).
+
+The lattice formulation of the model is given by the following action functional [[4]](#4)
+
+$$ S[z] =  - \beta \sum_{x,\mu} \vert z^\dagger(x) z(x + \mu) \vert^2$$
+
+subject to the constraint
+
+$$ \vert z(x) \vert^2 \equiv \sum_k \vert z_k(x) \vert^2 = 1 $$
+
+This constraint fixes the non-component component $\mathbb{R}_+$ of the defining $\mathbb{C}^\*$.
+Integrating out the remaining $U(1) \subset \mathbb{C}^\*$, one can treat the path integral as an integral over $Maps(\Lambda,S^{2n + 1})$, for some chosen lattice $\Lambda$.
+
+A complexification of the mapping space is constructed by complexifiying the target space. 
+As it turns out, there exist a series of diffeomorphisms 
+
+$$ \Big(S^{2n + 1}\Big)^{\mathbb{C}} \cong TS^{2n + 1} \cong Q = \Big\\{ \zeta \in \mathbb{C}^{2n + 2} \mid \sum_k \zeta_k^2 = 1 \Big\\}$$
+
+In this project, we mainly parametrize the complexified sphere by its tangent bundle. We choose the following convenient parametrization:
+Let $z \in S^{2n + 1} \subset \mathbb{C}^{n + 1}$ with components $z_k = x_k + i y_k$. Consider its real representation $X \in \mathbb{R}^{2n + 2}$ with components $X = (x_0, y_0, x_1, y_1, \dots)$. Then its complexification $Z \in \mathbb{C}^{2n + 2}$ is given by 
+
+$$Z = \lambda(X) X + i Y(X) $$
+
+where
+
+$$\lambda(X) = \sqrt{1 + \Vert Y(X) \Vert^2} \qquad , \qquad Y(X) = \Omega_a X$$
+
+where $\Omega_a$ is a family of anti-symmetric $(2n + 2) \times (2n + 2)$ matrices. In fact, as $S^{2n + 1} \cong SU(n+1)/SU(n)$, one can use the theory of homogeneous spaces to parametrize $TS^{2n + 1}$ by elements in $\mathfrak{m}$ where one chooses for example an orthonormal splitting $\mathfrak{su(n+1)} = \mathfrak{su(n)} \oplus \mathfrak{m}$. This leads to a parametrization of $\Omega_a$ by elemets of $a \in \mathfrak{m}$ with $\dim\mathfrak{m} = (n+1)^2 - 1 - (n^2 - 1) = 2n - 1$ parameters. In pracitce, however, it is simpler to parametrize $\Omega_a$ by a general element of $\mathfrak{su}(n+1)$, yielding $n^2 + 2n$ degrees of freedom defining the deformation. 
+
+In this work we implement _constant_ deformation of this sort and show that they can be used to enhance the signal-to-noise ratio of many (albeit not all) correlators.
+
+ 
+#### References
+<a id="1">[1]</a> 
+Detmold, William, Gurtej Kanwar, Michael L. Wagman, and Neill C. Warrington.\
+"Path integral contour deformations for noisy observables." \ 
+Physical Review D 102, no. 1 (2020): 014514.\
+[arXiv:2003.05914](https://arxiv.org/abs/2003.05914)
+
+<a id="2">[2]</a>
+Lin, Y., Detmold, W., Kanwar, G., Shanahan, P. and Wagman, M., 2024, November.\
+"Signal-to-noise improvement through neural network contour deformations for 3D 𝑺𝑼 (2) lattice gauge theory." \
+In The 40th International Symposium on Lattice Field Theory (p. 43).\
+[arxiv:2102.12668](https://arxiv.org/abs/2101.12668)
+
+<a id="3">[3]</a>
+Detmold, William, Gurtej Kanwar, Michael L. Wagman, and Neill C. Warrington.\
+"Path integral contour deformations for noisy observables." \
+Physical Review D 102, no. 1 (2020): 014514.\
+[arxiv:2309.00600](https://arxiv.org/abs/2309.00600)
+
+<a id="4">[4]<\a>
+Rindlisbacher, Tobias, and Philippe de Forcrand.
+"A Worm Algorithm for the Lattice CP (N-1) Model." \
+arXiv preprint (2017)\
+[arXiv:1703.08571](https://arxiv.org/abs/1703.08571)
+
+
+
 
 ## Getting Started
 
@@ -140,12 +202,12 @@ We recommend to create an alias for `v.4.3.1/src/screen`.
 
 ## Prerequisites
 
-Dependencies are listed in [environment.yml](https://github.com/dHuberYoumans/CPNStN/blob/main/environment.yml) which can be used with anaconda to create the virtual environment _cpn_:
+Dependencies are listed in [environment.yml](https://github.com/dHuberYoumans/CPNStN/blob/main/environment.yml) which can be used to create the (anaconda) virtual environment _cpn_:
 ```
 $ conda env create -f environment.yml
 ```
 
-## Running main.py
+## main.py
 
 ### Usage main.py
 usage: main.py [-h] [--obs OBS] [--i I] [--j J] [--particle PARTICLE] --tag TAG [--deformation DEFORMATION] [--epochs EPOCHS] [--loss_fn LOSS_FN] [--batch_size BATCH_SIZE] [--load_samples LOAD_SAMPLES]
