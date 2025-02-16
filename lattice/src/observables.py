@@ -6,9 +6,12 @@ class LatOnePt(): # fuzzy zero
     One point function observable: O = z_i z^\dagger_j
     """
     def __init__(self,p,i,j,n,L):
+        # lattice sides
         self.p = p
+        # components
         self.i = i
         self.j = j
+        # enc mask
         self.mask = torch.zeros(2*(n+1), L, L)
         self.mask[i,*p] += 1
         self.mask[j+(n + 1), *p] += 1
@@ -37,6 +40,7 @@ class LatTwoPt(): # fuzzy zero
         self.j = j
         self.k = k
         self.ell = ell
+        # enc mask
         self.mask = torch.zeros(2*(n+1), L, L)
         self.mask[i, *p] += 1
         self.mask[ell, *q] += 1
