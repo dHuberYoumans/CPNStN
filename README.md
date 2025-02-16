@@ -6,7 +6,9 @@
 - [Prerequisites](#prerequisites)
 - [main.py](#mainpy)
   * [Locally](#locally)
-  * [Tursa](#tursa)	
+  * [Tursa](#tursa)
+    
+------------------------------------------------------------------------
 
 ## Scope of this Project
 This projects contains the code for a lattice simulation of the $\mathbb{CP}^n$ model, using "contour deformation" (more precisely complexifications of the path integral domain) ideas put forward in [[1]](#1) , [[2]](#2), and [[3]](#3).
@@ -66,7 +68,7 @@ Rindlisbacher, Tobias, and Philippe de Forcrand.
 arXiv preprint (2017)\
 [arXiv:1703.08571](https://arxiv.org/abs/1703.08571)
 
-
+------------------------------------------------------------------------
 
 ## Getting Started
 
@@ -176,30 +178,7 @@ arXiv preprint (2017)\
 | SLURM_JOB_ID        | 48886            |
 +---------------------+------------------+
 ```
-
-
-### GNU Screen
-
-1. Download the source and extract 
-```
-$ wget http://git.savannah.gnu.org/cgit/screen.git/snapshot/v.4.3.1.tar.gz
-$ tar -xvf v.4.3.1.tar.gz
-$ cd v.4.3.1/src/
-```
-
-2. Build GNU Screen
-```
-$ ./autogen.sh
-$ ./configure
-$ make
-```
-
-3. Run GNU Screen
-``` 
-$ ./screen -S <session_name>
-```
-
-We recommend to create an alias for `v.4.3.1/src/screen`.
+------------------------------------------------------------------------
 
 ## Prerequisites
 
@@ -207,6 +186,8 @@ Dependencies are listed in [environment.yml](https://github.com/dHuberYoumans/CP
 ```
 $ conda env create -f environment.yml
 ```
+
+------------------------------------------------------------------------
 
 ## main.py
 
@@ -248,9 +229,10 @@ $ torchrun --nnodes=1 --nproc_per_node=2 main.py \
 ```
 
 ### Tursa
+
 #### Interactive Session
 
-When running the scripts in an interactive session at Tursa, for conectivity purposes, we recommend to use GNU Screen. 
+When running the scripts in an interactive session at Tursa, for conectivity purposes, we recommend to use [GNU Screen](#gnu-screen). 
 After allocating resrouces using `salloc`, 
 
 1. activate the environment _cpn_
@@ -322,5 +304,28 @@ srun torchrun \
  
 echo $'\nrun completed on ' `date`
 ```
+
+#### GNU Screen
+
+1. Download the source and extract 
+```
+$ wget http://git.savannah.gnu.org/cgit/screen.git/snapshot/v.4.3.1.tar.gz
+$ tar -xvf v.4.3.1.tar.gz
+$ cd v.4.3.1/src/
+```
+
+2. Build GNU Screen
+```
+$ ./autogen.sh
+$ ./configure
+$ make
+```
+
+3. Run GNU Screen
+``` 
+$ ./screen -S <session_name>
+```
+
+We recommend to create an alias for `v.4.3.1/src/screen`.
 
 
