@@ -58,7 +58,7 @@ Detmold, William, Gurtej Kanwar, Michael L. Wagman, and Neill C. Warrington.\
 Physical Review D 102, no. 1 (2020): 014514.\
 [arxiv:2309.00600](https://arxiv.org/abs/2309.00600)
 
-<a id="4">[4]<\a>
+<a id="4">[4]</a>
 Rindlisbacher, Tobias, and Philippe de Forcrand.
 "A Worm Algorithm for the Lattice CP (N-1) Model." \
 arXiv preprint (2017)\
