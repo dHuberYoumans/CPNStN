@@ -10,12 +10,13 @@ from utils import *
 import tqdm
 
 class ToyActionFunctional():
-    def __init__(self,n):
+    def __init__(self, n, beta):
+        self.beta = beta
         self.identity = torch.eye(2*n + 2)
         sigma_y = torch.tensor([[0,1j],[-1j,0]])
         self.T = ( self.identity + torch.block_diag(*[sigma_y for _ in range(n+1)]) ).cdouble()
 
-    def action(self,phi,beta):
+    def action(self, phi):
         """
         phi = X, Y (samples, fields, dim, 1)
         """
@@ -26,7 +27,7 @@ class ToyActionFunctional():
         hXY = inner(X, (self.T @ Y))
         hYX = inner(Y, (self.T @ X))
 
-        return - beta * hXY * hYX
+        return - self.beta * hXY * hYX
     
 class CP(nn.Module):
     def __init__(self,n,action,deformation,beta):
