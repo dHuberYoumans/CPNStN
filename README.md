@@ -70,9 +70,22 @@ arXiv preprint (2017)\
 
 ------------------------------------------------------------------------
 
+## Prerequisites
+
+Dependencies are listed in [environment.yml](https://github.com/dHuberYoumans/CPNStN/blob/main/environment.yml) which can be used to create the (anaconda) virtual environment _cpn_:
+```
+$ conda env create -f environment.yml
+```
+
+------------------------------------------------------------------------
+
 ## Getting Started
 
-### File Tree
+### Where
+
+The project contains two standalone "packages" `toy_model/` and `lattice/` which contain the code for the toy model (whose lattice consists of only two nodes) and lattice model (implemented is a square lattice) respectively.
+
+We list a (schematic) file tree for each below.
 
 #### toy_model/
 ```
@@ -97,6 +110,7 @@ arXiv preprint (2017)\
 │       └── 2025.02.15_17:35
 │           └──...
 └── src
+    ├── __init__.py
     ├── analysis.py
     ├── deformations.py
     ├── linalg.py
@@ -132,6 +146,7 @@ arXiv preprint (2017)\
 │       └── 2025.02.14_19:14
 │           └── ...
 └── src
+    ├── __init__.py
     ├── analysis.py
     ├── deformations.py
     ├── linalg.py
@@ -142,7 +157,37 @@ arXiv preprint (2017)\
     └── utils.py
 ```
 
-### Example run.log
+### Who and What
+
+Below, we provide a rudimentarty overview of each file
+
+| pkg | folder | file | description |
+| --- |--- | --- | --- |
+| toy_model / lattice | ./ | `main.py` |  main function |
+| toy_model/ | data/ | `samples_n{n}_b{beta}_m{mode}.dat` | MCMC samples generated for $n$ and coupling constant $\beta$. `mode` is the mode how the Metripolis step was done: _II_ = in parallel), _seq_ = sequentially |
+| lattice/ | data/ | `cpn_b{beta}_L{L}_Nc{Nc}_ens.dat` | MCMC samples generated for coupling constant $\beta$, lattice size $L$ and $Nc = n + 1$ colors. |
+| lattice/ | data/ | `cpn_b{beta}_L{L}_Nc{Nc}_u.dat.dat` | (normalized) action values for coupling constant $\beta$, lattice size $L$ and $Nc = n + 1$ colors. |
+| toy_model / lattice | src/ | `analysis.py` | library for (statistical) analysis |
+| toy_model / lattice | src/ | `deformations.py` | |
+| toy_model / lattice | src/ | `linalg.py` | library for convenient methods from linear algebra |
+| toy_model / lattice | src/ | `losses.py` | loss functions |
+| toy_model / lattice | src/ | `model.py` | model and training routine |
+| toy_model / lattice | src/ | `observables.py` | observables (fuzzy-one, one-pt, two-pt)|
+| toy_model / lattice | src/ | `utils.py` | convenience functions |
+| lattice | src/ | `unet.py` | U-Net architecture for a CNN model learning optimal deformation |
+| toy_model / lattice | plots/... | deformation_params.pdf | plot of the learned deformation parameter (with maximal norm) |
+| lattice | plots/... | deformation_params_norms.pdf | heatmap plot of the norm of the deformation parameter at each lattice site |
+| toy_model / lattice | plots/... | errorbars.pdf | errorbars of the evaluated correlation function before and after training |
+| toy_model / lattice | plots/... | loss.pdf | plot of training and validation loss |
+| toy_model / lattice | plots/ | run.log | log of the simulation (see below for an example)|
+| toy_model / lattice | plots/raw_data/ | af.pt | learned defromation parameters |
+| toy_model / lattice | plots/raw_data/ | losses_train/val.pt | training / validation losses|
+| toy_model / lattice | plots/raw_data/ | model.pt | the model |
+| toy_model / lattice | plots/raw_data/ | observable.pt | expectation value of the observable, list of tuples `(e,val)`, where `e` is the epoch, `val` is the value|
+
+### run.log
+Below we give an example of the `run.log` file which logs the most important parameters used in the simulation. 
+
 ```
 2025-02-14 19:14:16,341 - INFO: Used Parameters
 
@@ -180,15 +225,6 @@ arXiv preprint (2017)\
 ```
 ------------------------------------------------------------------------
 
-## Prerequisites
-
-Dependencies are listed in [environment.yml](https://github.com/dHuberYoumans/CPNStN/blob/main/environment.yml) which can be used to create the (anaconda) virtual environment _cpn_:
-```
-$ conda env create -f environment.yml
-```
-
-------------------------------------------------------------------------
-
 ## main.py
 
 ### Usage main.py
@@ -211,7 +247,7 @@ options:
                         which samples to load, those created sequentuially (seq) or with parallel (II) metropolis updates
 
 ### Locally 
-The (toy_model) main script uses torch's _ Distributed Data Parallel_ and has to be called using `torchrun`.
+The `main.py` script uses torch's _ Distributed Data Parallel_ and has to be called using `torchrun`.
 
 1. navigate to `CPNStN/lattice`
 2. exectue `main.py` using `torchrun`
@@ -233,6 +269,7 @@ $ torchrun --nnodes=1 --nproc_per_node=2 main.py \
 #### Interactive Session
 
 When running the scripts in an interactive session at Tursa, for conectivity purposes, we recommend to use [GNU Screen](#gnu-screen). 
+
 After allocating resrouces using `salloc`, 
 
 1. activate the environment _cpn_
