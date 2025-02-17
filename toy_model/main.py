@@ -82,7 +82,7 @@ def main():
     beta = 4.5
 
     # ACTION FUNCTIONAL
-    S = lambda phi: ToyActionFunctional(n).action(phi,beta)
+    S = ToyActionFunctional(n,beta).action
 
     # OBSERVABLE
     i = args.i 
@@ -94,7 +94,7 @@ def main():
         obs.name = f"$\\langle O_{{ {i}{j} }}(z)\\rangle$, $\\beta$ = {beta:.1f}"
     if args.obs == 'ToyTwoPt':
         obs = ToyTwoPt(i,j)
-        obs.name = f"$\\langleO_{{{i}{j}}}(z,w)\\rangle$, $\\beta$ = {beta:.1f}"
+        obs.name = f"$\\langle O_{{{i}{j}}}(z)O^\\dagger_{{{i}{j}}}(w)\\rangle$, $\\beta$ = {beta:.1f}"
     if args.obs == 'ToyFullTwoPt':
         obs = ToyFullTwoPt()
         obs.name = f"$\\langle |z* w|^2 \\rangle$, $\\beta$ = {beta:.1f}"
